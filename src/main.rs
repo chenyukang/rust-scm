@@ -1,7 +1,29 @@
+use std::os;
 use std::io;
 
-fn main() {
-    let input = io::stdin().read_line().ok().expect("Failed to read line");
+fn help() {
+    println!("rust-scm: prog");
+}
 
-    println!("input: {}", input)
+
+fn main() {
+    let args = os::args();
+
+    if args.len() < 2 {
+        help();
+        os::set_exit_status(1);
+        return;
+    }
+
+    let program = args[0].as_slice();
+    println!("args: {} program: {}", args, program);
+    let code = match io::File::open(&Path::new(args[1].as_slice())) {
+        Ok(mut file) => file.read_to_string().unwrap(),
+        Err(_) => {
+            os::set_exit_status(1);
+            return
+        }
+    };
+
+    println!("code: {}", code);
 }
