@@ -11,7 +11,6 @@ fn help() {
     println!("rust-scm: prog");
 }
 
-
 fn main() {
     let args = os::args();
 
