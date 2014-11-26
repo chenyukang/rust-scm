@@ -14,8 +14,23 @@ pub enum ExprAst {
 }
 
 pub trait Ast {
-    //fn eval(self) -> ExprAst;
     fn print(&self);
+}
+
+impl Ast for ExprAst {
+    fn print(&self) {
+        match *self {
+            ExprAst::Int(ref ast) => ast.print(),
+            ExprAst::Str(ref ast) => ast.print(),
+            ExprAst::Bool(ref ast) => ast.print(),
+            ExprAst::Pair(ref ast) => ast.print(),
+            ExprAst::Symbol(ref ast) => ast.print(),
+            ExprAst::Char(ref ast) => ast.print(),
+            ExprAst::Proc(ref ast) => ast.print(),
+            ExprAst::CompProc(ref ast) => ast.print(),
+            ExprAst::EmptyList(ref ast) => ast.print(),
+        }
+    }
 }
 
 #[deriving(Clone, PartialEq)]
@@ -46,7 +61,6 @@ impl Ast for StrNode {
     }
 }
 
-
 #[allow(dead_code)]
 impl StrNode {
     pub fn new(val: String) -> StrNode {
@@ -59,11 +73,16 @@ pub struct BoolNode {
     pub value: bool
 }
 
-
 #[allow(dead_code)]
 impl BoolNode {
     pub fn new(val: bool) -> BoolNode {
         BoolNode{ value: val}
+    }
+}
+
+impl Ast for BoolNode {
+    fn print(&self) {
+        println!("BoolNode: {}", self.value);
     }
 }
 
@@ -73,25 +92,82 @@ pub struct PairNode {
     pub cdr: Box<ExprAst>
 }
 
+#[allow(dead_code)]
+impl PairNode {
+    pub fn new(_car: Box<ExprAst>, _cdr: Box<ExprAst>) -> PairNode {
+        PairNode {
+            car: _car,
+            cdr: _cdr
+        }
+    }
+}
+
+impl Ast for PairNode {
+    fn print(&self) {
+        println!("PairNode (");
+        self.car.print();
+        self.cdr.print();
+        println!(")");
+    }
+}
+
 #[deriving(Clone, PartialEq)]
 pub struct SymbolNode {
     pub value: String
 }
+
+impl Ast for SymbolNode {
+    fn print(&self) {
+        println!("SymbolNode: {}", self.value);
+    }
+}
+
 
 #[deriving(Clone, PartialEq)]
 pub struct CharNode {
     pub value: char
 }
 
-#[deriving(Clone, PartialEq)]
-pub struct ProcNode;
+impl Ast for CharNode {
+    fn print(&self) {
+        println!("CharNode: {}", self.value);
+    }
+}
 
 #[deriving(Clone, PartialEq)]
-pub struct EmptyListNode;
+pub struct ProcNode {
+    pub value: String
+}
+
+impl Ast for ProcNode {
+    fn print(&self) {
+        println!("ProcNode: {}", self.value);
+    }
+}
+
+#[deriving(Clone, PartialEq)]
+pub struct EmptyListNode {
+    pub value: String
+}
+
+impl Ast for EmptyListNode{
+    fn print(&self) {
+        println!("EmptyListNode: {}", self.value);
+    }
+}
 
 #[deriving(Clone, PartialEq)]
 pub struct CompProcNode {
     pub params: Box<ExprAst>,
     pub body:   Box<ExprAst>,
     pub env:    Box<ExprAst>
+}
+
+impl Ast for CompProcNode {
+    fn print(&self) {
+        println!("CompProcNode: ");
+        self.params.print();
+        self.body.print();
+        self.env.print();
+    }
 }
