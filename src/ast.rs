@@ -10,7 +10,7 @@ pub enum ExprAst {
     Char(CharNode),
     Proc(ProcNode),
     CompProc(CompProcNode),
-    EmptyList(EmptyListNode)
+    EmptyList(EmptyListNode),
 }
 
 pub trait Ast {
