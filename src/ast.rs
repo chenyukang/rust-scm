@@ -87,7 +87,7 @@ impl Ast for BoolNode {
 }
 
 #[deriving(Clone, PartialEq)]
-pub struct PairNode {
+pub struct PairNode{
     pub car: Box<ExprAst>,
     pub cdr: Box<ExprAst>
 }

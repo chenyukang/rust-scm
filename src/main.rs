@@ -6,6 +6,7 @@ use ast::Ast;
 
 mod parser;
 mod ast;
+mod test;
 
 fn help() {
     println!("rust-scm: prog");
@@ -36,7 +37,8 @@ fn main() {
 
     let int_node = ast::IntNode::new(3);
     int_node.print();
-    // let str_node = ast::StrNode::new("hello".to_string());
-    // let pair_node = ast::PairNode::new(box int_node, box str_node);
-    // pair_node.print();
+    let str_node = ast::StrNode::new("hello".to_string());
+    //let pair_node = ast::PairNode::new(box int_node, box str_node);
+    int_node.print();
+    str_node.print();
 }
