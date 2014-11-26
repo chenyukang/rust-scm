@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 
 #[deriving(Clone, Show)]
 pub struct Parser {
@@ -16,6 +17,7 @@ pub fn new() -> Parser {
     }
 }
 
+#[allow(dead_code)]
 impl Parser {
     fn is_delimiter(&self, ch: char) -> bool {
         if ch.is_whitespace() ||
