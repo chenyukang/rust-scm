@@ -35,5 +35,8 @@ fn main() {
     println!("code: {}", code);
 
     let int_node = ast::IntNode::new(3);
+    let str_node = ast::StrNode::new("hello");
+    let pair_node = ast::PairNode::new(int_node, str_node);
+    pair_node.print();
     int_node.print();
 }
