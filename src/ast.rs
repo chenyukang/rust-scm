@@ -107,6 +107,8 @@ impl Ast for PairNode {
         println!("PairNode (");
         self.car.print();
         self.cdr.print();
+        //self.car.print();
+        //self.cdr.print();
         println!(")");
     }
 }
