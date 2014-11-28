@@ -38,6 +38,7 @@ pub struct IntNode {
     pub value: i32
 }
 
+#[allow(dead_code)]
 impl IntNode {
     pub fn new(val: i32) -> IntNode {
         IntNode{ value: val}
@@ -124,6 +125,14 @@ impl Ast for SymbolNode {
     }
 }
 
+#[allow(dead_code)]
+impl SymbolNode {
+    pub fn new(val: String) -> SymbolNode {
+        SymbolNode {
+            value: val
+        }
+    }
+}
 
 #[deriving(Clone, PartialEq)]
 pub struct CharNode {
@@ -133,6 +142,15 @@ pub struct CharNode {
 impl Ast for CharNode {
     fn print(&self) {
         println!("CharNode: {}", self.value);
+    }
+}
+
+#[allow(dead_code)]
+impl CharNode {
+    pub fn new(val: char) -> CharNode {
+        CharNode {
+            value: val
+        }
     }
 }
 
@@ -148,13 +166,11 @@ impl Ast for ProcNode {
 }
 
 #[deriving(Clone, PartialEq)]
-pub struct EmptyListNode {
-    pub value: String
-}
+struct EmptyListNode;
 
 impl Ast for EmptyListNode{
     fn print(&self) {
-        println!("EmptyListNode: {}", self.value);
+        println!("EmptyListNode: nil");
     }
 }
 
@@ -172,4 +188,20 @@ impl Ast for CompProcNode {
         self.body.print();
         self.env.print();
     }
+}
+
+#[test]
+
+fn test_ast_pair() {
+    let int_node = ExprAst::Int(IntNode::new(3));
+    int_node.print();
+
+    let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
+    str_node.print();
+
+    let pair_node = ExprAst::Pair(PairNode::new(box int_node, box str_node));
+
+    pair_node.print();
+    assert_eq!(3, pair_node.car.value);
+    assert_eq!("hello", pair_node.cdr.value);
 }
