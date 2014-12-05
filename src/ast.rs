@@ -33,6 +33,29 @@ impl Ast for ExprAst {
     }
 }
 
+impl ExprAst {
+    fn as_bool(&self) -> bool {
+        match *self {
+            ExprAst::Bool(ref ast) => ast.value,
+            _ => panic!("error type: expect BoolNode")
+        }
+    }
+
+    fn as_int(&self) -> i32 {
+        match *self {
+            ExprAst::Int(ref ast) => ast.value,
+            _ => panic!("error type: expect IntNode")
+        }
+    }
+
+    fn as_str(&self) -> String {
+        match *self {
+            ExprAst::Str(ref ast) => ast.value.clone(),
+            _ => panic!("error type: expect StrNode")
+        }
+    }
+}
+
 #[deriving(Clone, PartialEq)]
 pub struct IntNode {
     pub value: i32
@@ -191,17 +214,51 @@ impl Ast for CompProcNode {
 }
 
 #[test]
+fn test_ast_int() {
+    let int_node = ExprAst::Int(IntNode::new(3));
+    assert!(int_node.as_int() == 3);
+}
 
+#[test]
+#[should_fail]
+fn test_ast_int_fail() {
+    let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
+    assert!(str_node.as_int() == 3);
+}
+
+#[test]
+fn test_ast_bool() {
+    let bool_node = ExprAst::Bool(BoolNode::new(false));
+    assert!(bool_node.as_bool() == false);
+}
+
+#[test]
+#[should_fail]
+fn test_ast_bool_fail() {
+    let int_node = ExprAst::Int(IntNode::new(3));
+    assert!(int_node.as_bool() == false);
+}
+
+#[test]
+fn test_ast_str() {
+    let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
+    assert!(str_node.as_str() == "hello".to_string());
+}
+
+#[test]
+#[should_fail]
+fn test_ast_str_fail() {
+    let int_node = ExprAst::Int(IntNode::new(3));
+    assert!(int_node.as_str() == "3".to_string());
+}
+
+#[test]
 fn test_ast_pair() {
     let int_node = ExprAst::Int(IntNode::new(3));
     int_node.print();
-
     let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
     str_node.print();
-
     let pair_node = ExprAst::Pair(PairNode::new(box int_node, box str_node));
 
     pair_node.print();
-    assert_eq!(3, pair_node.car.value);
-    assert_eq!("hello", pair_node.cdr.value);
 }

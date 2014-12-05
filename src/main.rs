@@ -12,6 +12,7 @@ fn help() {
     println!("rust-scm: prog");
 }
 
+#[allow(dead_code)]
 fn main() {
     let args = os::args();
 
