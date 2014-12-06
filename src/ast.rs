@@ -54,6 +54,13 @@ impl ExprAst {
             _ => panic!("error type: expect StrNode")
         }
     }
+
+    fn as_char(&self) -> char {
+        match *self {
+            ExprAst::Char(ref ast) => ast.value,
+            _ => panic!("error type: expect CharNode")
+        }
+    }
 }
 
 #[deriving(Clone, PartialEq)]
@@ -238,6 +245,20 @@ fn test_ast_bool_fail() {
     let int_node = ExprAst::Int(IntNode::new(3));
     assert!(int_node.as_bool() == false);
 }
+
+#[test]
+fn test_ast_char() {
+    let char_node = ExprAst::Char(CharNode::new('a'));
+    assert!(char_node.as_char() == 'a');
+}
+
+#[test]
+#[should_fail]
+fn test_ast_char_fail() {
+    let int_node = ExprAst::Int(IntNode::new(1));
+    assert!(int_node.as_char() == 'a');
+}
+
 
 #[test]
 fn test_ast_str() {
