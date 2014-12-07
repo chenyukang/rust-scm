@@ -61,6 +61,27 @@ impl ExprAst {
             _ => panic!("error type: expect CharNode")
         }
     }
+
+    fn car(&self) -> &Box<ExprAst> {
+        match *self {
+            ExprAst::Pair(ref ast) => &(ast.car),
+            _ => panic!("error type: expect PairNode")
+        }
+    }
+
+    fn cdr(&self) -> &Box<ExprAst> {
+        match *self {
+            ExprAst::Pair(ref ast) => &(ast.cdr),
+            _ => panic!("error type: expect PairNode")
+        }
+    }
+
+    fn is_empty_list(&self) -> bool {
+        match *self {
+            ExprAst::EmptyList(_) => true,
+            _ => false
+        }
+    }
 }
 
 #[deriving(Clone, PartialEq)]
@@ -125,10 +146,10 @@ pub struct PairNode{
 
 #[allow(dead_code)]
 impl PairNode {
-    pub fn new(_car: Box<ExprAst>, _cdr: Box<ExprAst>) -> PairNode {
+    pub fn new(car: Box<ExprAst>, cdr: Box<ExprAst>) -> PairNode {
         PairNode {
-            car: _car,
-            cdr: _cdr
+            car: car,
+            cdr: cdr
         }
     }
 }
@@ -184,6 +205,28 @@ impl CharNode {
     }
 }
 
+//FIXME, empty struct?
+#[deriving(Clone, PartialEq)]
+struct EmptyListNode {
+    pub value: String
+}
+
+impl EmptyListNode {
+    pub fn new() -> EmptyListNode {
+        EmptyListNode {
+            value: "EmptyListNode".to_string()
+        }
+    }
+}
+
+impl Ast for EmptyListNode{
+    fn print(&self) {
+        println!("EmptyListNode");
+    }
+}
+
+
+//type AstFunc = |args: ExprAst| -> Option<ExprAst>;
 #[deriving(Clone, PartialEq)]
 pub struct ProcNode {
     pub value: String
@@ -195,14 +238,6 @@ impl Ast for ProcNode {
     }
 }
 
-#[deriving(Clone, PartialEq)]
-struct EmptyListNode;
-
-impl Ast for EmptyListNode{
-    fn print(&self) {
-        println!("EmptyListNode: nil");
-    }
-}
 
 #[deriving(Clone, PartialEq)]
 pub struct CompProcNode {
@@ -259,7 +294,6 @@ fn test_ast_char_fail() {
     assert!(int_node.as_char() == 'a');
 }
 
-
 #[test]
 fn test_ast_str() {
     let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
@@ -280,6 +314,29 @@ fn test_ast_pair() {
     let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
     str_node.print();
     let pair_node = ExprAst::Pair(PairNode::new(box int_node, box str_node));
+    let car_node = pair_node.car();
+    let cdr_node = pair_node.cdr();
+    assert!(car_node.as_int() == 3);
+    assert!(cdr_node.as_str() == "hello".to_string());
+}
 
-    pair_node.print();
+#[test]
+#[should_fail]
+fn test_ast_pair_fail() {
+    let int_node = ExprAst::Int(IntNode::new(3));
+    let car_node = int_node.car();
+    assert!(car_node.as_int() == 3);
+}
+
+#[test]
+fn test_ast_emptylist() {
+    let empty_node = ExprAst::EmptyList(EmptyListNode::new());
+    assert!(empty_node.is_empty_list());
+}
+
+#[test]
+#[should_fail]
+fn test_ast_emptylist_fail() {
+    let empty_node = ExprAst::Int(IntNode::new(3));
+    assert!(empty_node.is_empty_list());
 }
