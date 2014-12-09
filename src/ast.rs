@@ -33,6 +33,7 @@ impl Ast for ExprAst {
     }
 }
 
+#[allow(dead_code)]
 impl ExprAst {
     fn as_bool(&self) -> bool {
         match *self {
@@ -211,6 +212,7 @@ struct EmptyListNode {
     pub value: String
 }
 
+#[allow(dead_code)]
 impl EmptyListNode {
     pub fn new() -> EmptyListNode {
         EmptyListNode {

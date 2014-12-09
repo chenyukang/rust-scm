@@ -31,7 +31,7 @@ fn main() {
             return
         }
     };
-    let parser = parser::new();
+    let parser = parser::Parser::new();
 
     println!("parser: {}", parser);
     println!("code: {}", code);

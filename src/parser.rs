@@ -1,3 +1,8 @@
+
+use ast::ExprAst;
+use ast::BoolNode;
+use ast::CharNode;
+
 #[allow(dead_code)]
 
 #[deriving(Clone, Show)]
@@ -8,17 +13,57 @@ pub struct Parser {
     line: uint
 }
 
-pub fn new() -> Parser {
-    Parser{
-        code: "".to_string(),
-        cur: 0,
-        col: 0,
-        line: 0
+pub struct ParserError {
+    line: uint,
+    col: uint,
+    desc: String
+}
+
+impl ParserError {
+    pub fn new(line: uint, col: uint, desc: String) -> ParserError {
+        ParserError {
+            line: line,
+            col: col,
+            desc: desc
+        }
     }
 }
 
+pub type ParseResult<T> = Result<T, ParserError>;
+
 #[allow(dead_code)]
 impl Parser {
+    pub fn new() -> Parser {
+        Parser{
+            code: "".to_string(),
+            line: 0,
+            cur: 0,
+            col: 0
+        }
+    }
+
+    pub fn load(&mut self, code: String) -> ExprAst {
+        self.code = code;
+        self.line = 1;
+        self.cur = 0;
+        self.col = 1;
+        self.skip_white();
+
+        let cur = self.getc();
+        if cur == '#' {
+            let next = self.getc();
+            match next {
+                't' => return ExprAst::Bool(BoolNode::new(true)),
+                'f' => return ExprAst::Bool(BoolNode::new(false)),
+                '\\' => return self.read_char(),
+                _ => panic!("error")
+            }
+        }
+        ExprAst::Char(CharNode::new('a'))
+    }
+
+    //============= private methods =================
+
     fn is_delimiter(&self, ch: char) -> bool {
         if ch.is_whitespace() ||
             ch == '\"' || ch == '(' || ch == ')' ||  ch == ';' ||
@@ -59,5 +104,18 @@ impl Parser {
         }
     }
 
+    fn getc(&mut self) -> char {
+        if self.cur < self.code.len() {
+            let res = self.code.char_at(self.cur);
+            self.cur += 1;
+            res
+        } else {
+            0 as char
+        }
+    }
+
+    fn read_char(&mut self) -> ExprAst {
+        ExprAst::Char(CharNode::new('a'))
+    }
 
 }
