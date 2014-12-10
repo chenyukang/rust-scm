@@ -1,7 +1,7 @@
-
 use ast::ExprAst;
 use ast::BoolNode;
 use ast::CharNode;
+use ast::IntNode;
 
 #[allow(dead_code)]
 
@@ -49,7 +49,7 @@ impl Parser {
         self.col = 1;
         self.skip_white();
 
-        let cur = self.getc();
+        let mut cur = self.getc();
         if cur == '#' {
             let next = self.getc();
             match next {
@@ -58,11 +58,36 @@ impl Parser {
                 '\\' => return self.read_char(),
                 _ => panic!("error")
             }
+        } else if self.is_digits(cur) || (cur == '-' && (self.is_digits(self.peekc()))) {
+            let mut sign = 1i32;
+            if cur == '-' {
+                sign = -1;
+            } else {
+                self.unread();
+            }
+            let mut num = 0i32;
+            loop {
+                cur = self.getc();
+                if !self.is_digits(cur) {
+                    break;
+                }
+                num = (num * 10i32) + (cur as i32 - 0i32);
+            }
+            num *= sign;
+            return ExprAst::Int(IntNode::new(num));
         }
         ExprAst::Char(CharNode::new('a'))
     }
 
     //============= private methods =================
+
+    fn is_digits(&self, ch: char) -> bool {
+        match ch {
+            '0'...'9' => true,
+            _ => false
+        }
+    }
+
 
     fn is_delimiter(&self, ch: char) -> bool {
         if ch.is_whitespace() ||
@@ -112,6 +137,13 @@ impl Parser {
         } else {
             0 as char
         }
+    }
+
+    fn unread(&mut self) {
+        if self.cur == 0 {
+            panic!("error current position");
+        }
+        self.cur -= 1;
     }
 
     fn read_char(&mut self) -> ExprAst {
