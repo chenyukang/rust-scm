@@ -49,9 +49,9 @@ impl Parser {
         self.col = 1;
         self.skip_white();
 
-        let mut cur = self.getc();
+        let mut cur = self.readc();
         if cur == '#' {
-            let next = self.getc();
+            let next = self.readc();
             match next {
                 't' => return ExprAst::Bool(BoolNode::new(true)),
                 'f' => return ExprAst::Bool(BoolNode::new(false)),
@@ -67,7 +67,7 @@ impl Parser {
             }
             let mut num = 0i;
             loop {
-                cur = self.getc();
+                cur = self.readc();
                 if !UnicodeChar::is_numeric(cur) {
                     break;
                 }
@@ -121,7 +121,7 @@ impl Parser {
         }
     }
 
-    fn getc(&mut self) -> char {
+    fn readc(&mut self) -> char {
         if self.cur < self.code.len() {
             let res = self.code.char_at(self.cur);
             self.cur += 1;
