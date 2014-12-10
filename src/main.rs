@@ -2,7 +2,6 @@ use std::os;
 use std::io;
 
 #[allow(dead_code)]
-//use ast::Ast;
 
 mod parser;
 mod ast;
@@ -32,7 +31,8 @@ fn main() {
         }
     };
     let parser = parser::Parser::new();
-
+    let res = UnicodeChar::is_numeric('a');
+    println!("res: {}", res);
     println!("parser: {}", parser);
     println!("code: {}", code);
 }

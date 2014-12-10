@@ -58,7 +58,7 @@ impl Parser {
                 '\\' => return self.read_char(),
                 _ => panic!("error")
             }
-        } else if self.is_digits(cur) || (cur == '-' && (self.is_digits(self.peekc()))) {
+        } else if UnicodeChar::is_numeric(cur) || (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
             let mut sign = 1i32;
             if cur == '-' {
                 sign = -1;
@@ -68,7 +68,7 @@ impl Parser {
             let mut num = 0i32;
             loop {
                 cur = self.getc();
-                if !self.is_digits(cur) {
+                if !UnicodeChar::is_numeric(cur) {
                     break;
                 }
                 num = (num * 10i32) + (cur as i32 - 0i32);
@@ -80,14 +80,6 @@ impl Parser {
     }
 
     //============= private methods =================
-
-    fn is_digits(&self, ch: char) -> bool {
-        match ch {
-            '0'...'9' => true,
-            _ => false
-        }
-    }
-
 
     fn is_delimiter(&self, ch: char) -> bool {
         if ch.is_whitespace() ||
