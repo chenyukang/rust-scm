@@ -59,19 +59,19 @@ impl Parser {
                 _ => panic!("error")
             }
         } else if UnicodeChar::is_numeric(cur) || (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
-            let mut sign = 1i32;
+            let mut sign = 1i;
             if cur == '-' {
                 sign = -1;
             } else {
                 self.unread();
             }
-            let mut num = 0i32;
+            let mut num = 0i;
             loop {
                 cur = self.getc();
                 if !UnicodeChar::is_numeric(cur) {
                     break;
                 }
-                num = (num * 10i32) + (cur as i32 - 0i32);
+                num = (num * 10i) + (cur as int - 0i);
             }
             num *= sign;
             return ExprAst::Int(IntNode::new(num));

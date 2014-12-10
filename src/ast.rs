@@ -42,7 +42,7 @@ impl ExprAst {
         }
     }
 
-    fn as_int(&self) -> i32 {
+    fn as_int(&self) -> int {
         match *self {
             ExprAst::Int(ref ast) => ast.value,
             _ => panic!("error type: expect IntNode")
@@ -87,12 +87,12 @@ impl ExprAst {
 
 #[deriving(Clone, PartialEq)]
 pub struct IntNode {
-    pub value: i32
+    pub value: int
 }
 
 #[allow(dead_code)]
 impl IntNode {
-    pub fn new(val: i32) -> IntNode {
+    pub fn new(val: int) -> IntNode {
         IntNode{ value: val}
     }
 }
