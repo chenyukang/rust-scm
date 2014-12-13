@@ -98,26 +98,16 @@ impl Parser {
 
     //============= private methods =================
     fn is_delimiter(&self, ch: char) -> bool {
-        if ch.is_whitespace() ||
+        ch.is_whitespace() ||
             ch == '\"' || ch == '(' || ch == ')' ||  ch == ';' ||
-            ch as u32 == 0 {
-                true
-            } else {
-                false
-            }
+            (ch as u32 == 0)
     }
 
     fn is_initial(&self, ch: char) -> bool {
-        if ch.is_alphabetic() ||
-            ch == '*' || ch == '/' ||
-            ch == '+' || ch == '-' ||
-            ch == '>' || ch == '<' ||
-            ch == '=' || ch == '?' ||
-            ch == '!' {
-                true
-            } else {
-                false
-            }
+        ch.is_alphabetic() ||
+            ch == '*' || ch == '/' || ch == '+' || ch == '-' ||
+            ch == '>' || ch == '<' || ch == '=' || ch == '?' ||
+            ch == '!'
     }
 
     fn skip_space(&mut self) {
@@ -137,10 +127,7 @@ impl Parser {
         if self.cur < self.code.len() {
             let res = self.peekc();
             if res == '\n' {
-                self.col = 0;
                 self.line += 1;
-            } else {
-                self.col += 1;
             }
             self.cur += 1;
             res
