@@ -3,9 +3,14 @@ use std::io;
 
 #[allow(dead_code)]
 
+use ast::Ast;
+use parser::Parser;
+
 mod parser;
 mod ast;
 mod test;
+
+
 
 fn help() {
     println!("rust-scm: prog");
@@ -13,6 +18,12 @@ fn help() {
 
 #[allow(dead_code)]
 fn main() {
+
+    let mut parser = Parser::new();
+    let res = parser.load("11".to_string());
+    //assert!(res.as_int() == 11);
+    res.print();
+
     let args = os::args();
 
     if args.len() < 2 {

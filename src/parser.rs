@@ -1,3 +1,4 @@
+
 use ast::ExprAst;
 use ast::BoolNode;
 use ast::CharNode;
@@ -5,7 +6,7 @@ use ast::IntNode;
 use ast::StrNode;
 use ast::Ast;
 
-#[allow(dead_code)]
+
 
 #[deriving(Clone, Show)]
 pub struct Parser {
@@ -15,12 +16,14 @@ pub struct Parser {
     line: uint
 }
 
+#[allow(dead_code)]
 pub struct ParserError {
     line: uint,
     col: uint,
     desc: String
 }
 
+#[allow(dead_code)]
 impl ParserError {
     pub fn new(line: uint, col: uint, desc: String) -> ParserError {
         ParserError {
@@ -31,6 +34,7 @@ impl ParserError {
     }
 }
 
+#[allow(dead_code)]
 pub type ParseResult<T> = Result<T, ParserError>;
 
 #[allow(dead_code)]
@@ -74,7 +78,7 @@ impl Parser {
                     if !UnicodeChar::is_numeric(cur) {
                         break;
                     }
-                    num = (num * 10i) + (cur as int - 0i);
+                    num = (num * 10i) + (cur as int - '0' as int);
                 }
                 num *= sign;
                 if self.is_delimiter(cur) {
@@ -166,5 +170,6 @@ impl Parser {
 fn test_parser() {
     let mut parser = Parser::new();
     let res = parser.load("11".to_string());
+    assert!(res.as_int() == 11);
     res.print();
 }

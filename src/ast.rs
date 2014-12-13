@@ -35,49 +35,49 @@ impl Ast for ExprAst {
 
 #[allow(dead_code)]
 impl ExprAst {
-    fn as_bool(&self) -> bool {
+    pub fn as_bool(&self) -> bool {
         match *self {
             ExprAst::Bool(ref ast) => ast.value,
             _ => panic!("error type: expect BoolNode")
         }
     }
 
-    fn as_int(&self) -> int {
+    pub fn as_int(&self) -> int {
         match *self {
             ExprAst::Int(ref ast) => ast.value,
             _ => panic!("error type: expect IntNode")
         }
     }
 
-    fn as_str(&self) -> String {
+    pub fn as_str(&self) -> String {
         match *self {
             ExprAst::Str(ref ast) => ast.value.clone(),
             _ => panic!("error type: expect StrNode")
         }
     }
 
-    fn as_char(&self) -> char {
+    pub fn as_char(&self) -> char {
         match *self {
             ExprAst::Char(ref ast) => ast.value,
             _ => panic!("error type: expect CharNode")
         }
     }
 
-    fn car(&self) -> &Box<ExprAst> {
+    pub fn car(&self) -> &Box<ExprAst> {
         match *self {
             ExprAst::Pair(ref ast) => &(ast.car),
             _ => panic!("error type: expect PairNode")
         }
     }
 
-    fn cdr(&self) -> &Box<ExprAst> {
+    pub fn cdr(&self) -> &Box<ExprAst> {
         match *self {
             ExprAst::Pair(ref ast) => &(ast.cdr),
             _ => panic!("error type: expect PairNode")
         }
     }
 
-    fn is_empty_list(&self) -> bool {
+    pub fn is_empty_list(&self) -> bool {
         match *self {
             ExprAst::EmptyList(_) => true,
             _ => false
