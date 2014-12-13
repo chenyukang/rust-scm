@@ -2,6 +2,7 @@ use ast::ExprAst;
 use ast::BoolNode;
 use ast::CharNode;
 use ast::IntNode;
+use ast::StrNode;
 
 #[allow(dead_code)]
 
@@ -74,7 +75,22 @@ impl Parser {
                 num = (num * 10i) + (cur as int - 0i);
             }
             num *= sign;
-            return ExprAst::Int(IntNode::new(num));
+            if self.is_delimiter(cur) {
+                self.unread();
+                return ExprAst::Int(IntNode::new(num));
+            } else {
+                panic!("number not followed by delimiter");
+            }
+        } else if cur == '\"' {
+            let mut buf = String::new();
+            loop {
+                cur = self.readc();
+                if cur == '\"' {
+                    break;
+                }
+                buf.push(cur);
+            }
+            return ExprAst::Str(StrNode::new(buf));
         }
         ExprAst::Char(CharNode::new('a'))
     }
