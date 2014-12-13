@@ -59,7 +59,8 @@ impl Parser {
                 '\\' => return self.read_char(),
                 _ => panic!("error")
             }
-        } else if UnicodeChar::is_numeric(cur) || (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
+        } else if UnicodeChar::is_numeric(cur) ||
+            (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
             let mut sign = 1i;
             if cur == '-' {
                 sign = -1;
@@ -150,6 +151,10 @@ impl Parser {
     fn unread(&mut self) {
         if self.cur == 0 {
             panic!("error current position");
+        }
+        if self.peekc() == '\n' {
+            assert!(self.line > 1);
+            self.line -= 1;
         }
         self.cur -= 1;
     }
