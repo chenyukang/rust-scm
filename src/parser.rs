@@ -3,6 +3,7 @@ use ast::BoolNode;
 use ast::CharNode;
 use ast::IntNode;
 use ast::StrNode;
+use ast::Ast;
 
 #[allow(dead_code)]
 
@@ -61,38 +62,38 @@ impl Parser {
             }
         } else if UnicodeChar::is_numeric(cur) ||
             (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
-            let mut sign = 1i;
-            if cur == '-' {
-                sign = -1;
-            } else {
-                self.unread();
-            }
-            let mut num = 0i;
-            loop {
-                cur = self.readc();
-                if !UnicodeChar::is_numeric(cur) {
-                    break;
+                let mut sign = 1i;
+                let mut num = 0i;
+                if cur == '-' {
+                    sign = -1;
+                } else {
+                    self.unread();
                 }
-                num = (num * 10i) + (cur as int - 0i);
-            }
-            num *= sign;
-            if self.is_delimiter(cur) {
-                self.unread();
-                return ExprAst::Int(IntNode::new(num));
-            } else {
-                panic!("number not followed by delimiter");
-            }
-        } else if cur == '\"' {
-            let mut buf = String::new();
-            loop {
-                cur = self.readc();
-                if cur == '\"' {
-                    break;
+                loop {
+                    cur = self.readc();
+                    if !UnicodeChar::is_numeric(cur) {
+                        break;
+                    }
+                    num = (num * 10i) + (cur as int - 0i);
                 }
-                buf.push(cur);
+                num *= sign;
+                if self.is_delimiter(cur) {
+                    self.unread();
+                    return ExprAst::Int(IntNode::new(num));
+                } else {
+                    panic!("number not followed by delimiter");
+                }
+            } else if cur == '\"' {
+                let mut buf = String::new();
+                loop {
+                    cur = self.readc();
+                    if cur == '\"' {
+                        break;
+                    }
+                    buf.push(cur);
+                }
+                return ExprAst::Str(StrNode::new(buf));
             }
-            return ExprAst::Str(StrNode::new(buf));
-        }
         ExprAst::Char(CharNode::new('a'))
     }
 
@@ -123,6 +124,13 @@ impl Parser {
         self.code.char_at(self.cur)
     }
 
+    fn prevc(&self) -> char {
+        if self.cur <= 0 {
+            panic!("invalid position");
+        }
+        self.code.char_at(self.cur - 1)
+    }
+
     fn readc(&mut self) -> char {
         if self.cur < self.code.len() {
             let res = self.peekc();
@@ -140,7 +148,7 @@ impl Parser {
         if self.cur == 0 {
             panic!("error current position");
         }
-        if self.peekc() == '\n' {
+        if self.prevc() == '\n' {
             assert!(self.line > 1);
             self.line -= 1;
         }
@@ -151,4 +159,12 @@ impl Parser {
         ExprAst::Char(CharNode::new('a'))
     }
 
+}
+
+
+#[test]
+fn test_parser() {
+    let mut parser = Parser::new();
+    let res = parser.load("11".to_string());
+    res.print();
 }
