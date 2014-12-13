@@ -47,8 +47,8 @@ impl Parser {
         self.code = code;
         self.line = 1;
         self.cur = 0;
-        self.col = 1;
-        self.skip_white();
+        self.col = 0;
+        self.skip_space();
 
         let mut cur = self.readc();
         if cur == '#' {
@@ -97,7 +97,6 @@ impl Parser {
     }
 
     //============= private methods =================
-
     fn is_delimiter(&self, ch: char) -> bool {
         if ch.is_whitespace() ||
             ch == '\"' || ch == '(' || ch == ')' ||  ch == ';' ||
@@ -121,26 +120,28 @@ impl Parser {
             }
     }
 
-    fn skip_white(&mut self) {
+    fn skip_space(&mut self) {
         while self.peekc().is_whitespace() {
-            if self.peekc() == '\n' {
-                self.line += 1;
-            }
-            self.cur += 1;
+            self.readc();
         }
     }
 
     fn peekc(&self) -> char {
-        if self.cur < self.code.len() {
-            self.code.char_at(self.cur)
-        } else {
-            0 as char
+        if self.cur >= self.code.len() {
+            panic!("invalid position");
         }
+        self.code.char_at(self.cur)
     }
 
     fn readc(&mut self) -> char {
         if self.cur < self.code.len() {
-            let res = self.code.char_at(self.cur);
+            let res = self.peekc();
+            if res == '\n' {
+                self.col = 0;
+                self.line += 1;
+            } else {
+                self.col += 1;
+            }
             self.cur += 1;
             res
         } else {
