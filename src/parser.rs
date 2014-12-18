@@ -4,9 +4,9 @@ use ast::BoolNode;
 use ast::CharNode;
 use ast::IntNode;
 use ast::StrNode;
+use ast::EmptyListNode;
+
 use ast::Ast;
-
-
 
 #[deriving(Clone, Show)]
 pub struct Parser {
@@ -97,11 +97,23 @@ impl Parser {
                     buf.push(cur);
                 }
                 return ExprAst::Str(StrNode::new(buf));
+            } else if cur == '(' {
+                return self.read_pair();
             }
         ExprAst::Char(CharNode::new('a'))
     }
 
+
     //============= private methods =================
+    fn read_pair(&mut self) -> ExprAst {
+        self.skip_space();
+        let cur = self.readc();
+        if cur == ')' {
+            return ExprAst::EmptyList(EmptyListNode::new());
+        }
+        return ExprAst::EmptyList(EmptyListNode::new());
+    }
+
     fn is_delimiter(&self, ch: char) -> bool {
         ch.is_whitespace() ||
             ch == '\"' || ch == '(' || ch == ')' ||  ch == ';' ||
@@ -174,5 +186,9 @@ fn test_parser() {
 
     let res = parser.load("-11".to_string());
     assert!(res.as_int() == -11);
+    res.print();
+
+    let res = parser.load(r#""hello""#.to_string());
+    assert!(res.as_str() == "hello");
     res.print();
 }

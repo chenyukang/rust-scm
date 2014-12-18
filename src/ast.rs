@@ -208,7 +208,7 @@ impl CharNode {
 
 //FIXME, empty struct?
 #[deriving(Clone, PartialEq)]
-struct EmptyListNode {
+pub struct EmptyListNode {
     pub value: String
 }
 

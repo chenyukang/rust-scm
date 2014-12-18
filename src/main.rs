@@ -19,6 +19,9 @@ fn help() {
 #[allow(dead_code)]
 fn main() {
 
+    let str_val = r#""hello""#;
+    println!("res: {}", str_val);
+
     let mut parser = Parser::new();
     let res = parser.load("11".to_string());
     //assert!(res.as_int() == 11);
