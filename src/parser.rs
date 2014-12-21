@@ -4,6 +4,7 @@ use ast::BoolNode;
 use ast::CharNode;
 use ast::IntNode;
 use ast::StrNode;
+use ast::PairNode;
 use ast::EmptyListNode;
 
 use ast::Ast;
@@ -57,7 +58,6 @@ impl Parser {
         self.read_exp()
     }
 
-
     //============= private methods =================
     fn read_exp(&mut self) -> ExprAst {
         let mut cur = self.readc();
@@ -103,6 +103,7 @@ impl Parser {
                 }
                 return ExprAst::Str(StrNode::new(buf));
             } else if cur == '(' && cur != ')' {
+                // rust-mode bug here
                 return self.read_pair();
             }
         ExprAst::Char(CharNode::new('a'))
@@ -110,14 +111,24 @@ impl Parser {
 
     fn read_pair(&mut self) -> ExprAst {
         self.skip_space();
-        let cur = self.readc();
-        if cur == ')' {
+        let mut cur = self.readc();
+        // rust-mode bug here
+        if cur != '(' && cur == ')' {
             return ExprAst::EmptyList(EmptyListNode::new());
         }
         self.unread();
-        //let car_obj = self.read()
-        return ExprAst::EmptyList(EmptyListNode::new());
+        let car_obj = self.read_exp();
+        self.skip_space();
+        cur = self.readc();
+        if cur != '.' {
+            self.unread();
+            let cdr_obj = self.read_pair();
+            return ExprAst::Pair(PairNode::new(box car_obj, box cdr_obj));
+        } else {
+            return ExprAst::EmptyList(EmptyListNode::new());
+        }
     }
+
 
     fn is_delimiter(&self, ch: char) -> bool {
         ch.is_whitespace() ||
@@ -181,7 +192,6 @@ impl Parser {
     }
 }
 
-
 #[test]
 fn test_parser() {
     let mut parser = Parser::new();
@@ -199,5 +209,12 @@ fn test_parser() {
 
     let res = parser.load("()".to_string());
     assert!(res.is_empty_list());
+    res.print();
+
+    let res = parser.load("(1 2)".to_string());
+    assert!(res.is_pair());
+    assert!(res.car().as_int() == 1);
+    assert!(res.cdr().car().as_int() == 2);
+    assert!(res.cdr().cdr().is_empty_list());
     res.print();
 }
