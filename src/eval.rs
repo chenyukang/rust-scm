@@ -44,4 +44,7 @@ fn test_evaler() {
 
     let res = evaler.eval(r#""hello""#.to_string());
     assert!(res.as_str() == "hello");
+
+    let res = evaler.eval("#t".to_string());
+    assert!(res.as_bool() == true);
 }
