@@ -97,7 +97,7 @@ impl Parser {
                     buf.push(cur);
                 }
                 return ExprAst::Str(StrNode::new(buf));
-            } else if cur == '(' {
+            } else if cur == '(' && cur != ')' {
                 return self.read_pair();
             }
         ExprAst::Char(CharNode::new('a'))
@@ -105,12 +105,15 @@ impl Parser {
 
 
     //============= private methods =================
+
     fn read_pair(&mut self) -> ExprAst {
         self.skip_space();
         let cur = self.readc();
-        if cur == ')' {
+        if cur != '(' && cur == ')' {
             return ExprAst::EmptyList(EmptyListNode::new());
         }
+        self.unread();
+        //let car_obj = self.read()
         return ExprAst::EmptyList(EmptyListNode::new());
     }
 
@@ -190,5 +193,9 @@ fn test_parser() {
 
     let res = parser.load(r#""hello""#.to_string());
     assert!(res.as_str() == "hello");
+    res.print();
+
+    let res = parser.load("()".to_string());
+    assert!(res.is_empty_list());
     res.print();
 }
