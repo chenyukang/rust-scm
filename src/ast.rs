@@ -98,7 +98,7 @@ impl ExprAst {
         }
     }
 
-    fn is_self(&self) -> bool {
+    pub fn is_self(&self) -> bool {
         match *self {
             ExprAst::Bool(_) => true,
             ExprAst::Int(_) => true,
