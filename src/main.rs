@@ -6,10 +6,13 @@ use std::io;
 use ast::Ast;
 use parser::Parser;
 
-mod parser;
-mod ast;
-mod test;
+use eval::Evaler;
 
+
+mod ast;
+mod parser;
+mod eval;
+mod test;
 
 
 fn help() {
@@ -21,6 +24,10 @@ fn main() {
 
     let str_val = r#""hello""#;
     println!("res: {}", str_val);
+
+    let mut evaler = Evaler::new();
+    let res = evaler.eval("11".to_string());
+    res.print();
 
     let mut parser = Parser::new();
     let res = parser.load("11".to_string());

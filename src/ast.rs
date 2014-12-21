@@ -90,6 +90,23 @@ impl ExprAst {
             _ => false
         }
     }
+
+    pub fn is_symbol(&self) -> bool {
+        match *self {
+            ExprAst::Symbol(_) => true,
+            _ => false
+        }
+    }
+
+    fn is_self(&self) -> bool {
+        match *self {
+            ExprAst::Bool(_) => true,
+            ExprAst::Int(_) => true,
+            ExprAst::Char(_) => true,
+            ExprAst::Str(_) => true,
+            _ => false
+        }
+    }
 }
 
 #[deriving(Clone, PartialEq)]
@@ -301,12 +318,14 @@ fn test_ast_char() {
 fn test_ast_char_fail() {
     let int_node = ExprAst::Int(IntNode::new(1));
     assert!(int_node.as_char() == 'a');
+    assert!(int_node.is_self());
 }
 
 #[test]
 fn test_ast_str() {
     let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
     assert!(str_node.as_str() == "hello".to_string());
+    assert!(str_node.is_self());
 }
 
 #[test]
@@ -314,6 +333,7 @@ fn test_ast_str() {
 fn test_ast_str_fail() {
     let int_node = ExprAst::Int(IntNode::new(3));
     assert!(int_node.as_str() == "3".to_string());
+    assert!(int_node.is_self());
 }
 
 #[test]
@@ -327,6 +347,14 @@ fn test_ast_pair() {
     let cdr_node = pair_node.cdr();
     assert!(car_node.as_int() == 3);
     assert!(cdr_node.as_str() == "hello".to_string());
+    assert!(!pair_node.is_self());
+}
+
+#[test]
+fn test_ast_symbol() {
+    let sym_node = ExprAst::Symbol(SymbolNode::new("sym".to_string()));
+    assert!(sym_node.is_symbol());
+    assert!(!sym_node.is_self());
 }
 
 #[test]
@@ -341,6 +369,7 @@ fn test_ast_pair_fail() {
 fn test_ast_emptylist() {
     let empty_node = ExprAst::EmptyList(EmptyListNode::new());
     assert!(empty_node.is_empty_list());
+    assert!(!empty_node.is_self());
 }
 
 #[test]

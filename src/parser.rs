@@ -5,6 +5,7 @@ use ast::CharNode;
 use ast::IntNode;
 use ast::StrNode;
 use ast::PairNode;
+use ast::SymbolNode;
 use ast::EmptyListNode;
 
 use ast::Ast;
@@ -70,43 +71,49 @@ impl Parser {
                 _ => panic!("error")
             }
         } else if UnicodeChar::is_numeric(cur) ||
-            (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
-                let mut sign = 1i;
-                let mut num = 0i;
-                if cur == '-' {
-                    sign = -1;
-                } else {
-                    self.unread();
-                }
-                loop {
-                    cur = self.readc();
-                    if !UnicodeChar::is_numeric(cur) {
-                        break;
-                    }
-                    num = (num * 10i) + (cur as int - '0' as int);
-                }
-                num *= sign;
-                if self.is_delimiter(cur) {
-                    self.unread();
-                    return ExprAst::Int(IntNode::new(num));
-                } else {
-                    panic!("number not followed by delimiter");
-                }
-            } else if cur == '\"' {
-                let mut buf = String::new();
-                loop {
-                    cur = self.readc();
-                    if cur == '\"' {
-                        break;
-                    }
-                    buf.push(cur);
-                }
-                return ExprAst::Str(StrNode::new(buf));
-            } else if cur == '(' && cur != ')' {
-                // rust-mode bug here
-                return self.read_pair();
+                  (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
+            let mut sign = 1i;
+            let mut num = 0i;
+            if cur == '-' {
+                sign = -1;
+            } else {
+                self.unread();
             }
-        ExprAst::Char(CharNode::new('a'))
+            loop {
+                cur = self.readc();
+                if !UnicodeChar::is_numeric(cur) {
+                    break;
+                }
+                num = (num * 10i) + (cur as int - '0' as int);
+            }
+            num *= sign;
+            if self.is_delimiter(cur) {
+                self.unread();
+                return ExprAst::Int(IntNode::new(num));
+            } else {
+                panic!("number not followed by delimiter");
+            }
+        } else if cur == '\"' {
+            let mut buf = String::new();
+            loop {
+                cur = self.readc();
+                if cur == '\"' {
+                    break;
+                }
+                buf.push(cur);
+            }
+            return ExprAst::Str(StrNode::new(buf));
+        } else if cur == '(' && cur != ')' {
+            // rust-mode bug here
+            return self.read_pair();
+        } else if cur == '\'' {
+            let quote_sym = ExprAst::Symbol(SymbolNode::new("quote".to_string()));
+            let quote_exp = ExprAst::Pair(PairNode::new(box self.read_exp(),
+                                                        box ExprAst::EmptyList(EmptyListNode::new())));
+            return ExprAst::Pair(PairNode::new(box quote_sym,
+                                               box quote_exp));
+        }
+        ExprAst::Int(IntNode::new(0))
     }
 
     fn read_pair(&mut self) -> ExprAst {
@@ -128,7 +135,6 @@ impl Parser {
             return ExprAst::EmptyList(EmptyListNode::new());
         }
     }
-
 
     fn is_delimiter(&self, ch: char) -> bool {
         ch.is_whitespace() ||
