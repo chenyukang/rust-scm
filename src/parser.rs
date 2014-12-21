@@ -54,7 +54,12 @@ impl Parser {
         self.cur = 0;
         self.col = 0;
         self.skip_space();
+        self.read_exp()
+    }
 
+
+    //============= private methods =================
+    fn read_exp(&mut self) -> ExprAst {
         let mut cur = self.readc();
         if cur == '#' {
             let next = self.readc();
@@ -103,13 +108,10 @@ impl Parser {
         ExprAst::Char(CharNode::new('a'))
     }
 
-
-    //============= private methods =================
-
     fn read_pair(&mut self) -> ExprAst {
         self.skip_space();
         let cur = self.readc();
-        if cur != '(' && cur == ')' {
+        if cur == ')' {
             return ExprAst::EmptyList(EmptyListNode::new());
         }
         self.unread();
