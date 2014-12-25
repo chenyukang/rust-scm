@@ -25,16 +25,6 @@ fn help() {
 #[allow(dead_code)]
 fn main() {
 
-    let b1 = box ExprAst::Symbol(SymbolNode::new("quote".to_string()));
-    let b2 = box ExprAst::Symbol(SymbolNode::new("quote".to_string()));
-
-    if b1 == b2 {
-        println!("cmp");
-    } else {
-        println!("no cmp");
-    }
-
-
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());
     res.print();
