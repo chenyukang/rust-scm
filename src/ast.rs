@@ -128,6 +128,26 @@ impl ExprAst {
         return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("or".to_string())));
     }
 
+    pub fn is_if(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("if".to_string())));
+    }
+
+    pub fn is_lambda(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("lambda".to_string())));
+    }
+
+    pub fn is_cond(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("cond".to_string())));
+    }
+
+    pub fn is_let(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("let".to_string())));
+    }
+
+    pub fn is_begin(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("begin".to_string())));
+    }
+
     fn is_tagged(&self, tag: Box<ExprAst>) -> bool {
         if self.is_pair() {
             let car = self.car();
@@ -212,8 +232,6 @@ impl Ast for PairNode {
         println!("PairNode (");
         self.car.print();
         self.cdr.print();
-        //self.car.print();
-        //self.cdr.print();
         println!(")");
     }
 }
@@ -278,7 +296,6 @@ impl Ast for EmptyListNode{
         println!("EmptyListNode");
     }
 }
-
 
 //type AstFunc = |args: ExprAst| -> Option<ExprAst>;
 #[deriving(Clone, PartialEq)]

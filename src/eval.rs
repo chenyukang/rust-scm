@@ -5,7 +5,7 @@ use ast::IntNode;
 // use ast::CharNode;
 // use ast::StrNode;
 // use ast::PairNode;
-use ast::SymbolNode;
+// use ast::SymbolNode;
 // use ast::EmptyListNode;
 
 //use ast::Ast;
