@@ -6,6 +6,9 @@ use std::io;
 use ast::Ast;
 use parser::Parser;
 
+use ast::ExprAst;
+use ast::SymbolNode;
+
 use eval::Evaler;
 
 
@@ -22,8 +25,15 @@ fn help() {
 #[allow(dead_code)]
 fn main() {
 
-    let str_val = r#""hello""#;
-    println!("res: {}", str_val);
+    let b1 = box ExprAst::Symbol(SymbolNode::new("quote".to_string()));
+    let b2 = box ExprAst::Symbol(SymbolNode::new("quote".to_string()));
+
+    if b1 == b2 {
+        println!("cmp");
+    } else {
+        println!("no cmp");
+    }
+
 
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());

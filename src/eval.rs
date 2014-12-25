@@ -5,7 +5,7 @@ use ast::IntNode;
 // use ast::CharNode;
 // use ast::StrNode;
 // use ast::PairNode;
-// use ast::SymbolNode;
+use ast::SymbolNode;
 // use ast::EmptyListNode;
 
 //use ast::Ast;
@@ -33,6 +33,14 @@ impl Evaler {
             return ast;
         }
         ExprAst::Int(IntNode::new(0))
+    }
+
+    fn is_tagged(&self, ast: ExprAst, tag: Box<ExprAst>) -> bool {
+        if ast.is_pair() {
+            let car = ast.car();
+            return car.is_symbol() && *car == tag;
+        }
+        return false;
     }
 }
 

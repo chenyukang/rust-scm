@@ -107,9 +107,37 @@ impl ExprAst {
             _ => false
         }
     }
+
+    pub fn is_quote(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("quote".to_string())));
+    }
+
+    pub fn is_assign(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("set!".to_string())));
+    }
+
+    pub fn is_def(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("def".to_string())));
+    }
+
+    pub fn is_and(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("and".to_string())));
+    }
+
+    pub fn is_or(&self) -> bool {
+        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("or".to_string())));
+    }
+
+    fn is_tagged(&self, tag: Box<ExprAst>) -> bool {
+        if self.is_pair() {
+            let car = self.car();
+            return car.is_symbol() && *car == tag;
+        }
+        return false;
+    }
 }
 
-#[deriving(Clone, PartialEq)]
+#[deriving(Clone, PartialEq, Eq)]
 pub struct IntNode {
     pub value: int
 }
@@ -377,4 +405,5 @@ fn test_ast_emptylist() {
 fn test_ast_emptylist_fail() {
     let empty_node = ExprAst::Int(IntNode::new(3));
     assert!(empty_node.is_empty_list());
+    assert!(empty_node.is_quote());
 }
