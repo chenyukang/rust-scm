@@ -10,10 +10,11 @@ use ast::ExprAst;
 use ast::SymbolNode;
 
 use eval::Evaler;
-
+use std::collections::HashMap;
 
 mod ast;
 mod parser;
+mod env;
 mod eval;
 mod test;
 
@@ -22,8 +23,15 @@ fn help() {
     println!("rust-scm: prog");
 }
 
+fn add(val: int) -> int {
+    return val + 1;
+}
+
 #[allow(dead_code)]
 fn main() {
+    let mut env = HashMap::new();
+    env.insert("Haha", add);
+    println!("env: {}", env.capacity());
 
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());

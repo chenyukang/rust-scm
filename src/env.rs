@@ -33,7 +33,7 @@ impl Env {
     }
 
     pub fn lookup(&self, var: ExprAst) -> Option<ExprAst> {
-        for i in range(0u, self.vars.len()) {
+        for i in range(0u, self.vars.len()).rev() {
             if self.vars[i] == var {
                 return Some(self.vals[i].clone());
             }
@@ -64,5 +64,5 @@ fn test_env() {
     env.def_var(ExprAst::Str(StrNode::new("1".to_string())),
                 ExprAst::Int(IntNode::new(2)));
     let val = env.lookup(ExprAst::Str(StrNode::new("1".to_string())));
-    assert!(val.unwrap().as_int() == 1);
+    assert!(val.unwrap().as_int() == 2);
 }
