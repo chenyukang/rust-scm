@@ -4,7 +4,7 @@ use ast::IntNode;
 use env::Env;
 
 use ast::SymbolNode;
-// use ast::BoolNode;
+use ast::BoolNode;
 // use ast::CharNode;
 // use ast::StrNode;
 // use ast::PairNode;
@@ -42,7 +42,14 @@ impl Evaler {
             return self._eval_assign(exp, env);
         } else if exp.is_def() {
             return self._eval_def(exp, env);
+        } else if exp.is_begin() {
+            return self._eval_begin(exp, env);
+        } else if exp.is_if() {
+            return self._eval_if(exp, env);
+        } else if exp.is_and() {
+            return self._eval_and(exp, env);
         }
+
         ExprAst::Int(IntNode::new(0))
     }
 
@@ -60,6 +67,37 @@ impl Evaler {
         env.def_var(var, val);
         return ExprAst::Symbol(SymbolNode::new("OK"));
     }
+
+    fn _eval_if(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        let pred = exp.cdr().car();
+        let t_blk = exp.cdr().cdr().car();
+        let f_blk = exp.cdr().cdr().cdr();
+        let res = self._eval(pred, env);
+        if res.is_true() {
+            return self._eval(t_blk, env);
+        } else {
+            if res.is_empty_list() {
+                return ExprAst::Bool(BoolNode::new(false));
+            } else {
+                return self._eval(f_blk.car(), env);
+            }
+        }
+    }
+
+    fn _eval_and(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        return ExprAst::Bool(BoolNode::new(false));
+    }
+
+    fn _eval_begin(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        let mut _exp = exp.cdr();
+        loop {
+            if _exp.is_last() { break; }
+            self._eval(_exp.car(), env);
+            _exp = _exp.cdr();
+        }
+        return self._eval(_exp.car(), env);
+    }
+
 }
 
 #[test]

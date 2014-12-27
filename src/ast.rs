@@ -42,6 +42,14 @@ impl ExprAst {
         }
     }
 
+    pub fn is_true(&self) -> bool {
+        return self.as_bool();
+    }
+
+    pub fn is_false(&self) -> bool {
+        return !self.as_bool();
+    }
+
     pub fn as_int(&self) -> int {
         match *self {
             ExprAst::Int(ref ast) => ast.value,
@@ -89,6 +97,11 @@ impl ExprAst {
             ExprAst::EmptyList(_) => true,
             _ => false
         }
+    }
+
+    pub fn is_last(&self) -> bool {
+        assert!(self.is_pair());
+        return self.cdr().is_empty_list();
     }
 
     pub fn is_symbol(&self) -> bool {
