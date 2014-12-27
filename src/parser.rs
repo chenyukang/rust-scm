@@ -226,14 +226,14 @@ fn test_parser() {
     res.print();
 
     let res = parser.load("()".to_string());
-    assert!(res.is_empty_list());
+    assert!(res.is_empty());
     res.print();
 
     let res = parser.load("(1 2)".to_string());
     assert!(res.is_pair());
     assert!(res.car().as_int() == 1);
     assert!(res.cdr().car().as_int() == 2);
-    assert!(res.cdr().cdr().is_empty_list());
+    assert!(res.cdr().cdr().is_empty());
 
     let res = parser.load("(+ 1 2)".to_string());
     assert!(res.is_pair());

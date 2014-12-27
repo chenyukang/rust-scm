@@ -48,6 +48,8 @@ impl Evaler {
             return self._eval_if(exp, env);
         } else if exp.is_and() {
             return self._eval_and(exp, env);
+        } else if exp.is_or() {
+            return self._eval_or(exp, env);
         }
 
         ExprAst::Int(IntNode::new(0))
@@ -76,7 +78,7 @@ impl Evaler {
         if res.is_true() {
             return self._eval(t_blk, env);
         } else {
-            if res.is_empty_list() {
+            if res.is_empty() {
                 return ExprAst::Bool(BoolNode::new(false));
             } else {
                 return self._eval(f_blk.car(), env);
@@ -85,7 +87,39 @@ impl Evaler {
     }
 
     fn _eval_and(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
-        return ExprAst::Bool(BoolNode::new(false));
+        let mut elems = exp.cdr();
+        if elems.is_empty() {
+            return ExprAst::Bool(BoolNode::new(true));
+        }
+        loop {
+            if elems.is_last() { break; }
+            let res = self._eval(elems.car(), env);
+            if res.is_false() {
+                return ExprAst::Bool(BoolNode::new(false));
+            }
+            elems = elems.cdr();
+        }
+        return self._eval(elems.car(), env);
+    }
+
+    fn _eval_or(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        let mut elems = exp.cdr();
+        if elems.is_empty() {
+            return ExprAst::Bool(BoolNode::new(true));
+        }
+        loop {
+            if elems.is_last() { break; }
+            let res = self._eval(elems.car(), env);
+            if res.is_true() {
+                return ExprAst::Bool(BoolNode::new(true));
+            }
+            elems = elems.cdr();
+        }
+        return self._eval(elems.car(), env);
+    }
+
+    fn _eval_cond(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        return ExprAst::Bool(BoolNode::new(true));
     }
 
     fn _eval_begin(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {

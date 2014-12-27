@@ -92,7 +92,7 @@ impl ExprAst {
         }
     }
 
-    pub fn is_empty_list(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         match *self {
             ExprAst::EmptyList(_) => true,
             _ => false
@@ -101,7 +101,7 @@ impl ExprAst {
 
     pub fn is_last(&self) -> bool {
         assert!(self.is_pair());
-        return self.cdr().is_empty_list();
+        return self.cdr().is_empty();
     }
 
     pub fn is_symbol(&self) -> bool {
@@ -443,7 +443,7 @@ fn test_ast_pair_fail() {
 #[test]
 fn test_ast_emptylist() {
     let empty_node = ExprAst::EmptyList(EmptyListNode::new());
-    assert!(empty_node.is_empty_list());
+    assert!(empty_node.is_empty());
     assert!(!empty_node.is_self());
 }
 
@@ -451,6 +451,6 @@ fn test_ast_emptylist() {
 #[should_fail]
 fn test_ast_emptylist_fail() {
     let empty_node = ExprAst::Int(IntNode::new(3));
-    assert!(empty_node.is_empty_list());
+    assert!(empty_node.is_empty());
     assert!(empty_node.is_quote());
 }
