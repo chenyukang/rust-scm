@@ -40,6 +40,8 @@ impl Evaler {
             return exp.cdr().car();
         } else if exp.is_assign() {
             return self._eval_assign(exp, env);
+        } else if exp.is_def() {
+            return self._eval_def(exp, env);
         }
         ExprAst::Int(IntNode::new(0))
     }
@@ -51,6 +53,13 @@ impl Evaler {
         return ExprAst::Symbol(SymbolNode::new("OK"));
     }
 
+    fn _eval_def(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        let var = exp.def_var();
+        let val = exp.def_val();
+        let val = self._eval(val, env);
+        env.def_var(var, val);
+        return ExprAst::Symbol(SymbolNode::new("OK"));
+    }
 }
 
 #[test]

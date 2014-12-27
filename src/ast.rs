@@ -148,6 +148,25 @@ impl ExprAst {
         return self.is_tagged(ExprAst::Symbol(SymbolNode::new("begin")));
     }
 
+    pub fn def_var(&self) -> ExprAst {
+        assert!(self.is_def());
+        if self.cdr().car().is_symbol() {
+            self.cdr().car()
+        } else {
+            self.cdr().car().car()
+        }
+    }
+
+    pub fn def_val(&self) -> ExprAst {
+        assert!(self.is_def());
+        if self.cdr().car().is_symbol() {
+            self.cdr().cdr().car()
+        } else {
+            //proc
+            ExprAst::Symbol(SymbolNode::new("OK"))
+        }
+    }
+
     fn is_tagged(&self, tag: ExprAst) -> bool {
         if self.is_pair() {
             let car = self.car();
