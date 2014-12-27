@@ -31,15 +31,15 @@ impl Evaler {
         self._eval(ast, &mut Env::new())
     }
 
-    fn _eval(&mut self, ast: ExprAst, env: &mut Env) -> ExprAst {
-        if ast.is_self() {
-            return ast;
-        } else if ast.is_symbol() {
-            return env.lookup(ast).unwrap();
-        } else if ast.is_quote() {
-            return ast.cdr().car();
-        } else if ast.is_assign() {
-            return self._eval_assign(ast, env);
+    fn _eval(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        if exp.is_self() {
+            return exp;
+        } else if exp.is_symbol() {
+            return env.lookup(exp).unwrap();
+        } else if exp.is_quote() {
+            return exp.cdr().car();
+        } else if exp.is_assign() {
+            return self._eval_assign(exp, env);
         }
         ExprAst::Int(IntNode::new(0))
     }
