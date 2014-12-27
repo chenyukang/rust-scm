@@ -109,43 +109,43 @@ impl ExprAst {
     }
 
     pub fn is_quote(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("quote".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("quote")));
     }
 
     pub fn is_assign(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("set!".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("set!")));
     }
 
     pub fn is_def(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("def".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("def")));
     }
 
     pub fn is_and(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("and".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("and")));
     }
 
     pub fn is_or(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("or".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("or")));
     }
 
     pub fn is_if(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("if".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("if")));
     }
 
     pub fn is_lambda(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("lambda".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("lambda")));
     }
 
     pub fn is_cond(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("cond".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("cond")));
     }
 
     pub fn is_let(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("let".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("let")));
     }
 
     pub fn is_begin(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("begin".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("begin")));
     }
 
     fn is_tagged(&self, tag: ExprAst) -> bool {
@@ -188,8 +188,8 @@ impl Ast for StrNode {
 
 #[allow(dead_code)]
 impl StrNode {
-    pub fn new(val: String) -> StrNode {
-        StrNode{ value: val}
+    pub fn new(val: &str) -> StrNode {
+        StrNode{ value: val.to_string()}
     }
 }
 
@@ -247,9 +247,9 @@ impl Ast for SymbolNode {
 
 #[allow(dead_code)]
 impl SymbolNode {
-    pub fn new(val: String) -> SymbolNode {
+    pub fn new(val: &str) -> SymbolNode {
         SymbolNode {
-            value: val
+            value: val.to_string()
         }
     }
 }
@@ -333,7 +333,7 @@ fn test_ast_int() {
 #[test]
 #[should_fail]
 fn test_ast_int_fail() {
-    let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
+    let str_node = ExprAst::Str(StrNode::new("hello"));
     assert!(str_node.as_int() == 3);
 }
 
@@ -366,8 +366,8 @@ fn test_ast_char_fail() {
 
 #[test]
 fn test_ast_str() {
-    let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
-    assert!(str_node.as_str() == "hello".to_string());
+    let str_node = ExprAst::Str(StrNode::new("hello"));
+    assert!(str_node.as_str() == "hello");
     assert!(str_node.is_self());
 }
 
@@ -375,7 +375,7 @@ fn test_ast_str() {
 #[should_fail]
 fn test_ast_str_fail() {
     let int_node = ExprAst::Int(IntNode::new(3));
-    assert!(int_node.as_str() == "3".to_string());
+    assert!(int_node.as_str() == "3");
     assert!(int_node.is_self());
 }
 
@@ -383,19 +383,19 @@ fn test_ast_str_fail() {
 fn test_ast_pair() {
     let int_node = ExprAst::Int(IntNode::new(3));
     int_node.print();
-    let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
+    let str_node = ExprAst::Str(StrNode::new("hello"));
     str_node.print();
     let pair_node = ExprAst::Pair(PairNode::new(int_node, str_node));
     let car_node = pair_node.car();
     let cdr_node = pair_node.cdr();
     assert!(car_node.as_int() == 3);
-    assert!(cdr_node.as_str() == "hello".to_string());
+    assert!(cdr_node.as_str() == "hello");
     assert!(!pair_node.is_self());
 }
 
 #[test]
 fn test_ast_symbol() {
-    let sym_node = ExprAst::Symbol(SymbolNode::new("sym".to_string()));
+    let sym_node = ExprAst::Symbol(SymbolNode::new("sym"));
     assert!(sym_node.is_symbol());
     assert!(!sym_node.is_self());
 }

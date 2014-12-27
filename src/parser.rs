@@ -102,12 +102,12 @@ impl Parser {
                 }
                 buf.push(cur);
             }
-            return ExprAst::Str(StrNode::new(buf));
+            return ExprAst::Str(StrNode::new(buf.as_slice()));
         } else if cur == '(' && cur != ')' {
             // rust-mode bug here
             return self.read_pair();
         } else if cur == '\'' {
-            let quote_sym = ExprAst::Symbol(SymbolNode::new("quote".to_string()));
+            let quote_sym = ExprAst::Symbol(SymbolNode::new("quote"));
             let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp(),
                                                         ExprAst::EmptyList(EmptyListNode::new())));
             return ExprAst::Pair(PairNode::new(quote_sym,

@@ -48,8 +48,8 @@ impl Env {
     }
 
     fn setup(&mut self) {
-        self.def_var(ExprAst::Str(StrNode::new("init".to_string())),
-                     ExprAst::Str(StrNode::new("init_val".to_string())));
+        self.def_var(ExprAst::Str(StrNode::new("init")),
+                     ExprAst::Str(StrNode::new("init_val")));
     }
 }
 
@@ -57,27 +57,27 @@ impl Env {
 #[test]
 fn test_env() {
     let mut env = Env::new();
-    env.def_var(ExprAst::Str(StrNode::new("hello".to_string())),
-                ExprAst::Str(StrNode::new("world".to_string())));
+    env.def_var(ExprAst::Str(StrNode::new("hello")),
+                ExprAst::Str(StrNode::new("world")));
 
-    let val = env.lookup(ExprAst::Str(StrNode::new("hello".to_string())));
-    assert!(val.unwrap().as_str() == "world".to_string());
+    let val = env.lookup(ExprAst::Str(StrNode::new("hello")));
+    assert!(val.unwrap().as_str() == "world");
 
-    env.def_var(ExprAst::Str(StrNode::new("1".to_string())),
+    env.def_var(ExprAst::Str(StrNode::new("1")),
                 ExprAst::Int(IntNode::new(1)));
-    let val = env.lookup(ExprAst::Str(StrNode::new("1".to_string())));
+    let val = env.lookup(ExprAst::Str(StrNode::new("1")));
     assert!(val.unwrap().as_int() == 1);
 
-    env.def_var(ExprAst::Str(StrNode::new("1".to_string())),
+    env.def_var(ExprAst::Str(StrNode::new("1")),
                 ExprAst::Int(IntNode::new(2)));
-    let val = env.lookup(ExprAst::Str(StrNode::new("1".to_string())));
+    let val = env.lookup(ExprAst::Str(StrNode::new("1")));
     assert!(val.unwrap().as_int() == 2);
 
-    let val = env.lookup(ExprAst::Str(StrNode::new("init".to_string())));
-    assert!(val.unwrap().as_str() == "init_val".to_string());
+    let val = env.lookup(ExprAst::Str(StrNode::new("init")));
+    assert!(val.unwrap().as_str() == "init_val");
 
-    env.def_var(ExprAst::Symbol(SymbolNode::new("sym".to_string())),
+    env.def_var(ExprAst::Symbol(SymbolNode::new("sym")),
                 ExprAst::Int(IntNode::new(2)));
-    let val = env.lookup(ExprAst::Symbol(SymbolNode::new("sym".to_string())));
+    let val = env.lookup(ExprAst::Symbol(SymbolNode::new("sym")));
     assert!(val.unwrap().as_int() == 2);
 }
