@@ -71,48 +71,62 @@ impl Parser {
                 _ => panic!("error")
             }
         } else if UnicodeChar::is_numeric(cur) ||
-                  (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
-            let mut sign = 1i;
-            let mut num = 0i;
-            if cur == '-' {
-                sign = -1;
-            } else {
-                self.unread();
-            }
-            loop {
-                cur = self.readc();
-                if !UnicodeChar::is_numeric(cur) {
-                    break;
+            (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
+                let mut sign = 1i;
+                let mut num = 0i;
+                if cur == '-' {
+                    sign = -1;
+                } else {
+                    self.unread();
                 }
-                num = (num * 10i) + (cur as int - '0' as int);
-            }
-            num *= sign;
-            if self.is_delimiter(cur) {
-                self.unread();
-                return ExprAst::Int(IntNode::new(num));
-            } else {
-                panic!("number not followed by delimiter");
-            }
-        } else if cur == '\"' {
-            let mut buf = String::new();
-            loop {
-                cur = self.readc();
-                if cur == '\"' {
-                    break;
+                loop {
+                    cur = self.readc();
+                    if !UnicodeChar::is_numeric(cur) {
+                        break;
+                    }
+                    num = (num * 10i) + (cur as int - '0' as int);
                 }
+                num *= sign;
+                if self.is_delimiter(cur) {
+                    self.unread();
+                    return ExprAst::Int(IntNode::new(num));
+                } else {
+                    panic!("number not followed by delimiter");
+                }
+            } else if cur == '\"' {
+                let mut buf = String::new();
+                loop {
+                    cur = self.readc();
+                    if cur == '\"' {
+                        break;
+                    }
+                    buf.push(cur);
+                }
+                return ExprAst::Str(StrNode::new(buf.as_slice()));
+            } else if cur == '(' && cur != ')' {
+                // rust-mode bug here
+                return self.read_pair();
+            } else if self.is_initial(cur) {
+                let mut buf = String::new();
                 buf.push(cur);
+                loop {
+                    cur = self.readc();
+                    if !(self.is_initial(cur) || UnicodeChar::is_numeric(cur)) {
+                        break;
+                    }
+                    buf.push(cur);
+                }
+                if self.is_delimiter(cur) {
+                    self.unread();
+                    return ExprAst::Symbol(SymbolNode::new(buf.as_slice()));
+                }
+            } else if cur == '\'' {
+                let quote_sym = ExprAst::Symbol(SymbolNode::new("quote"));
+                let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp(),
+                                                            ExprAst::EmptyList(EmptyListNode::new())));
+                return ExprAst::Pair(PairNode::new(quote_sym,
+                                                   quote_exp));
             }
-            return ExprAst::Str(StrNode::new(buf.as_slice()));
-        } else if cur == '(' && cur != ')' {
-            // rust-mode bug here
-            return self.read_pair();
-        } else if cur == '\'' {
-            let quote_sym = ExprAst::Symbol(SymbolNode::new("quote"));
-            let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp(),
-                                                        ExprAst::EmptyList(EmptyListNode::new())));
-            return ExprAst::Pair(PairNode::new(quote_sym,
-                                               quote_exp));
-        }
         ExprAst::Int(IntNode::new(0))
     }
 
@@ -222,5 +236,10 @@ fn test_parser() {
     assert!(res.car().as_int() == 1);
     assert!(res.cdr().car().as_int() == 2);
     assert!(res.cdr().cdr().is_empty_list());
-    res.print();
+
+    let res = parser.load("(+ 1 2)".to_string());
+    assert!(res.is_pair());
+    assert!(res.car().is_symbol());
+    assert!(res.cdr().car().as_int() == 1);
+    assert!(res.cdr().cdr().car().as_int() == 2);
 }
