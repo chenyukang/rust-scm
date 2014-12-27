@@ -44,9 +44,7 @@ impl Parser {
     pub fn new() -> Parser {
         Parser{
             code: "".to_string(),
-            line: 0,
-            cur: 0,
-            col: 0
+            line: 0, cur: 0, col: 0
         }
     }
 
