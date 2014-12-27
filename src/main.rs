@@ -29,10 +29,6 @@ fn add(val: int) -> int {
 
 #[allow(dead_code)]
 fn main() {
-    let mut env = HashMap::new();
-    env.insert("Haha", add);
-    println!("env: {}", env.capacity());
-
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());
     res.print();
@@ -64,4 +60,5 @@ fn main() {
     println!("res: {}", res);
     println!("parser: {}", parser);
     println!("code: {}", code);
+
 }
