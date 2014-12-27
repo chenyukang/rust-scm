@@ -108,10 +108,10 @@ impl Parser {
             return self.read_pair();
         } else if cur == '\'' {
             let quote_sym = ExprAst::Symbol(SymbolNode::new("quote".to_string()));
-            let quote_exp = ExprAst::Pair(PairNode::new(box self.read_exp(),
-                                                        box ExprAst::EmptyList(EmptyListNode::new())));
-            return ExprAst::Pair(PairNode::new(box quote_sym,
-                                               box quote_exp));
+            let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp(),
+                                                        ExprAst::EmptyList(EmptyListNode::new())));
+            return ExprAst::Pair(PairNode::new(quote_sym,
+                                               quote_exp));
         }
         ExprAst::Int(IntNode::new(0))
     }
@@ -130,7 +130,7 @@ impl Parser {
         if cur != '.' {
             self.unread();
             let cdr_obj = self.read_pair();
-            return ExprAst::Pair(PairNode::new(box car_obj, box cdr_obj));
+            return ExprAst::Pair(PairNode::new(car_obj, cdr_obj));
         } else {
             return ExprAst::EmptyList(EmptyListNode::new());
         }

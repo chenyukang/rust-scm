@@ -1,6 +1,7 @@
 
 use ast::ExprAst;
 use ast::IntNode;
+use env::Env;
 // use ast::BoolNode;
 // use ast::CharNode;
 // use ast::StrNode;
@@ -25,22 +26,16 @@ impl Evaler {
 
     pub fn eval(&mut self, code: String) -> ExprAst {
         let ast = self.parser.load(code);
-        self._eval(ast)
+        self._eval(ast, Env::new())
     }
 
-    fn _eval(&mut self, ast: ExprAst) -> ExprAst {
+    fn _eval(&mut self, ast: ExprAst, env: Env) -> ExprAst {
         if ast.is_self() {
             return ast;
+        } else if ast.is_symbol() {
+            return env.lookup(ast).unwrap();
         }
         ExprAst::Int(IntNode::new(0))
-    }
-
-    fn is_tagged(&self, ast: ExprAst, tag: Box<ExprAst>) -> bool {
-        if ast.is_pair() {
-            let car = ast.car();
-            return car.is_symbol() && *car == tag;
-        }
-        return false;
     }
 }
 
@@ -55,4 +50,5 @@ fn test_evaler() {
 
     let res = evaler.eval("#t".to_string());
     assert!(res.as_bool() == true);
+
 }

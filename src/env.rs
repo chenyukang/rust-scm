@@ -3,6 +3,7 @@
 use ast::ExprAst;
 use ast::StrNode;
 use ast::IntNode;
+use ast::SymbolNode;
 
 #[deriving(Clone, PartialEq)]
 pub struct Env {
@@ -15,11 +16,13 @@ pub struct Env {
 #[allow(dead_code)]
 impl Env {
     pub fn new() -> Env {
-        Env {
+        let mut res = Env {
             vars: vec![],
             vals: vec![],
             next: None
-        }
+        };
+        res.setup();
+        res
     }
 
     pub fn def_var(&mut self, var: ExprAst, val: ExprAst) {
@@ -44,6 +47,10 @@ impl Env {
         };
     }
 
+    fn setup(&mut self) {
+        self.def_var(ExprAst::Str(StrNode::new("init".to_string())),
+                     ExprAst::Str(StrNode::new("init_val".to_string())));
+    }
 }
 
 
@@ -64,5 +71,13 @@ fn test_env() {
     env.def_var(ExprAst::Str(StrNode::new("1".to_string())),
                 ExprAst::Int(IntNode::new(2)));
     let val = env.lookup(ExprAst::Str(StrNode::new("1".to_string())));
+    assert!(val.unwrap().as_int() == 2);
+
+    let val = env.lookup(ExprAst::Str(StrNode::new("init".to_string())));
+    assert!(val.unwrap().as_str() == "init_val".to_string());
+
+    env.def_var(ExprAst::Symbol(SymbolNode::new("sym".to_string())),
+                ExprAst::Int(IntNode::new(2)));
+    let val = env.lookup(ExprAst::Symbol(SymbolNode::new("sym".to_string())));
     assert!(val.unwrap().as_int() == 2);
 }

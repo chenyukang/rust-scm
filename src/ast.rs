@@ -63,16 +63,16 @@ impl ExprAst {
         }
     }
 
-    pub fn car(&self) -> &Box<ExprAst> {
+    pub fn car(&self) -> ExprAst {
         match *self {
-            ExprAst::Pair(ref ast) => &(ast.car),
+            ExprAst::Pair(ref ast) => ast.pair[0].clone(),
             _ => panic!("error type: expect PairNode")
         }
     }
 
-    pub fn cdr(&self) -> &Box<ExprAst> {
+    pub fn cdr(&self) -> ExprAst {
         match *self {
-            ExprAst::Pair(ref ast) => &(ast.cdr),
+            ExprAst::Pair(ref ast) => ast.pair[1].clone(),
             _ => panic!("error type: expect PairNode")
         }
     }
@@ -109,49 +109,49 @@ impl ExprAst {
     }
 
     pub fn is_quote(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("quote".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("quote".to_string())));
     }
 
     pub fn is_assign(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("set!".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("set!".to_string())));
     }
 
     pub fn is_def(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("def".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("def".to_string())));
     }
 
     pub fn is_and(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("and".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("and".to_string())));
     }
 
     pub fn is_or(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("or".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("or".to_string())));
     }
 
     pub fn is_if(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("if".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("if".to_string())));
     }
 
     pub fn is_lambda(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("lambda".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("lambda".to_string())));
     }
 
     pub fn is_cond(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("cond".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("cond".to_string())));
     }
 
     pub fn is_let(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("let".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("let".to_string())));
     }
 
     pub fn is_begin(&self) -> bool {
-        return self.is_tagged(box ExprAst::Symbol(SymbolNode::new("begin".to_string())));
+        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("begin".to_string())));
     }
 
-    fn is_tagged(&self, tag: Box<ExprAst>) -> bool {
+    fn is_tagged(&self, tag: ExprAst) -> bool {
         if self.is_pair() {
             let car = self.car();
-            return car.is_symbol() && *car == tag;
+            return car.is_symbol() && car == tag;
         }
         return false;
     }
@@ -159,7 +159,7 @@ impl ExprAst {
 
 #[deriving(Clone, PartialEq, Eq)]
 pub struct IntNode {
-    pub value: int
+    value: int
 }
 
 #[allow(dead_code)]
@@ -177,7 +177,7 @@ impl Ast for IntNode {
 
 #[deriving(Clone, PartialEq)]
 pub struct StrNode {
-    pub value: String
+    value: String
 }
 
 impl Ast for StrNode {
@@ -195,7 +195,7 @@ impl StrNode {
 
 #[deriving(Clone, PartialEq)]
 pub struct BoolNode {
-    pub value: bool
+    value: bool
 }
 
 #[allow(dead_code)]
@@ -213,16 +213,14 @@ impl Ast for BoolNode {
 
 #[deriving(Clone, PartialEq)]
 pub struct PairNode{
-    pub car: Box<ExprAst>,
-    pub cdr: Box<ExprAst>
+    pair: Vec<ExprAst>,
 }
 
 #[allow(dead_code)]
 impl PairNode {
-    pub fn new(car: Box<ExprAst>, cdr: Box<ExprAst>) -> PairNode {
+    pub fn new(car: ExprAst, cdr: ExprAst) -> PairNode {
         PairNode {
-            car: car,
-            cdr: cdr
+            pair: vec![car, cdr]
         }
     }
 }
@@ -230,15 +228,15 @@ impl PairNode {
 impl Ast for PairNode {
     fn print(&self) {
         println!("PairNode (");
-        self.car.print();
-        self.cdr.print();
+        self.pair[0].print();
+        self.pair[1].print();
         println!(")");
     }
 }
 
 #[deriving(Clone, PartialEq)]
 pub struct SymbolNode {
-    pub value: String
+    value: String
 }
 
 impl Ast for SymbolNode {
@@ -258,7 +256,7 @@ impl SymbolNode {
 
 #[deriving(Clone, PartialEq)]
 pub struct CharNode {
-    pub value: char
+    value: char
 }
 
 impl Ast for CharNode {
@@ -300,7 +298,7 @@ impl Ast for EmptyListNode{
 //type AstFunc = |args: ExprAst| -> Option<ExprAst>;
 #[deriving(Clone, PartialEq)]
 pub struct ProcNode {
-    pub value: String
+    value: String
 }
 
 impl Ast for ProcNode {
@@ -387,7 +385,7 @@ fn test_ast_pair() {
     int_node.print();
     let str_node = ExprAst::Str(StrNode::new("hello".to_string()));
     str_node.print();
-    let pair_node = ExprAst::Pair(PairNode::new(box int_node, box str_node));
+    let pair_node = ExprAst::Pair(PairNode::new(int_node, str_node));
     let car_node = pair_node.car();
     let cdr_node = pair_node.cdr();
     assert!(car_node.as_int() == 3);
