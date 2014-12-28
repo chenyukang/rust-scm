@@ -1,3 +1,5 @@
+#![feature(macro_rules)]
+
 use std::os;
 use std::io;
 

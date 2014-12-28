@@ -1,3 +1,4 @@
+
 #[deriving(Clone, PartialEq)]
 pub enum ExprAst {
     Int(IntNode),
@@ -31,21 +32,40 @@ impl Ast for ExprAst {
     }
 }
 
+macro_rules! is_type {
+    ($func_name:ident, $type_name:ident) => (impl ExprAst {
+        pub fn $func_name(&self) -> bool {
+            match *self {
+                ExprAst::$type_name(_) => true,
+                _ => false
+            }
+        }})
+}
+
+is_type!(is_char, Char)
+is_type!(is_pair, Pair)
+is_type!(is_int, Int)
+is_type!(is_empty, EmptyList)
+is_type!(is_symbol, Symbol)
+is_type!(is_string, Str)
+is_type!(is_proc, Proc)
+is_type!(is_bool, Bool)
+
 #[allow(dead_code)]
 impl ExprAst {
-    pub fn as_bool(&self) -> bool {
-        match *self {
-            ExprAst::Bool(ref ast) => ast.value,
-            _ => panic!("error type: expect BoolNode")
-        }
-    }
-
     pub fn is_true(&self) -> bool {
         return self.as_bool();
     }
 
     pub fn is_false(&self) -> bool {
         return !self.as_bool();
+    }
+
+    pub fn as_bool(&self) -> bool {
+        match *self {
+            ExprAst::Bool(ref ast) => ast.value,
+            _ => panic!("error type: expect BoolNode")
+        }
     }
 
     pub fn as_int(&self) -> int {
@@ -83,65 +103,9 @@ impl ExprAst {
         }
     }
 
-    pub fn is_char(&self) -> bool {
-        match *self {
-            ExprAst::Char(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_int(&self) -> bool {
-        match *self {
-            ExprAst::Int(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_pair(&self) -> bool {
-        match *self {
-            ExprAst::Pair(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        match *self {
-            ExprAst::EmptyList(_) => true,
-            _ => false
-        }
-    }
-
     pub fn is_last(&self) -> bool {
         assert!(self.is_pair());
         return self.cdr().is_empty();
-    }
-
-    pub fn is_bool(&self) -> bool {
-        match *self {
-            ExprAst::Bool(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_string(&self) -> bool {
-        match *self {
-            ExprAst::Str(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_symbol(&self) -> bool {
-        match *self {
-            ExprAst::Symbol(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_proc(&self) -> bool {
-        match *self {
-            ExprAst::Proc(_) => true,
-            _ => false
-        }
     }
 
     pub fn is_self(&self) -> bool {
