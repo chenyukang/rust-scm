@@ -4,6 +4,8 @@ use ast::ExprAst;
 use ast::StrNode;
 use ast::IntNode;
 use ast::SymbolNode;
+use ast::BoolNode;
+use ast::ProcNode;
 
 #[deriving(Clone, PartialEq)]
 pub struct Env {
@@ -11,7 +13,6 @@ pub struct Env {
     pub vals: Vec<ExprAst>,
     pub next: Option<Box<Env>>
 }
-
 
 #[allow(dead_code)]
 impl Env {
@@ -48,8 +49,11 @@ impl Env {
     }
 
     fn setup(&mut self) {
-        self.def_var(ExprAst::Str(StrNode::new("init")),
-                     ExprAst::Str(StrNode::new("init_val")));
+        fn is_null(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_empty()))
+        }
+        self.def_var(ExprAst::Symbol(SymbolNode::new("null?")),
+                     ExprAst::Proc(ProcNode::new(is_null)));
     }
 }
 
@@ -73,8 +77,8 @@ fn test_env() {
     let val = env.lookup(ExprAst::Str(StrNode::new("1")));
     assert!(val.unwrap().as_int() == 2);
 
-    let val = env.lookup(ExprAst::Str(StrNode::new("init")));
-    assert!(val.unwrap().as_str() == "init_val");
+    // let val = env.lookup(ExprAst::Str(StrNode::new("init")));
+    // assert!(val.unwrap().as_str() == "init_val");
 
     env.def_var(ExprAst::Symbol(SymbolNode::new("sym")),
                 ExprAst::Int(IntNode::new(2)));

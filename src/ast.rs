@@ -1,5 +1,3 @@
-#[allow(dead_code)]
-
 #[deriving(Clone, PartialEq)]
 pub enum ExprAst {
     Int(IntNode),
@@ -327,10 +325,33 @@ impl Ast for EmptyListNode{
     }
 }
 
-//type AstFunc = |args: ExprAst| -> Option<ExprAst>;
+#[deriving(Clone)]
+struct ProcFunc(fn(ExprAst) -> ExprAst);
+
+impl PartialEq for ProcFunc {
+    fn eq(&self, o: &ProcFunc) -> bool {
+        let _o: *const() = unsafe { ::std::mem::transmute(o)};
+        let _s: *const() = unsafe { ::std::mem::transmute(self)};
+        _s == _o
+    }
+    fn ne(&self, o: &ProcFunc) -> bool {
+        !self.eq(o)
+    }
+}
+
 #[deriving(Clone, PartialEq)]
 pub struct ProcNode {
-    value: String
+    value: String,
+    func: ProcFunc
+}
+
+impl ProcNode {
+    pub fn new(obj: fn(ExprAst)-> ExprAst) -> ProcNode {
+        ProcNode {
+            value: "proc".to_string(),
+            func: ProcFunc(obj)
+        }
+    }
 }
 
 impl Ast for ProcNode {

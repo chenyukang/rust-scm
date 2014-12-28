@@ -7,10 +7,7 @@ use ast::Ast;
 use parser::Parser;
 
 use ast::ExprAst;
-use ast::SymbolNode;
-
 use eval::Evaler;
-use std::collections::HashMap;
 
 mod ast;
 mod parser;
@@ -23,19 +20,25 @@ fn help() {
     println!("rust-scm: prog");
 }
 
+type ProcFunc =  fn(int) -> int;
+
 fn add(val: int) -> int {
     return val + 1;
 }
 
 #[allow(dead_code)]
 fn main() {
+    let func: ProcFunc = add;
+    let res = func(2);
+    println!("now res: {}", res);
+
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());
     res.print();
 
     let mut parser = Parser::new();
     let res = parser.load("11".to_string());
-    //assert!(res.as_int() == 11);
+    assert!(res.as_int() == 11);
     res.print();
 
     let args = os::args();
