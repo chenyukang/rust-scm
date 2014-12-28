@@ -83,6 +83,20 @@ impl ExprAst {
         }
     }
 
+    pub fn is_char(&self) -> bool {
+        match *self {
+            ExprAst::Char(_) => true,
+            _ => false
+        }
+    }
+
+    pub fn is_int(&self) -> bool {
+        match *self {
+            ExprAst::Int(_) => true,
+            _ => false
+        }
+    }
+
     pub fn is_pair(&self) -> bool {
         match *self {
             ExprAst::Pair(_) => true,
@@ -102,9 +116,30 @@ impl ExprAst {
         return self.cdr().is_empty();
     }
 
+    pub fn is_bool(&self) -> bool {
+        match *self {
+            ExprAst::Bool(_) => true,
+            _ => false
+        }
+    }
+
+    pub fn is_string(&self) -> bool {
+        match *self {
+            ExprAst::Str(_) => true,
+            _ => false
+        }
+    }
+
     pub fn is_symbol(&self) -> bool {
         match *self {
             ExprAst::Symbol(_) => true,
+            _ => false
+        }
+    }
+
+    pub fn is_proc(&self) -> bool {
+        match *self {
+            ExprAst::Proc(_) => true,
             _ => false
         }
     }

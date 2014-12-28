@@ -52,8 +52,37 @@ impl Env {
         fn is_null(args: ExprAst) -> ExprAst {
             ExprAst::Bool(BoolNode::new(args.car().is_empty()))
         }
+        fn is_boolean(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_bool()))
+        }
+        fn is_symbol(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_symbol()))
+        }
+        fn is_string(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_string()))
+        }
+        fn is_pair(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_pair()))
+        }
+        fn is_char(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_char()))
+        }
+        fn is_int(args: ExprAst) -> ExprAst {
+            ExprAst::Bool(BoolNode::new(args.car().is_int()))
+        }
+
         self.def_var(ExprAst::Symbol(SymbolNode::new("null?")),
                      ExprAst::Proc(ProcNode::new(is_null)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("boolean?")),
+                     ExprAst::Proc(ProcNode::new(is_boolean)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("symbol?")),
+                     ExprAst::Proc(ProcNode::new(is_symbol)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("string?")),
+                     ExprAst::Proc(ProcNode::new(is_string)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("char?")),
+                     ExprAst::Proc(ProcNode::new(is_char)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("integer?")),
+                     ExprAst::Proc(ProcNode::new(is_int)));
     }
 }
 
@@ -77,11 +106,15 @@ fn test_env() {
     let val = env.lookup(ExprAst::Str(StrNode::new("1")));
     assert!(val.unwrap().as_int() == 2);
 
-    // let val = env.lookup(ExprAst::Str(StrNode::new("init")));
-    // assert!(val.unwrap().as_str() == "init_val");
-
     env.def_var(ExprAst::Symbol(SymbolNode::new("sym")),
                 ExprAst::Int(IntNode::new(2)));
     let val = env.lookup(ExprAst::Symbol(SymbolNode::new("sym")));
     assert!(val.unwrap().as_int() == 2);
+
+    let val = env.lookup(ExprAst::Symbol(SymbolNode::new("null?")));
+    assert!(val.unwrap().is_proc());
+    let val = env.lookup(ExprAst::Symbol(SymbolNode::new("char?")));
+    assert!(val.unwrap().is_proc());
+    let val = env.lookup(ExprAst::Symbol(SymbolNode::new("integer?")));
+    assert!(val.unwrap().is_proc());
 }
