@@ -32,7 +32,7 @@ impl Ast for ExprAst {
     }
 }
 
-macro_rules! is_type {
+macro_rules! is_ast_type {
     ($func_name:ident, $type_name:ident) => (impl ExprAst {
         pub fn $func_name(&self) -> bool {
             match *self {
@@ -42,14 +42,33 @@ macro_rules! is_type {
         }})
 }
 
-is_type!(is_char, Char)
-is_type!(is_pair, Pair)
-is_type!(is_int, Int)
-is_type!(is_empty, EmptyList)
-is_type!(is_symbol, Symbol)
-is_type!(is_string, Str)
-is_type!(is_proc, Proc)
-is_type!(is_bool, Bool)
+is_ast_type!(is_char, Char)
+is_ast_type!(is_pair, Pair)
+is_ast_type!(is_int, Int)
+is_ast_type!(is_empty, EmptyList)
+is_ast_type!(is_symbol, Symbol)
+is_ast_type!(is_string, Str)
+is_ast_type!(is_proc, Proc)
+is_ast_type!(is_bool, Bool)
+
+macro_rules! is_type {
+    ($func_name:ident, $type_str:expr) => (impl ExprAst {
+        pub fn $func_name(&self) -> bool {
+            return self.is_tagged(ExprAst::Symbol(SymbolNode::new($type_str)));
+        }
+    })
+}
+
+is_type!(is_quote, "quote")
+is_type!(is_def, "def")
+is_type!(is_and, "and")
+is_type!(is_or, "or")
+is_type!(is_if, "if")
+is_type!(is_assign, "set!")
+is_type!(is_lambda, "lambda")
+is_type!(is_cond, "cond")
+is_type!(is_let, "let")
+is_type!(is_begin, "begin")
 
 #[allow(dead_code)]
 impl ExprAst {
@@ -116,46 +135,6 @@ impl ExprAst {
             ExprAst::Str(_) => true,
             _ => false
         }
-    }
-
-    pub fn is_quote(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("quote")));
-    }
-
-    pub fn is_assign(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("set!")));
-    }
-
-    pub fn is_def(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("def")));
-    }
-
-    pub fn is_and(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("and")));
-    }
-
-    pub fn is_or(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("or")));
-    }
-
-    pub fn is_if(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("if")));
-    }
-
-    pub fn is_lambda(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("lambda")));
-    }
-
-    pub fn is_cond(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("cond")));
-    }
-
-    pub fn is_let(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("let")));
-    }
-
-    pub fn is_begin(&self) -> bool {
-        return self.is_tagged(ExprAst::Symbol(SymbolNode::new("begin")));
     }
 
     pub fn def_var(&self) -> ExprAst {
@@ -473,4 +452,24 @@ fn test_ast_emptylist_fail() {
     let empty_node = ExprAst::Int(IntNode::new(3));
     assert!(empty_node.is_empty());
     assert!(empty_node.is_quote());
+}
+
+#[test]
+fn test_ast_is_set() {
+
+    macro_rules! test_case {
+        ($str_name:expr) => {
+            {let node = ExprAst::Pair(PairNode::new(
+                ExprAst::Symbol(SymbolNode::new($str_name)),
+                ExprAst::Int(IntNode::new(3))));
+            node}
+        }
+    }
+    assert!(test_case!("let").is_let());
+    assert!(test_case!("if").is_if());
+    assert!(test_case!("lambda").is_lambda());
+    assert!(test_case!("cond").is_cond());
+    assert!(test_case!("set!").is_assign());
+    assert!(test_case!("cond").is_cond());
+    assert!(test_case!("begin").is_begin());
 }
