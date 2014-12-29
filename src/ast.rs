@@ -42,14 +42,14 @@ macro_rules! is_ast_type {
         }})
 }
 
-is_ast_type!(is_char, Char)
-is_ast_type!(is_pair, Pair)
-is_ast_type!(is_int, Int)
-is_ast_type!(is_empty, EmptyList)
-is_ast_type!(is_symbol, Symbol)
-is_ast_type!(is_string, Str)
-is_ast_type!(is_proc, Proc)
-is_ast_type!(is_bool, Bool)
+is_ast_type!(is_char, Char);
+is_ast_type!(is_pair, Pair);
+is_ast_type!(is_int, Int);
+is_ast_type!(is_empty, EmptyList);
+is_ast_type!(is_symbol, Symbol);
+is_ast_type!(is_string, Str);
+is_ast_type!(is_proc, Proc);
+is_ast_type!(is_bool, Bool);
 
 macro_rules! is_type {
     ($func_name:ident, $type_str:expr) => (impl ExprAst {
@@ -59,16 +59,16 @@ macro_rules! is_type {
     })
 }
 
-is_type!(is_quote, "quote")
-is_type!(is_def, "def")
-is_type!(is_and, "and")
-is_type!(is_or, "or")
-is_type!(is_if, "if")
-is_type!(is_assign, "set!")
-is_type!(is_lambda, "lambda")
-is_type!(is_cond, "cond")
-is_type!(is_let, "let")
-is_type!(is_begin, "begin")
+is_type!(is_quote, "quote");
+is_type!(is_def, "def");
+is_type!(is_and, "and");
+is_type!(is_or, "or");
+is_type!(is_if, "if");
+is_type!(is_assign, "set!");
+is_type!(is_lambda, "lambda");
+is_type!(is_cond, "cond");
+is_type!(is_let, "let");
+is_type!(is_begin, "begin");
 
 #[allow(dead_code)]
 impl ExprAst {

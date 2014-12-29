@@ -15,8 +15,6 @@ mod ast;
 mod parser;
 mod env;
 mod eval;
-mod test;
-
 
 fn help() {
     println!("rust-scm: prog");
