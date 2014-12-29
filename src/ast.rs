@@ -457,3 +457,10 @@ fn test_ast_is_set() {
     assert!(test_case!("cond").is_cond());
     assert!(test_case!("begin").is_begin());
 }
+
+#[test]
+fn test_symbol_eq() {
+    let aa = ExprAst::Symbol(SymbolNode::new("else"));
+    let bb = ExprAst::Symbol(SymbolNode::new("else"));
+    assert!(aa == bb);
+}

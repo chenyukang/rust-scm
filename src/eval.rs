@@ -49,8 +49,9 @@ impl Evaler {
             return self._eval_and(exp, env);
         } else if exp.is_or() {
             return self._eval_or(exp, env);
+        } else if exp.is_cond() {
+            return self._eval_cond(exp, env);
         }
-
         ExprAst::Int(IntNode::new(0))
     }
 
@@ -118,6 +119,16 @@ impl Evaler {
     }
 
     fn _eval_cond(&mut self, exp: ExprAst, env: &mut Env) -> ExprAst {
+        let mut elems = exp.cdr().car();
+        loop {
+            if elems.is_empty() { break; }
+            let cur = elems.car();
+            let val = self._eval(cur.clone(), env);
+            if val.is_true() || val == ExprAst::Symbol(SymbolNode::new("else")) {
+                return self._eval(cur.clone().cdr().car(), env);
+            }
+            elems = elems.cdr();
+        }
         return ExprAst::Bool(BoolNode::new(true));
     }
 
@@ -143,6 +154,22 @@ fn test_evaler() {
     assert!(res.as_str() == "hello");
 
     let res = evaler.eval("#t".to_string());
-    assert!(res.as_bool() == true);
+    assert!(res.as_bool());
+
+    let res = evaler.eval("(and #t #t)".to_string());
+    assert!(res.as_bool());
+
+    let res = evaler.eval("(and #t #f)".to_string());
+    assert!(res.as_bool() == false);
+
+    let res = evaler.eval("(or #t #t)".to_string());
+    assert!(res.as_bool());
+
+    let res = evaler.eval("(or #f #f)".to_string());
+    assert!(res.as_bool() == false);
+
+    let res = evaler.eval("(or #t #f)".to_string());
+    assert!(res.as_bool());
+
 
 }
