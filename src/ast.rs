@@ -103,6 +103,7 @@ impl ExprAst {
     pub fn as_str(&self) -> String {
         match *self {
             ExprAst::Str(ref ast) => ast.value.clone(),
+            ExprAst::Symbol(ref ast) => ast.value.clone(),
             _ => panic!("error type: expect StrNode")
         }
     }

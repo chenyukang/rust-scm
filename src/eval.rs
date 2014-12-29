@@ -171,5 +171,6 @@ fn test_evaler() {
     let res = evaler.eval("(or #t #f)".to_string());
     assert!(res.as_bool());
 
-
+    let res = evaler.eval("(set! a 1)".to_string());
+    assert!(res.as_str() == "OK");
 }
