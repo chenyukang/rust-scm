@@ -9,7 +9,7 @@ pub enum ExprAst {
     Char(CharNode),
     Proc(ProcNode),
     CompProc(CompProcNode),
-    EmptyList(EmptyListNode),
+    Nil
 }
 
 pub trait Ast {
@@ -27,7 +27,7 @@ impl Ast for ExprAst {
             ExprAst::Char(ref ast) => ast.print(),
             ExprAst::Proc(ref ast) => ast.print(),
             ExprAst::CompProc(ref ast) => ast.print(),
-            ExprAst::EmptyList(ref ast) => ast.print(),
+            ExprAst::Nil => println!("nil")
         }
     }
 }
@@ -45,7 +45,6 @@ macro_rules! is_ast_type {
 is_ast_type!(is_char, Char);
 is_ast_type!(is_pair, Pair);
 is_ast_type!(is_int, Int);
-is_ast_type!(is_empty, EmptyList);
 is_ast_type!(is_symbol, Symbol);
 is_ast_type!(is_string, Str);
 is_ast_type!(is_proc, Proc);
@@ -78,6 +77,13 @@ impl ExprAst {
 
     pub fn is_false(&self) -> bool {
         return !self.as_bool();
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match *self {
+            ExprAst::Nil => true,
+            _ => false
+        }
     }
 
     pub fn as_bool(&self) -> bool {
@@ -282,27 +288,6 @@ impl CharNode {
     }
 }
 
-//FIXME, empty struct?
-#[deriving(Clone, PartialEq)]
-pub struct EmptyListNode {
-    pub value: String
-}
-
-#[allow(dead_code)]
-impl EmptyListNode {
-    pub fn new() -> EmptyListNode {
-        EmptyListNode {
-            value: "EmptyListNode".to_string()
-        }
-    }
-}
-
-impl Ast for EmptyListNode{
-    fn print(&self) {
-        println!("EmptyListNode");
-    }
-}
-
 #[deriving(Clone)]
 struct ProcFunc(fn(ExprAst) -> ExprAst);
 
@@ -441,7 +426,7 @@ fn test_ast_pair_fail() {
 
 #[test]
 fn test_ast_emptylist() {
-    let empty_node = ExprAst::EmptyList(EmptyListNode::new());
+    let empty_node = ExprAst::Nil;
     assert!(empty_node.is_empty());
     assert!(!empty_node.is_self());
 }
@@ -456,7 +441,6 @@ fn test_ast_emptylist_fail() {
 
 #[test]
 fn test_ast_is_set() {
-
     macro_rules! test_case {
         ($str_name:expr) => {
             {let node = ExprAst::Pair(PairNode::new(

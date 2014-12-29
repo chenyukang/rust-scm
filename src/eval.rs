@@ -9,7 +9,6 @@ use ast::BoolNode;
 // use ast::StrNode;
 // use ast::PairNode;
 // use ast::SymbolNode;
-// use ast::EmptyListNode;
 
 //use ast::Ast;
 use parser::Parser;

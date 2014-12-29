@@ -6,7 +6,7 @@ use ast::IntNode;
 use ast::StrNode;
 use ast::PairNode;
 use ast::SymbolNode;
-use ast::EmptyListNode;
+//use ast::Nil;
 
 use ast::Ast;
 
@@ -121,7 +121,7 @@ impl Parser {
             } else if cur == '\'' {
                 let quote_sym = ExprAst::Symbol(SymbolNode::new("quote"));
                 let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp(),
-                                                            ExprAst::EmptyList(EmptyListNode::new())));
+                                                            ExprAst::Nil));
                 return ExprAst::Pair(PairNode::new(quote_sym,
                                                    quote_exp));
             }
@@ -133,7 +133,7 @@ impl Parser {
         let mut cur = self.readc();
         // rust-mode bug here
         if cur != '(' && cur == ')' {
-            return ExprAst::EmptyList(EmptyListNode::new());
+            return ExprAst::Nil;
         }
         self.unread();
         let car_obj = self.read_exp();
@@ -144,7 +144,7 @@ impl Parser {
             let cdr_obj = self.read_pair();
             return ExprAst::Pair(PairNode::new(car_obj, cdr_obj));
         } else {
-            return ExprAst::EmptyList(EmptyListNode::new());
+            return ExprAst::Nil;
         }
     }
 
