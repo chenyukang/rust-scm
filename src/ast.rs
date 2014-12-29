@@ -425,7 +425,7 @@ fn test_ast_pair_fail() {
 }
 
 #[test]
-fn test_ast_emptylist() {
+fn test_ast_empty() {
     let empty_node = ExprAst::Nil;
     assert!(empty_node.is_empty());
     assert!(!empty_node.is_self());
@@ -433,7 +433,7 @@ fn test_ast_emptylist() {
 
 #[test]
 #[should_fail]
-fn test_ast_emptylist_fail() {
+fn test_ast_empty_fail() {
     let empty_node = ExprAst::Int(IntNode::new(3));
     assert!(empty_node.is_empty());
     assert!(empty_node.is_quote());
