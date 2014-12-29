@@ -1,9 +1,8 @@
 #![feature(macro_rules)]
+#[allow(dead_code)]
 
 use std::os;
 use std::io;
-
-#[allow(dead_code)]
 
 use ast::Ast;
 use parser::Parser;
@@ -20,18 +19,8 @@ fn help() {
     println!("rust-scm: prog");
 }
 
-type ProcFunc =  fn(int) -> int;
-
-fn add(val: int) -> int {
-    return val + 1;
-}
-
 #[allow(dead_code)]
 fn main() {
-    let func: ProcFunc = add;
-    let res = func(2);
-    println!("now res: {}", res);
-
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());
     res.print();
