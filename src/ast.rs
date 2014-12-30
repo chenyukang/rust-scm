@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 
 #[deriving(Clone, PartialEq)]
 pub enum ExprAst {

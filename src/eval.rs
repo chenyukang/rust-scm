@@ -1,11 +1,6 @@
 
-use ast::ExprAst;
-use ast::IntNode;
-use env::Env;
-
-use ast::SymbolNode;
-use ast::BoolNode;
-use ast::PairNode;
+use ast::*;
+use env::*;
 
 //use ast::Ast;
 use parser::Parser;

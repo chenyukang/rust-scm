@@ -1,14 +1,4 @@
-
-use ast::ExprAst;
-use ast::BoolNode;
-use ast::CharNode;
-use ast::IntNode;
-use ast::StrNode;
-use ast::PairNode;
-use ast::SymbolNode;
-//use ast::Nil;
-
-use ast::Ast;
+use ast::*;
 
 #[deriving(Clone, Show)]
 pub struct Parser {

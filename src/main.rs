@@ -1,4 +1,6 @@
 #![feature(macro_rules)]
+#![feature(globs)]
+#[allow(unused_imports)]
 #[allow(dead_code)]
 
 use std::os;
@@ -7,7 +9,6 @@ use std::io;
 use ast::Ast;
 use parser::Parser;
 
-use ast::ExprAst;
 use eval::Evaler;
 
 mod ast;
