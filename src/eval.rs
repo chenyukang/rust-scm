@@ -189,6 +189,18 @@ fn test_evaler() {
     let res = evaler.eval("(set! a 1)".to_string());
     assert!(res.as_str() == "OK");
 
+    let res = evaler.eval("(integer? 1)".to_string());
+    assert!(res.as_bool());
+
+    let res = evaler.eval("(boolean? #t)".to_string());
+    assert!(res.as_bool());
+
+    //let res = evaler.eval("(boolean? #f)".to_string());
+    //assert!(res.as_bool() == false);
+
+    let res = evaler.eval("(integer? #t)".to_string());
+    assert!(res.as_bool() == false);
+
     let res = evaler.eval("(+ 1 1)".to_string());
     assert!(res.as_int() == 2);
 
@@ -197,4 +209,16 @@ fn test_evaler() {
 
     let res = evaler.eval("(+ 1 1 -1 -1)".to_string());
     assert!(res.as_int() == 0);
+
+    let res = evaler.eval("(/ 2 1)".to_string());
+    assert!(res.as_int() == 2);
+
+    let res = evaler.eval("(* 2 2)".to_string());
+    assert!(res.as_int() == 4);
+
+    let res = evaler.eval("(> 2 1)".to_string());
+    assert!(res.as_bool());
+
+    let res = evaler.eval("(> 1 2)".to_string());
+    assert!(res.as_bool() == false);
 }

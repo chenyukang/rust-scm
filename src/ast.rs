@@ -54,7 +54,7 @@ is_ast_type!(is_bool, Bool);
 macro_rules! is_type {
     ($func_name:ident, $type_str:expr) => (impl ExprAst {
         pub fn $func_name(&self) -> bool {
-            return self.is_tagged(ExprAst::Symbol(SymbolNode::new($type_str)));
+            return self.is_tagged(ExprAst::Symbol(SymbolNode::new($type_str)))
         }
     })
 }
