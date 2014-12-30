@@ -70,6 +70,16 @@ impl Env {
         fn is_int(args: ExprAst) -> ExprAst {
             ExprAst::Bool(BoolNode::new(args.car().is_int()))
         }
+        fn add(args: ExprAst) -> ExprAst {
+            let mut res = 0i;
+            let mut _args = args;
+            loop {
+                if _args.is_empty() { break; }
+                res += _args.car().as_int();
+                _args = _args.cdr();
+            }
+            return ExprAst::Int(IntNode::new(res));
+        }
 
         self.def_var(ExprAst::Symbol(SymbolNode::new("null?")),
                      ExprAst::Proc(ProcNode::new(is_null)));
@@ -83,6 +93,8 @@ impl Env {
                      ExprAst::Proc(ProcNode::new(is_char)));
         self.def_var(ExprAst::Symbol(SymbolNode::new("integer?")),
                      ExprAst::Proc(ProcNode::new(is_int)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("+")),
+                     ExprAst::Proc(ProcNode::new(add)));
     }
 }
 

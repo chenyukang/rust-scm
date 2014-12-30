@@ -5,10 +5,7 @@ use env::Env;
 
 use ast::SymbolNode;
 use ast::BoolNode;
-// use ast::CharNode;
-// use ast::StrNode;
-// use ast::PairNode;
-// use ast::SymbolNode;
+use ast::PairNode;
 
 //use ast::Ast;
 use parser::Parser;
@@ -51,6 +48,8 @@ impl Evaler {
             return self._eval_or(exp, env);
         } else if exp.is_cond() {
             return self._eval_cond(exp, env);
+        } else if exp.is_pair() { //app
+            return self._eval_app(exp, env);
         }
         ExprAst::Int(IntNode::new(0))
     }
@@ -142,6 +141,27 @@ impl Evaler {
         return self._eval(_exp.car(), env);
     }
 
+    fn _eval_values(&mut self, exprs: ExprAst, env: &mut Env) -> ExprAst {
+        if exprs.is_empty() {
+            return ExprAst::Nil;
+        } else {
+            let first = self._eval(exprs.car(), env);
+            return ExprAst::Pair(PairNode::new(first,
+                                               self._eval_values(exprs.cdr(), env)));
+        }
+    }
+
+    fn _eval_app(&mut self, expr: ExprAst, env: &mut Env) -> ExprAst {
+        let _proc = self._eval(expr.car(), env);
+        if _proc.is_proc() {
+            let _args = self._eval_values(expr.cdr(), env);
+            let func = _proc.as_proc().func();
+            return func(_args);
+        } else {
+            return ExprAst::Bool(BoolNode::new(true));
+        }
+    }
+
 }
 
 #[test]
@@ -173,4 +193,13 @@ fn test_evaler() {
 
     let res = evaler.eval("(set! a 1)".to_string());
     assert!(res.as_str() == "OK");
+
+    let res = evaler.eval("(+ 1 1)".to_string());
+    assert!(res.as_int() == 2);
+
+    let res = evaler.eval("(+ 1 1 1)".to_string());
+    assert!(res.as_int() == 3);
+
+    let res = evaler.eval("(+ 1 1 -1 -1)".to_string());
+    assert!(res.as_int() == 0);
 }

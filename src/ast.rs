@@ -115,6 +115,13 @@ impl ExprAst {
         }
     }
 
+    pub fn as_proc(&self) -> ProcFunc {
+        match *self {
+            ExprAst::Proc(ref ast) => ast.func.clone(),
+            _ => panic!("error type: expct ProcNode")
+        }
+    }
+
     pub fn car(&self) -> ExprAst {
         match *self {
             ExprAst::Pair(ref ast) => ast.pair[0].clone(),
@@ -290,7 +297,7 @@ impl CharNode {
 }
 
 #[deriving(Clone)]
-struct ProcFunc(fn(ExprAst) -> ExprAst);
+pub struct ProcFunc(fn(ExprAst) -> ExprAst);
 
 impl PartialEq for ProcFunc {
     fn eq(&self, o: &ProcFunc) -> bool {
@@ -300,6 +307,14 @@ impl PartialEq for ProcFunc {
     }
     fn ne(&self, o: &ProcFunc) -> bool {
         !self.eq(o)
+    }
+}
+
+impl ProcFunc {
+    pub fn func(&self) -> (fn(ExprAst) -> ExprAst) {
+        match *self {
+            ProcFunc(fun) => fun
+        }
     }
 }
 

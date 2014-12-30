@@ -22,6 +22,12 @@ fn help() {
 #[allow(dead_code)]
 fn main() {
     let mut evaler = Evaler::new();
+    let res = evaler.eval("(+ 1 1)".to_string());
+    assert!(res.as_int() == 2);
+    res.print();
+
+
+    let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());
     res.print();
 
