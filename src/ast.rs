@@ -70,7 +70,6 @@ is_type!(is_cond, "cond");
 is_type!(is_let, "let");
 is_type!(is_begin, "begin");
 
-#[allow(dead_code)]
 impl ExprAst {
     pub fn is_true(&self) -> bool {
         return self.as_bool();
@@ -185,7 +184,6 @@ pub struct IntNode {
     value: int
 }
 
-#[allow(dead_code)]
 impl IntNode {
     pub fn new(val: int) -> IntNode {
         IntNode{ value: val}
@@ -209,7 +207,6 @@ impl Ast for StrNode {
     }
 }
 
-#[allow(dead_code)]
 impl StrNode {
     pub fn new(val: &str) -> StrNode {
         StrNode{ value: val.to_string()}
@@ -221,7 +218,6 @@ pub struct BoolNode {
     value: bool
 }
 
-#[allow(dead_code)]
 impl BoolNode {
     pub fn new(val: bool) -> BoolNode {
         BoolNode{ value: val}
@@ -239,7 +235,6 @@ pub struct PairNode{
     pair: Vec<ExprAst>,
 }
 
-#[allow(dead_code)]
 impl PairNode {
     pub fn new(car: ExprAst, cdr: ExprAst) -> PairNode {
         PairNode {
@@ -268,7 +263,6 @@ impl Ast for SymbolNode {
     }
 }
 
-#[allow(dead_code)]
 impl SymbolNode {
     pub fn new(val: &str) -> SymbolNode {
         SymbolNode {
@@ -288,7 +282,6 @@ impl Ast for CharNode {
     }
 }
 
-#[allow(dead_code)]
 impl CharNode {
     pub fn new(val: char) -> CharNode {
         CharNode {

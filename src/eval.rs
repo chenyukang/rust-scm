@@ -233,4 +233,7 @@ fn test_evaler() {
 
     let res = evaler.eval("(eq? 1 #f)".to_string());
     assert!(res.as_bool() == false);
+
+    //let res = evaler.eval("(pair? '())".to_string());
+    //assert!(res.as_bool());
 }

@@ -29,7 +29,6 @@ impl ParserError {
 #[allow(dead_code)]
 pub type ParseResult<T> = Result<T, ParserError>;
 
-#[allow(dead_code)]
 impl Parser {
     pub fn new() -> Parser {
         Parser{

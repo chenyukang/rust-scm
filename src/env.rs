@@ -7,7 +7,6 @@ pub struct Env {
     pub next: Option<Box<Env>>
 }
 
-#[allow(dead_code)]
 impl Env {
     pub fn new() -> Env {
         let mut res = Env {
@@ -79,6 +78,7 @@ impl Env {
         add_proc!("eq?", eq);
         add_proc!("<", less);
         add_proc!(">", large);
+        add_proc!("pair?", is_pair);
     }
 }
 
@@ -200,4 +200,5 @@ fn test_env() {
 
     let val = env.lookup(ExprAst::Symbol(SymbolNode::new("<")));
     assert!(val.unwrap().is_proc());
+
 }
