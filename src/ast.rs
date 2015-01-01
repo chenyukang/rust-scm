@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+use env;
 
 #[deriving(Clone, PartialEq)]
 pub enum ExprAst {
@@ -338,7 +338,7 @@ impl Ast for ProcNode {
 pub struct CompProcNode {
     pub params: Box<ExprAst>,
     pub body:   Box<ExprAst>,
-    pub env:    Box<ExprAst>
+    pub env:    Option<Box<env::Env>>
 }
 
 impl Ast for CompProcNode {
@@ -346,7 +346,6 @@ impl Ast for CompProcNode {
         println!("CompProcNode: ");
         self.params.print();
         self.body.print();
-        self.env.print();
     }
 }
 

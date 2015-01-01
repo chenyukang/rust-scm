@@ -1,20 +1,19 @@
 #![feature(macro_rules)]
 #![feature(globs)]
+
 #[allow(unused_imports)]
-#[allow(dead_code)]
 
 use std::os;
 use std::io;
 
 use ast::Ast;
 use parser::Parser;
-
 use eval::Evaler;
 
 mod ast;
-mod parser;
 mod env;
 mod eval;
+mod parser;
 
 fn help() {
     println!("rust-scm: prog");
@@ -22,11 +21,6 @@ fn help() {
 
 #[allow(dead_code)]
 fn main() {
-    let mut evaler = Evaler::new();
-    let res = evaler.eval("(boolean? #f)".to_string());
-    res.print();
-
-
     let mut evaler = Evaler::new();
     let res = evaler.eval("11".to_string());
     res.print();
