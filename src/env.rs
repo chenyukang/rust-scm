@@ -1,11 +1,4 @@
-
-//use ast::Ast;
-use ast::ExprAst;
-use ast::StrNode;
-use ast::IntNode;
-use ast::SymbolNode;
-use ast::BoolNode;
-use ast::ProcNode;
+use ast::*;
 
 #[deriving(Clone, PartialEq)]
 pub struct Env {
@@ -13,10 +6,6 @@ pub struct Env {
     pub vals: Vec<ExprAst>,
     pub next: Option<Box<Env>>
 }
-
-
-// macro_rules! def_proc {
-//     ($type_str:expr, $func_name:ident) => (
 
 #[allow(dead_code)]
 impl Env {
@@ -53,143 +42,127 @@ impl Env {
     }
 
     fn setup(&mut self) {
-        fn is_null(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_empty()))
-        }
-
-        fn is_boolean(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_bool()))
-        }
-        fn is_symbol(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_symbol()))
-        }
-
-        fn is_string(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_string()))
-        }
-
-        fn is_pair(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_pair()))
-        }
-
-        fn is_char(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_char()))
-        }
-
-        fn is_int(args: ExprAst) -> ExprAst {
-            ExprAst::Bool(BoolNode::new(args.car().is_int()))
-        }
-
-        fn add(args: ExprAst) -> ExprAst {
-            let mut res = 0i;
-            let mut exps = args;
-            loop {
-                if exps.is_empty() { break; }
-                res += exps.car().as_int();
-                exps = exps.cdr();
-            }
-            return ExprAst::Int(IntNode::new(res));
-        }
-
-        fn sub(args: ExprAst) -> ExprAst {
-            let mut res = 0i;
-            let mut exps = args;
-            loop {
-                if exps.is_empty() { break; }
-                res -= exps.car().as_int();
-                exps = exps.cdr();
-            }
-            return ExprAst::Int(IntNode::new(res));
-        }
-
-        fn mul(args: ExprAst) -> ExprAst {
-            let mut res = 1i;
-            let mut exps = args;
-            loop {
-                if exps.is_empty() { break; }
-                res *= exps.car().as_int();
-                exps = exps.cdr();
-            }
-            return ExprAst::Int(IntNode::new(res));
-        }
-
-        fn div(args: ExprAst) -> ExprAst {
-            let mut exps = args;
-            let mut res = exps.car().as_int();
-            exps = exps.cdr();
-            loop {
-                if exps.is_empty() { break; }
-                let nxt = exps.car().as_int();
-                if nxt == 0 {
-                    return ExprAst::Symbol(SymbolNode::new("Fail"));
+        macro_rules! def_proc {
+            ($func_name:ident, $raw_func_name:ident) => (
+                fn $func_name(args: ExprAst) -> ExprAst {
+                    ExprAst::Bool(BoolNode::new(args.car().$raw_func_name()))
                 }
-                res /= nxt;
-                exps = exps.cdr();
-            }
-            return ExprAst::Int(IntNode::new(res));
+                )
         }
 
-        fn eq(args: ExprAst) -> ExprAst {
-            let obj1 = args.car();
-            let obj2 = args.cdr().car();
-            return ExprAst::Bool(BoolNode::new(obj1 == obj2));
+        macro_rules! add_proc {
+            ($type_str:expr, $func_name:ident) => (
+                self.def_var(ExprAst::Symbol(SymbolNode::new($type_str)),
+                             ExprAst::Proc(ProcNode::new($func_name)))
+                    )
         }
 
-        fn less(args: ExprAst) -> ExprAst {
-            let val = args.car().as_int();
-            let mut exps = args.cdr();
-            loop {
-                if exps.is_empty() { break; }
-                if val >= exps.car().as_int() {
-                    return ExprAst::Bool(BoolNode::new(false));
-                }
-                exps = exps.cdr();
-            }
-            return ExprAst::Bool(BoolNode::new(true));
-        }
+        def_proc!(is_null, is_empty);
+        def_proc!(is_boolean, is_bool);
+        def_proc!(is_symbol, is_symbol);
+        def_proc!(is_string, is_string);
+        def_proc!(is_pair, is_pair);
+        def_proc!(is_char, is_char);
+        def_proc!(is_int, is_int);
 
-        fn large(args: ExprAst) -> ExprAst {
-            let val = args.car().as_int();
-            let mut exps = args.cdr();
-            loop {
-                if exps.is_empty() { break; }
-                if val <= exps.car().as_int() {
-                    return ExprAst::Bool(BoolNode::new(false));
-                }
-                exps = exps.cdr();
-            }
-            return ExprAst::Bool(BoolNode::new(true));
-        }
 
-        self.def_var(ExprAst::Symbol(SymbolNode::new("null?")),
-                     ExprAst::Proc(ProcNode::new(is_null)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("boolean?")),
-                     ExprAst::Proc(ProcNode::new(is_boolean)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("symbol?")),
-                     ExprAst::Proc(ProcNode::new(is_symbol)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("string?")),
-                     ExprAst::Proc(ProcNode::new(is_string)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("char?")),
-                     ExprAst::Proc(ProcNode::new(is_char)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("integer?")),
-                     ExprAst::Proc(ProcNode::new(is_int)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("+")),
-                     ExprAst::Proc(ProcNode::new(add)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("-")),
-                     ExprAst::Proc(ProcNode::new(sub)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("<")),
-                     ExprAst::Proc(ProcNode::new(less)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new(">")),
-                     ExprAst::Proc(ProcNode::new(large)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("*")),
-                     ExprAst::Proc(ProcNode::new(mul)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("/")),
-                     ExprAst::Proc(ProcNode::new(div)));
-        self.def_var(ExprAst::Symbol(SymbolNode::new("eq?")),
-                     ExprAst::Proc(ProcNode::new(eq)));
+        add_proc!("null?", is_null);
+        add_proc!("boolean?", is_boolean);
+        add_proc!("symbol?", is_symbol);
+        add_proc!("string?", is_string);
+        add_proc!("char?", is_char);
+        add_proc!("integer?", is_int);
+        add_proc!("+", add);
+        add_proc!("-", sub);
+        add_proc!("*", mul);
+        add_proc!("/", div);
+        add_proc!("eq?", eq);
+        add_proc!("<", less);
+        add_proc!(">", large);
     }
 }
 
+
+fn add(args: ExprAst) -> ExprAst {
+    let mut res = 0i;
+    let mut exps = args;
+    loop {
+        if exps.is_empty() { break; }
+        res += exps.car().as_int();
+        exps = exps.cdr();
+    }
+    return ExprAst::Int(IntNode::new(res));
+}
+
+fn sub(args: ExprAst) -> ExprAst {
+    let mut res = 0i;
+    let mut exps = args;
+    loop {
+        if exps.is_empty() { break; }
+        res -= exps.car().as_int();
+        exps = exps.cdr();
+    }
+    return ExprAst::Int(IntNode::new(res));
+}
+
+fn mul(args: ExprAst) -> ExprAst {
+    let mut res = 1i;
+    let mut exps = args;
+    loop {
+        if exps.is_empty() { break; }
+        res *= exps.car().as_int();
+        exps = exps.cdr();
+    }
+    return ExprAst::Int(IntNode::new(res));
+}
+
+fn div(args: ExprAst) -> ExprAst {
+    let mut exps = args;
+    let mut res = exps.car().as_int();
+    exps = exps.cdr();
+    loop {
+        if exps.is_empty() { break; }
+        let nxt = exps.car().as_int();
+        if nxt == 0 {
+            return ExprAst::Symbol(SymbolNode::new("Fail"));
+        }
+        res /= nxt;
+        exps = exps.cdr();
+    }
+    return ExprAst::Int(IntNode::new(res));
+}
+
+fn eq(args: ExprAst) -> ExprAst {
+    let obj1 = args.car();
+    let obj2 = args.cdr().car();
+    return ExprAst::Bool(BoolNode::new(obj1 == obj2));
+}
+
+fn less(args: ExprAst) -> ExprAst {
+    let val = args.car().as_int();
+    let mut exps = args.cdr();
+    loop {
+        if exps.is_empty() { break; }
+        if val >= exps.car().as_int() {
+            return ExprAst::Bool(BoolNode::new(false));
+        }
+        exps = exps.cdr();
+    }
+    return ExprAst::Bool(BoolNode::new(true));
+}
+
+fn large(args: ExprAst) -> ExprAst {
+    let val = args.car().as_int();
+    let mut exps = args.cdr();
+    loop {
+        if exps.is_empty() { break; }
+        if val <= exps.car().as_int() {
+            return ExprAst::Bool(BoolNode::new(false));
+        }
+        exps = exps.cdr();
+    }
+    return ExprAst::Bool(BoolNode::new(true));
+}
 
 #[test]
 fn test_env() {
