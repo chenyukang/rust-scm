@@ -40,11 +40,15 @@ impl Env {
         };
     }
 
-    pub fn extend(self, vars: ExprAst, vals: ExprAst) -> Env {
+    pub fn extend(&mut self, vars: ExprAst, vals: ExprAst) -> Env {
         let mut _vars = vars;
         let mut _vals = vals;
-        let mut res = Env::new();
-        res.parent = Some(box self);
+        // FIXME: remove clone
+        let mut res = Env {
+            vars: vec![],
+            vals: vec![],
+            parent: Some(box self.clone())
+        };
         loop {
             if _vars.is_last() { break; }
             res.add_bingding(_vars.car(), _vals.car());
@@ -52,7 +56,7 @@ impl Env {
             _vals = _vals.cdr();
         }
         res.add_bingding(_vars.car(), _vals.car());
-        return res.clone();
+        return res;
     }
 
 
@@ -79,7 +83,6 @@ impl Env {
         def_proc!(is_pair, is_pair);
         def_proc!(is_char, is_char);
         def_proc!(is_int, is_int);
-
 
         add_proc!("null?", is_null);
         add_proc!("boolean?", is_boolean);
@@ -232,7 +235,7 @@ fn test_env_extend() {
         ExprAst::Str(StrNode::new("val")),
         ExprAst::Nil));
 
-    let extend_env = env.extend(vars, vals);
+    let mut extend_env = env.extend(vars, vals);
     let val = extend_env.lookup(ExprAst::Str(StrNode::new("var")));
     assert!(val.unwrap().as_str() == "val");
 

@@ -171,6 +171,20 @@ impl ExprAst {
         }
     }
 
+    pub fn params(&self) -> ExprAst {
+        match *self {
+            ExprAst::CompProc(ref ast) => ast.pair[0].clone(),
+            _ => panic!("error type: expect CompProc")
+        }
+    }
+
+    pub fn body(&self) -> ExprAst {
+        match *self {
+            ExprAst::CompProc(ref ast) => ast.pair[1].clone(),
+            _ => panic!("error type: expect CompProc")
+        }
+    }
+
     fn is_tagged(&self, tag: ExprAst) -> bool {
         if self.is_pair() {
             let car = self.car();
@@ -337,16 +351,14 @@ impl Ast for ProcNode {
 
 #[deriving(Clone, PartialEq)]
 pub struct CompProcNode {
-    pub params: Box<ExprAst>,
-    pub body:   Box<ExprAst>,
+    pub pair:   Vec<ExprAst>,
     pub env:    Option<Box<env::Env>>
 }
 
 impl CompProcNode {
-    pub fn new(params: Box<ExprAst>, body: Box<ExprAst>, env: Box<env::Env>) -> CompProcNode {
+    pub fn new(params: ExprAst, body: ExprAst, env: Box<env::Env>) -> CompProcNode {
         CompProcNode {
-            params: params,
-            body: body,
+            pair: vec![params, body],
             env: Some(env)
         }
     }
@@ -355,8 +367,6 @@ impl CompProcNode {
 impl Ast for CompProcNode {
     fn print(&self) {
         println!("CompProcNode: ");
-        self.params.print();
-        self.body.print();
     }
 }
 
