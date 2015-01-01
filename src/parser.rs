@@ -90,8 +90,7 @@ impl Parser {
                     buf.push(cur);
                 }
                 return ExprAst::Str(StrNode::new(buf.as_slice()));
-            } else if cur == '(' && cur != ')' {
-                // rust-mode bug here
+            } else if cur == '(' {
                 return self.read_pair();
             } else if self.is_initial(cur) {
                 let mut buf = String::new();
