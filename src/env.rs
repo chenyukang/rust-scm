@@ -239,4 +239,22 @@ fn test_env_extend() {
     let val = extend_env.lookup(ExprAst::Str(StrNode::new("hello")));
     assert!(val.unwrap().as_str() == "world");
 
+    let vars = ExprAst::Pair(PairNode::new(
+        ExprAst::Str(StrNode::new("var_x")),
+        ExprAst::Nil));
+    let vals = ExprAst::Pair(PairNode::new(
+        ExprAst::Str(StrNode::new("val_x")),
+        ExprAst::Nil));
+
+    let mut extend_env = extend_env.extend(vars, vals);
+    let val = extend_env.lookup(ExprAst::Str(StrNode::new("var_x")));
+    assert!(val.unwrap().as_str() == "val_x");
+
+    extend_env.def_var(ExprAst::Str(StrNode::new("1")),
+                ExprAst::Str(StrNode::new("1")));
+
+    let val = extend_env.lookup(ExprAst::Str(StrNode::new("1")));
+    assert!(val.unwrap().as_str() == "1");
+
+
 }
