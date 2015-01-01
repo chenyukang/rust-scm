@@ -4,7 +4,7 @@ use ast::*;
 pub struct Env {
     pub vars: Vec<ExprAst>,
     pub vals: Vec<ExprAst>,
-    pub next: Option<Box<Env>>
+    pub parent: Option<Box<Env>>
 }
 
 impl Env {
@@ -12,7 +12,7 @@ impl Env {
         let mut res = Env {
             vars: vec![],
             vals: vec![],
-            next: None
+            parent: None
         };
         res.setup();
         res
@@ -34,11 +34,27 @@ impl Env {
                 return Some(self.vals[i].clone());
             }
         }
-        match self.next {
+        match self.parent {
             Some(ref sub) => return sub.lookup(var),
             _ => return None
         };
     }
+
+    pub fn extend(self, vars: ExprAst, vals: ExprAst) -> Env {
+        let mut _vars = vars;
+        let mut _vals = vals;
+        let mut res = Env::new();
+        res.parent = Some(box self);
+        loop {
+            if _vars.is_last() { break; }
+            res.add_bingding(_vars.car(), _vals.car());
+            _vars = _vars.cdr();
+            _vals = _vals.cdr();
+        }
+        res.add_bingding(_vars.car(), _vals.car());
+        return res.clone();
+    }
+
 
     fn setup(&mut self) {
         macro_rules! def_proc {
@@ -200,5 +216,27 @@ fn test_env() {
 
     let val = env.lookup(ExprAst::Symbol(SymbolNode::new("<")));
     assert!(val.unwrap().is_proc());
+
+}
+
+#[test]
+fn test_env_extend() {
+    let mut env = Env::new();
+    env.def_var(ExprAst::Str(StrNode::new("hello")),
+                ExprAst::Str(StrNode::new("world")));
+
+    let vars = ExprAst::Pair(PairNode::new(
+        ExprAst::Str(StrNode::new("var")),
+        ExprAst::Nil));
+    let vals = ExprAst::Pair(PairNode::new(
+        ExprAst::Str(StrNode::new("val")),
+        ExprAst::Nil));
+
+    let extend_env = env.extend(vars, vals);
+    let val = extend_env.lookup(ExprAst::Str(StrNode::new("var")));
+    assert!(val.unwrap().as_str() == "val");
+
+    let val = extend_env.lookup(ExprAst::Str(StrNode::new("hello")));
+    assert!(val.unwrap().as_str() == "world");
 
 }

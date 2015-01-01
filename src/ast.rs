@@ -50,6 +50,7 @@ is_ast_type!(is_symbol, Symbol);
 is_ast_type!(is_string, Str);
 is_ast_type!(is_proc, Proc);
 is_ast_type!(is_bool, Bool);
+is_ast_type!(is_cproc, CompProc);
 
 macro_rules! is_type {
     ($func_name:ident, $type_str:expr) => (impl ExprAst {
@@ -341,6 +342,16 @@ pub struct CompProcNode {
     pub env:    Option<Box<env::Env>>
 }
 
+impl CompProcNode {
+    pub fn new(params: Box<ExprAst>, body: Box<ExprAst>, env: Box<env::Env>) -> CompProcNode {
+        CompProcNode {
+            params: params,
+            body: body,
+            env: Some(env)
+        }
+    }
+}
+
 impl Ast for CompProcNode {
     fn print(&self) {
         println!("CompProcNode: ");
@@ -472,4 +483,16 @@ fn test_symbol_eq() {
     let aa = ExprAst::Symbol(SymbolNode::new("else"));
     let bb = ExprAst::Symbol(SymbolNode::new("else"));
     assert!(aa == bb);
+}
+
+#[test]
+fn test_proc() {
+    fn _proc(obj: ExprAst) -> ExprAst {
+        obj.print();
+        return ExprAst::Symbol(SymbolNode::new("ok"));
+    }
+
+    let proc_node = ExprAst::Proc(ProcNode::new(_proc));
+    assert!(proc_node.is_proc());
+    assert!(!proc_node.is_cproc());
 }
