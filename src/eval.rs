@@ -1,9 +1,6 @@
-
 use ast::*;
 use env::*;
-
-//use ast::Ast;
-use parser::Parser;
+use parser::*;
 
 pub struct Evaler {
     parser: Parser
