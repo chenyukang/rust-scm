@@ -185,6 +185,8 @@ impl Env {
                      ExprAst::Proc(ProcNode::new(mul)));
         self.def_var(ExprAst::Symbol(SymbolNode::new("/")),
                      ExprAst::Proc(ProcNode::new(div)));
+        self.def_var(ExprAst::Symbol(SymbolNode::new("eq?")),
+                     ExprAst::Proc(ProcNode::new(eq)));
     }
 }
 
