@@ -44,7 +44,7 @@ macro_rules! is_ast_type {
 }
 
 is_ast_type!(is_char, Char);
-is_ast_type!(is_pair, Pair);
+//is_ast_type!(is_pair, Pair);
 is_ast_type!(is_int, Int);
 is_ast_type!(is_symbol, Symbol);
 is_ast_type!(is_string, Str);
@@ -78,6 +78,14 @@ impl ExprAst {
 
     pub fn is_false(&self) -> bool {
         return !self.as_bool();
+    }
+
+    pub fn is_pair(&self) -> bool {
+        match *self {
+            ExprAst::Pair(_) => true,
+            ExprAst::Nil => true,
+            _ => false
+        }
     }
 
     pub fn is_empty(&self) -> bool {

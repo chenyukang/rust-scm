@@ -7,6 +7,7 @@ pub struct Env {
     pub parent: Option<Box<Env>>
 }
 
+#[allow(dead_code)]
 impl Env {
     pub fn new() -> Env {
         let mut res = Env {

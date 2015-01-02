@@ -214,79 +214,41 @@ impl Evaler {
 
 #[test]
 fn test_evaler() {
-    let mut evaler = Evaler::new();
-    let res = evaler.eval("11".to_string());
-    assert!(res.as_int() == 11);
-
-    let res = evaler.eval(r#""hello""#.to_string());
-    assert!(res.as_str() == "hello");
-
-    let res = evaler.eval("#t".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(and #t #t)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(and #t #f)".to_string());
-    assert!(res.as_bool() == false);
-
-    let res = evaler.eval("(or #t #t)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(or #f #f)".to_string());
-    assert!(res.as_bool() == false);
-
-    let res = evaler.eval("(or #t #f)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(set! a 1)".to_string());
-    assert!(res.as_str() == "OK");
-
-    let res = evaler.eval("(integer? 1)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(boolean? #t)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(boolean? #f)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(integer? #t)".to_string());
-    assert!(res.as_bool() == false);
-
-    let res = evaler.eval("(+ 1 1)".to_string());
-    assert!(res.as_int() == 2);
-
-    let res = evaler.eval("(+ 1 1 1)".to_string());
-    assert!(res.as_int() == 3);
-
-    let res = evaler.eval("(+ 1 1 -1 -1)".to_string());
-    assert!(res.as_int() == 0);
-
-    let res = evaler.eval("(/ 2 1)".to_string());
-    assert!(res.as_int() == 2);
-
-    let res = evaler.eval("(* 2 2)".to_string());
-    assert!(res.as_int() == 4);
-
-    let res = evaler.eval("(> 2 1)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(> 1 2)".to_string());
-    assert!(res.as_bool() == false);
-
-    let res = evaler.eval("(> 1 1)".to_string());
-    assert!(res.as_bool() == false);
-
-    let res = evaler.eval("(eq? 1 1)".to_string());
-    assert!(res.as_bool());
-
-    let res = evaler.eval("(eq? 1 2)".to_string());
-    assert!(res.as_bool() == false);
-
-    let res = evaler.eval("(eq? 1 #f)".to_string());
-    assert!(res.as_bool() == false);
-
-    //let res = evaler.eval("(pair? '())".to_string());
-    //assert!(res.as_bool());
+    macro_rules! test_case {
+        ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
+            let mut evaler = Evaler::new();
+            let res = evaler.eval($test_str.to_string());
+            if res.$expect_type() != $expect_val {
+                assert!(false);
+            }
+        }}
+    }
+    test_case!("11", as_int, 11);
+    test_case!(r#""hello""#, as_str, "hello");
+    test_case!("#t", as_bool, true);
+    test_case!("(and #t #t)", as_bool, true);
+    test_case!("(and #t #f)", as_bool, false);
+    test_case!("(or #t #t)", as_bool, true);
+    test_case!("(or #f #f)", as_bool, false);
+    test_case!("(or #t #f)", as_bool, true);
+    test_case!("(set! a 1)", as_str, "OK");
+    test_case!("(integer? 1)", as_bool, true);
+    test_case!("(boolean? #t)", as_bool, true);
+    test_case!("(boolean? #f)", as_bool, true);
+    test_case!("(integer? #t)", as_bool, false);
+    test_case!("(+ 1 1)", as_int, 2);
+    test_case!("(+ 1 1  1)", as_int, 3);
+    test_case!("(+ 1 1 -1 -1)", as_int, 0);
+    test_case!("(/ 2 1)", as_int, 2);
+    test_case!("(* 2 2)", as_int, 4);
+    test_case!("(> 2 1)", as_bool, true);
+    test_case!("(> 1 2)", as_bool, false);
+    test_case!("(> 1 1)", as_bool, false);
+    test_case!("(eq? 1 1)", as_bool, true);
+    test_case!("(eq? 1 2)", as_bool, false);
+    test_case!("(eq? 1 #f)", as_bool, false);
+    test_case!("(pair? '())", as_bool, true);
+    test_case!("(> (+ 1 1) 0)", as_bool, true);
+    test_case!("(if (> 1 0) 1 else 2)", as_int, 1);
+    test_case!("(begin (set! a 1) a)", as_int, 1);
 }

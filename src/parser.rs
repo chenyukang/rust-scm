@@ -107,11 +107,11 @@ impl Parser {
                     return ExprAst::Symbol(SymbolNode::new(buf.as_slice()));
                 }
             } else if cur == '\'' {
+                println!("cur now: {}", cur);
                 let quote_sym = ExprAst::Symbol(SymbolNode::new("quote"));
                 let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp(),
                                                             ExprAst::Nil));
-                return ExprAst::Pair(PairNode::new(quote_sym,
-                                                   quote_exp));
+                return ExprAst::Pair(PairNode::new(quote_sym, quote_exp));
             }
         ExprAst::Int(IntNode::new(0))
     }

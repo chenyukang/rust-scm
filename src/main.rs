@@ -8,7 +8,6 @@ use std::io;
 
 use ast::Ast;
 use parser::Parser;
-use eval::Evaler;
 
 mod ast;
 mod env;
@@ -21,9 +20,6 @@ fn help() {
 
 #[allow(dead_code)]
 fn main() {
-    let mut evaler = Evaler::new();
-    let res = evaler.eval("11".to_string());
-    res.print();
 
     let mut parser = Parser::new();
     let res = parser.load("11".to_string());
