@@ -61,7 +61,7 @@ macro_rules! is_type {
 }
 
 is_type!(is_quote, "quote");
-is_type!(is_def, "def");
+is_type!(is_def, "define");
 is_type!(is_and, "and");
 is_type!(is_or, "or");
 is_type!(is_if, "if");

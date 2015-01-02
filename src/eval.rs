@@ -47,7 +47,7 @@ impl Evaler {
         } else if exp.is_pair() { //app
             return self._eval_app(exp, env);
         }
-        ExprAst::Int(IntNode::new(0))
+        return ExprAst::Symbol(SymbolNode::new("OK"));
     }
 
     fn _eval_assign(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
@@ -226,6 +226,7 @@ fn test_evaler() {
         }}
     }
     test_case!("11", as_int, 11);
+    //test_case!("'a'", as_char, 'a');
     test_case!(r#""hello""#, as_str, "hello");
     test_case!("#t", as_bool, true);
     test_case!("(and #t #t)", as_bool, true);
@@ -255,4 +256,6 @@ fn test_evaler() {
     test_case!("(begin (set! a 1) a)", as_int, 1);
     test_case!("(let ((a 1)) (+ a 1))", as_int, 2);
     test_case!("(let ((a 1)) (> (+ a 1) 0))", as_bool, true);
+    test_case!("(let ((a 1) (b 2)) (> a b))", as_bool, false);
+    //test_case!("(define (add a b) (+ a b))", as_str, "OK");
 }

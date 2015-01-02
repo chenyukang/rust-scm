@@ -7,6 +7,7 @@ pub struct Env {
     pub parent: Option<Box<Env>>
 }
 
+#[allow(unreachable_code)]
 #[allow(dead_code)]
 impl Env {
     pub fn new() -> Env {
@@ -37,7 +38,11 @@ impl Env {
         }
         match self.parent {
             Some(ref sub) => return sub.lookup(var),
-            _ => return None
+            _ => {
+                var.print();
+                panic!("Not found:");
+                return None;
+            }
         };
     }
 
@@ -259,6 +264,4 @@ fn test_env_extend() {
 
     let val = extend_env.lookup(ExprAst::Str(StrNode::new("1")));
     assert!(val.unwrap().as_str() == "1");
-
-
 }

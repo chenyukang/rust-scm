@@ -22,7 +22,7 @@ fn help() {
 fn main() {
 
     let mut evaler = Evaler::new();
-    let res = evaler.eval("(let ((a 1)) (> (+ a 1) 0))".to_string());
+    let res = evaler.eval("(define (add a b) (+ a b))".to_string());
     res.print();
 
     let args = os::args();
