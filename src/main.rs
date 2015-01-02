@@ -8,6 +8,7 @@ use std::io;
 
 use ast::Ast;
 use parser::Parser;
+use eval::Evaler;
 
 mod ast;
 mod env;
@@ -21,9 +22,8 @@ fn help() {
 #[allow(dead_code)]
 fn main() {
 
-    let mut parser = Parser::new();
-    let res = parser.load("11".to_string());
-    assert!(res.as_int() == 11);
+    let mut evaler = Evaler::new();
+    let res = evaler.eval("(let ((a 1)) (+ a 1))".to_string());
     res.print();
 
     let args = os::args();

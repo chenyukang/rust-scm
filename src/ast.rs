@@ -141,7 +141,10 @@ impl ExprAst {
     pub fn cdr(&self) -> ExprAst {
         match *self {
             ExprAst::Pair(ref ast) => ast.pair[1].clone(),
-            _ => panic!("error type: expect PairNode")
+            _ =>  {
+                self.print();
+                panic!("error type: expect PairNode")
+            }
         }
     }
 

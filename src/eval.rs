@@ -128,6 +128,7 @@ impl Evaler {
     }
 
     fn _eval_let(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
+
         fn bind_params(exp: ExprAst) -> ExprAst {
             if exp.is_empty() {
                 ExprAst::Nil
@@ -141,13 +142,14 @@ impl Evaler {
             if exp.is_empty() {
                 ExprAst::Nil
             } else {
-                return ExprAst::Pair(PairNode::new(exp.car().car().cdr().car(),
+                return ExprAst::Pair(PairNode::new(exp.car().cdr().car(),
                                                    bind_argus(exp.cdr())));
             }
         }
 
         //FIXME : remove clone?
         let bindings = exp.cdr().car();
+        bindings.print();
         let obj = ExprAst::Pair(PairNode::new(
             self._make_lambda(bind_params(bindings.clone()),
                               exp.cdr().cdr()), //body
@@ -251,4 +253,5 @@ fn test_evaler() {
     test_case!("(> (+ 1 1) 0)", as_bool, true);
     test_case!("(if (> 1 0) 1 else 2)", as_int, 1);
     test_case!("(begin (set! a 1) a)", as_int, 1);
+    test_case!("(let ((a 1)) (+ a 1))", as_int, 2);
 }
