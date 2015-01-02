@@ -7,7 +7,6 @@ use std::os;
 use std::io;
 
 use ast::Ast;
-use parser::Parser;
 use eval::Evaler;
 
 mod ast;
@@ -23,7 +22,7 @@ fn help() {
 fn main() {
 
     let mut evaler = Evaler::new();
-    let res = evaler.eval("(let ((a 1)) (+ a 1))".to_string());
+    let res = evaler.eval("(let ((a 1)) (> (+ a 1) 0))".to_string());
     res.print();
 
     let args = os::args();

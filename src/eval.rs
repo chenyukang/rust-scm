@@ -254,4 +254,5 @@ fn test_evaler() {
     test_case!("(if (> 1 0) 1 else 2)", as_int, 1);
     test_case!("(begin (set! a 1) a)", as_int, 1);
     test_case!("(let ((a 1)) (+ a 1))", as_int, 2);
+    test_case!("(let ((a 1)) (> (+ a 1) 0))", as_bool, true);
 }
