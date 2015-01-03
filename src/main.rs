@@ -22,8 +22,9 @@ fn help() {
 fn main() {
 
     let mut evaler = Evaler::new();
-    let res = evaler.eval("(cond ((eq? 1 1) 1) ((> 1 2) 2) )".to_string());
+    let res = evaler.eval("(cdr '(1 2))".to_string());
     res.print();
+    assert!(res.is_pair());
 
     let args = os::args();
 

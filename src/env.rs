@@ -104,6 +104,8 @@ impl Env {
         add_proc!("<", less);
         add_proc!(">", large);
         add_proc!("pair?", is_pair);
+        add_proc!("car", car);
+        add_proc!("cdr", cdr);
     }
 }
 
@@ -175,6 +177,20 @@ fn less(args: ExprAst) -> ExprAst {
     }
     return ExprAst::Bool(BoolNode::new(true));
 }
+
+fn car(args: ExprAst) -> ExprAst {
+    assert!(args.car().is_pair());
+    println!("eval_car: ");
+    args.print();
+    println!("end_eval_car");
+    return args.car().car();
+}
+
+fn cdr(args: ExprAst) -> ExprAst {
+    assert!(args.car().is_pair());
+    return args.car().cdr();
+}
+
 
 fn large(args: ExprAst) -> ExprAst {
     let val = args.car().as_int();
