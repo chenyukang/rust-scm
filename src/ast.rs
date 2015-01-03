@@ -175,8 +175,16 @@ impl ExprAst {
             self.cdr().cdr().car()
         } else {
             //proc
-            ExprAst::Symbol(SymbolNode::new("OK"))
+            return self.cdr().car().cdr().make_lambda(self.cdr().cdr());
         }
+    }
+
+    pub fn make_lambda(&self, body: ExprAst) -> ExprAst {
+        let lambda = ExprAst::Symbol(SymbolNode::new("lambda"));
+        return ExprAst::Pair(PairNode::new(lambda,
+                                           ExprAst::Pair(PairNode::new(
+                                               (*self).clone(),
+                                               body))));
     }
 
     pub fn params(&self) -> ExprAst {
@@ -492,7 +500,6 @@ fn test_ast_is_set() {
     assert!(test_case!("lambda").is_lambda());
     assert!(test_case!("cond").is_cond());
     assert!(test_case!("set!").is_assign());
-    assert!(test_case!("cond").is_cond());
     assert!(test_case!("begin").is_begin());
 }
 

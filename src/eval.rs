@@ -151,8 +151,7 @@ impl Evaler {
         let bindings = exp.cdr().car();
         bindings.print();
         let obj = ExprAst::Pair(PairNode::new(
-            self._make_lambda(bind_params(bindings.clone()),
-                              exp.cdr().cdr()), //body
+            bind_params(bindings.clone()).make_lambda(exp.cdr().cdr()),
             bind_argus(bindings)));
         return self._eval(obj, env);
     }
@@ -182,13 +181,6 @@ impl Evaler {
         return ExprAst::Pair(PairNode::new(begin, exprs));
     }
 
-    fn _make_lambda(&self, params: ExprAst, body: ExprAst) -> ExprAst {
-        let lambda = ExprAst::Symbol(SymbolNode::new("lambda"));
-        return ExprAst::Pair(PairNode::new(lambda,
-                                           ExprAst::Pair(PairNode::new(
-                                               params,
-                                               body))));
-    }
 
     fn _eval_app(&self, expr: ExprAst, env: &mut Env) -> ExprAst {
         let _proc = self._eval(expr.car(), env);
@@ -226,7 +218,7 @@ fn test_evaler() {
         }}
     }
     test_case!("11", as_int, 11);
-    //test_case!("'a'", as_char, 'a');
+    //test_case!("'a", as_char, 'a');
     test_case!(r#""hello""#, as_str, "hello");
     test_case!("#t", as_bool, true);
     test_case!("(and #t #t)", as_bool, true);
@@ -257,5 +249,9 @@ fn test_evaler() {
     test_case!("(let ((a 1)) (+ a 1))", as_int, 2);
     test_case!("(let ((a 1)) (> (+ a 1) 0))", as_bool, true);
     test_case!("(let ((a 1) (b 2)) (> a b))", as_bool, false);
-    //test_case!("(define (add a b) (+ a b))", as_str, "OK");
+    test_case!("(define (add a b) (+ a b))", as_str, "OK");
+    test_case!("(cond ((eq? 1 1) 1) ((> 1 2) 2) ))", as_int, 1);
+    test_case!("(define add4 (let ((x 4))
+               (lambda (y) (+ x y))))", as_str, "OK");
+    test_case!("(begin (set! x 5) (set! x 4) (+ x 1))", as_int, 5);
 }
