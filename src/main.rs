@@ -22,9 +22,8 @@ fn help() {
 fn main() {
 
     let mut evaler = Evaler::new();
-    let res = evaler.eval("(car (cons 1 2))".to_string());
+    let res = evaler.eval("((lambda (x y) (+ x y )) 1 2)".to_string());
     res.print();
-    assert!(res.is_pair());
 
     let args = os::args();
 

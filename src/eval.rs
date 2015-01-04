@@ -250,12 +250,13 @@ fn test_evaler() {
     test_case!("(let ((a 1) (b 2)) (> a b))", as_bool, false);
     test_case!("(define (add a b) (+ a b))", as_str, "OK");
     test_case!("(cond ((eq? 1 1) 1) ((> 1 2) 2) ))", as_int, 1);
-    test_case!("(define add4 (let ((x 4))
-               (lambda (y) (+ x y))))", as_str, "OK");
     test_case!("(begin (set! x 5) (set! x 4) (+ x 1))", as_int, 5);
     test_case!("(car '(1 2))", as_int, 1);
     test_case!("(car (cdr '(1 2)))", as_int, 2);
     test_case!("(car (cons 1 2))", as_int, 1);
     test_case!("(car (cdr (cons 1 2)))", as_int, 2);
     test_case!("(car (car (cons (cons 2 3) (cons 1 2))))", as_int, 2);
+    test_case!("((lambda (x) x) 1)", as_int, 1);
+    test_case!("((lambda (x y) (+ x y )) 1 2)", as_int, 3);
+    test_case!("(define add4 (let ((x 4)) (lambda (y) (+ x y))))", as_str, "OK");
 }
