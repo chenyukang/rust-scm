@@ -22,7 +22,7 @@ fn help() {
 fn main() {
 
     let mut evaler = Evaler::new();
-    let res = evaler.eval("(cdr '(1 2))".to_string());
+    let res = evaler.eval("(car (cons 1 2))".to_string());
     res.print();
     assert!(res.is_pair());
 

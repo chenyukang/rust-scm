@@ -255,4 +255,6 @@ fn test_evaler() {
     test_case!("(begin (set! x 5) (set! x 4) (+ x 1))", as_int, 5);
     test_case!("(car '(1 2))", as_int, 1);
     test_case!("(car (cdr '(1 2)))", as_int, 2);
+    test_case!("(car (cons 1 2))", as_int, 1);
+    test_case!("(car (cdr (cons 1 2)))", as_int, 2);
 }

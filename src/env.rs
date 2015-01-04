@@ -106,6 +106,7 @@ impl Env {
         add_proc!("pair?", is_pair);
         add_proc!("car", car);
         add_proc!("cdr", cdr);
+        add_proc!("cons", cons);
     }
 }
 
@@ -132,6 +133,8 @@ fn sub(args: ExprAst) -> ExprAst {
     return ExprAst::Int(IntNode::new(res));
 }
 
+
+
 fn mul(args: ExprAst) -> ExprAst {
     let mut res = 1i;
     let mut exps = args;
@@ -157,6 +160,13 @@ fn div(args: ExprAst) -> ExprAst {
         exps = exps.cdr();
     }
     return ExprAst::Int(IntNode::new(res));
+}
+
+fn cons(args: ExprAst) -> ExprAst {
+    let obj1 = args.car();
+    let obj2 = args.cdr().car();
+    return ExprAst::Pair(PairNode::new(obj1,
+                      ExprAst::Pair(PairNode::new(obj2, ExprAst::Nil))));
 }
 
 fn eq(args: ExprAst) -> ExprAst {
