@@ -128,7 +128,6 @@ impl Evaler {
     }
 
     fn _eval_let(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
-
         fn bind_params(exp: ExprAst) -> ExprAst {
             if exp.is_empty() {
                 ExprAst::Nil
