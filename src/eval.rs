@@ -257,4 +257,5 @@ fn test_evaler() {
     test_case!("(car (cdr '(1 2)))", as_int, 2);
     test_case!("(car (cons 1 2))", as_int, 1);
     test_case!("(car (cdr (cons 1 2)))", as_int, 2);
+    test_case!("(car (car (cons (cons 2 3) (cons 1 2))))", as_int, 2);
 }
