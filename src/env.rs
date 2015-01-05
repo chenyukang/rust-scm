@@ -100,6 +100,7 @@ impl Env {
         add_proc!("*", mul);
         add_proc!("/", div);
         add_proc!("eq?", eq);
+        add_proc!("=", eq);
         add_proc!("<", less);
         add_proc!(">", large);
         add_proc!("pair?", is_pair);
@@ -122,8 +123,8 @@ fn add(args: ExprAst) -> ExprAst {
 }
 
 fn sub(args: ExprAst) -> ExprAst {
-    let mut res = 0i;
-    let mut exps = args;
+    let mut res = args.car().as_int();
+    let mut exps = args.cdr();
     loop {
         if exps.is_empty() { break; }
         res -= exps.car().as_int();
@@ -189,9 +190,6 @@ fn less(args: ExprAst) -> ExprAst {
 
 fn car(args: ExprAst) -> ExprAst {
     assert!(args.car().is_pair());
-    println!("eval_car: ");
-    args.print();
-    println!("end_eval_car");
     args.c("aa")
 }
 

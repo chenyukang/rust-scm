@@ -212,7 +212,7 @@ fn test_evaler() {
         }}
     }
     test_case!("11", as_int, 11);
-    //test_case!("'a", as_char, 'a');
+    test_case!("'a", as_str, "a");
     test_case!(r#""hello""#, as_str, "hello");
     test_case!("#t", as_bool, true);
     test_case!("(and #t #t)", as_bool, true);
@@ -226,6 +226,7 @@ fn test_evaler() {
     test_case!("(boolean? #f)", as_bool, true);
     test_case!("(integer? #t)", as_bool, false);
     test_case!("(+ 1 1)", as_int, 2);
+    test_case!("(- 1 1)", as_int, 0);
     test_case!("(+ 1 1  1)", as_int, 3);
     test_case!("(+ 1 1 -1 -1)", as_int, 0);
     test_case!("(/ 2 1)", as_int, 2);
@@ -254,4 +255,7 @@ fn test_evaler() {
     test_case!("((lambda (x) x) 1)", as_int, 1);
     test_case!("((lambda (x y) (+ x y )) 1 2)", as_int, 3);
     test_case!("(define add4 (let ((x 4)) (lambda (y) (+ x y))))", as_str, "OK");
+    test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
+                (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 6)", as_int, 720);
+
 }
