@@ -370,62 +370,20 @@ impl CompProcNode {
 }
 
 #[test]
-fn test_ast_int() {
+fn test_ast() {
     let int_node = ExprAst::Int(IntNode::new(3));
     assert!(int_node.as_int() == 3);
-}
 
-#[test]
-#[should_fail]
-fn test_ast_int_fail() {
-    let str_node = ExprAst::Str(StrNode::new("hello"));
-    assert!(str_node.as_int() == 3);
-}
-
-#[test]
-fn test_ast_bool() {
-    let bool_node = ExprAst::Bool(BoolNode::new(false));
-    assert!(bool_node.as_bool() == false);
-}
-
-#[test]
-#[should_fail]
-fn test_ast_bool_fail() {
-    let int_node = ExprAst::Int(IntNode::new(3));
-    assert!(int_node.as_bool() == false);
-}
-
-#[test]
-fn test_ast_char() {
     let char_node = ExprAst::Char(CharNode::new('a'));
     assert!(char_node.as_char() == 'a');
-}
 
-#[test]
-#[should_fail]
-fn test_ast_char_fail() {
-    let int_node = ExprAst::Int(IntNode::new(1));
-    assert!(int_node.as_char() == 'a');
-    assert!(int_node.is_self());
-}
+    let bool_node = ExprAst::Bool(BoolNode::new(false));
+    assert!(bool_node.as_bool() == false);
 
-#[test]
-fn test_ast_str() {
     let str_node = ExprAst::Str(StrNode::new("hello"));
     assert!(str_node.as_str() == "hello");
     assert!(str_node.is_self());
-}
 
-#[test]
-#[should_fail]
-fn test_ast_str_fail() {
-    let int_node = ExprAst::Int(IntNode::new(3));
-    assert!(int_node.as_str() == "3");
-    assert!(int_node.is_self());
-}
-
-#[test]
-fn test_ast_pair() {
     let int_node = ExprAst::Int(IntNode::new(3));
     int_node.print();
     let str_node = ExprAst::Str(StrNode::new("hello"));
@@ -436,36 +394,14 @@ fn test_ast_pair() {
     assert!(car_node.as_int() == 3);
     assert!(cdr_node.as_str() == "hello");
     assert!(!pair_node.is_self());
-}
 
-#[test]
-fn test_ast_symbol() {
     let sym_node = ExprAst::Symbol(SymbolNode::new("sym"));
     assert!(sym_node.is_symbol());
     assert!(!sym_node.is_self());
-}
 
-#[test]
-#[should_fail]
-fn test_ast_pair_fail() {
-    let int_node = ExprAst::Int(IntNode::new(3));
-    let car_node = int_node.car();
-    assert!(car_node.as_int() == 3);
-}
-
-#[test]
-fn test_ast_empty() {
     let empty_node = ExprAst::Nil;
     assert!(empty_node.is_empty());
     assert!(!empty_node.is_self());
-}
-
-#[test]
-#[should_fail]
-fn test_ast_empty_fail() {
-    let empty_node = ExprAst::Int(IntNode::new(3));
-    assert!(empty_node.is_empty());
-    assert!(empty_node.is_quote());
 }
 
 #[test]
@@ -484,6 +420,7 @@ fn test_ast_is_set() {
     assert!(test_case!("cond").is_cond());
     assert!(test_case!("set!").is_assign());
     assert!(test_case!("begin").is_begin());
+    assert!(!test_case!("begin").is_assign());
 }
 
 #[test]
