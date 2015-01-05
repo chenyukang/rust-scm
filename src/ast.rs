@@ -20,15 +20,15 @@ pub trait Ast {
 impl Ast for ExprAst {
     fn print(&self) {
         match *self {
-            ExprAst::Int(ref ast) => ast.print(),
-            ExprAst::Str(ref ast) => ast.print(),
+            ExprAst::Int(ref ast) =>  ast.print(),
+            ExprAst::Str(ref ast) =>  ast.print(),
             ExprAst::Bool(ref ast) => ast.print(),
             ExprAst::Pair(ref ast) => ast.print(),
             ExprAst::Symbol(ref ast) => ast.print(),
             ExprAst::Char(ref ast) => ast.print(),
             ExprAst::Proc(ref ast) => ast.print(),
             ExprAst::CompProc(ref ast) => ast.print(),
-            ExprAst::Nil => println!("nil")
+            ExprAst::Nil => println!("Nil")
         }
     }
 }
@@ -44,7 +44,6 @@ macro_rules! is_ast_type {
 }
 
 is_ast_type!(is_char, Char);
-//is_ast_type!(is_pair, Pair);
 is_ast_type!(is_int, Int);
 is_ast_type!(is_symbol, Symbol);
 is_ast_type!(is_string, Str);
@@ -183,8 +182,7 @@ impl ExprAst {
         let lambda = ExprAst::Symbol(SymbolNode::new("lambda"));
         return ExprAst::Pair(PairNode::new(lambda,
                                            ExprAst::Pair(PairNode::new(
-                                               (*self).clone(),
-                                               body))));
+                                               (*self).clone(), body))));
     }
 
     pub fn params(&self) -> ExprAst {
@@ -219,28 +217,25 @@ impl IntNode {
     pub fn new(val: int) -> IntNode {
         IntNode{ value: val}
     }
-}
 
-impl Ast for IntNode {
     fn print(&self) {
         println!("IntNode: {}", self.value);
     }
 }
+
 
 #[deriving(Clone, PartialEq)]
 pub struct StrNode {
     value: String
 }
 
-impl Ast for StrNode {
-    fn print(&self) {
-        println!("StrNode: {}", self.value);
-    }
-}
-
 impl StrNode {
     pub fn new(val: &str) -> StrNode {
         StrNode{ value: val.to_string()}
+    }
+
+    fn print(&self) {
+        println!("StrNode: {}", self.value);
     }
 }
 
@@ -253,9 +248,7 @@ impl BoolNode {
     pub fn new(val: bool) -> BoolNode {
         BoolNode{ value: val}
     }
-}
 
-impl Ast for BoolNode {
     fn print(&self) {
         println!("BoolNode: {}", self.value);
     }
@@ -272,9 +265,7 @@ impl PairNode {
             pair: vec![car, cdr]
         }
     }
-}
 
-impl Ast for PairNode {
     fn print(&self) {
         println!("PairNode (");
         self.pair[0].print();
@@ -288,17 +279,13 @@ pub struct SymbolNode {
     value: String
 }
 
-impl Ast for SymbolNode {
-    fn print(&self) {
-        println!("SymbolNode: {}", self.value);
-    }
-}
-
 impl SymbolNode {
     pub fn new(val: &str) -> SymbolNode {
-        SymbolNode {
-            value: val.to_string()
-        }
+        SymbolNode { value: val.to_string() }
+    }
+
+    fn print(&self) {
+        println!("SymbolNode: {}", self.value);
     }
 }
 
@@ -307,23 +294,18 @@ pub struct CharNode {
     value: char
 }
 
-impl Ast for CharNode {
+impl CharNode {
+    pub fn new(val: char) -> CharNode {
+        CharNode { value: val}
+    }
+
     fn print(&self) {
         println!("CharNode: {}", self.value);
     }
 }
 
-impl CharNode {
-    pub fn new(val: char) -> CharNode {
-        CharNode {
-            value: val
-        }
-    }
-}
-
 #[deriving(Clone)]
 pub struct ProcFunc(fn(ExprAst) -> ExprAst);
-
 impl PartialEq for ProcFunc {
     fn eq(&self, o: &ProcFunc) -> bool {
         let _o: *const() = unsafe { ::std::mem::transmute(o)};
@@ -351,14 +333,9 @@ pub struct ProcNode {
 
 impl ProcNode {
     pub fn new(obj: fn(ExprAst)-> ExprAst) -> ProcNode {
-        ProcNode {
-            value: "proc".to_string(),
-            func: ProcFunc(obj)
-        }
+        ProcNode { value: "proc".to_string(), func: ProcFunc(obj) }
     }
-}
 
-impl Ast for ProcNode {
     fn print(&self) {
         println!("ProcNode: {}", self.value);
     }
@@ -373,14 +350,9 @@ pub struct CompProcNode {
 
 impl CompProcNode {
     pub fn new(params: ExprAst, body: ExprAst, env: Box<env::Env>) -> CompProcNode {
-        CompProcNode {
-            pair: vec![params, body],
-            env: Some(env)
-        }
+        CompProcNode { pair: vec![params, body],  env: Some(env) }
     }
-}
 
-impl Ast for CompProcNode {
     fn print(&self) {
         println!("CompProcNode: ");
     }
