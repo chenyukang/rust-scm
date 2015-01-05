@@ -144,6 +144,17 @@ impl ExprAst {
         }
     }
 
+    pub fn c(&self, s: &str) -> ExprAst {
+        assert!(self.is_pair());
+        let mut r = self.clone();
+        for c in s.to_string().chars() {
+            if c == 'a' { r = r.car(); }
+            else { r = r.cdr(); }
+        }
+        return r;
+    }
+
+
     pub fn is_last(&self) -> bool {
         assert!(self.is_pair());
         return self.cdr().is_empty();
@@ -162,19 +173,19 @@ impl ExprAst {
     pub fn def_var(&self) -> ExprAst {
         assert!(self.is_def());
         if self.cdr().car().is_symbol() {
-            self.cdr().car()
+            self.c("da")
         } else {
-            self.cdr().car().car()
+            self.c("daa")
         }
     }
 
     pub fn def_val(&self) -> ExprAst {
         assert!(self.is_def());
-        if self.cdr().car().is_symbol() {
-            self.cdr().cdr().car()
+        if self.c("da").is_symbol() {
+            self.c("dda")
         } else {
             //proc
-            return self.cdr().car().cdr().make_lambda(self.cdr().cdr());
+            return self.c("dad").make_lambda(self.c("dd"));
         }
     }
 

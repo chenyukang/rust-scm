@@ -47,14 +47,14 @@ impl Evaler {
         } else if exp.is_pair() { //app
             return self.eval_app(exp, env);
         }
-        return ExprAst::Symbol(SymbolNode::new("OK"));
+        ExprAst::Symbol(SymbolNode::new("OK"))
     }
 
     fn eval_assign(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
-        let var = exp.cdr().car();
-        let val = self.eval_exp(exp.cdr().cdr().car(), env);
+        let var = exp.c("da");
+        let val = self.eval_exp(exp.c("dda"), env);
         env.def_var(var, val);
-        return ExprAst::Symbol(SymbolNode::new("OK"));
+        ExprAst::Symbol(SymbolNode::new("OK"))
     }
 
     fn eval_def(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
@@ -62,21 +62,21 @@ impl Evaler {
         let val = exp.def_val();
         let val = self.eval_exp(val, env);
         env.def_var(var, val);
-        return ExprAst::Symbol(SymbolNode::new("OK"));
+        ExprAst::Symbol(SymbolNode::new("OK"))
     }
 
     fn eval_if(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
-        let pred = exp.cdr().car();
-        let t_blk = exp.cdr().cdr().car();
-        let f_blk = exp.cdr().cdr().cdr();
+        let pred = exp.c("da");
+        let blk_t = exp.c("dda");
+        let blk_f = exp.c("ddd");
         let res = self.eval_exp(pred, env);
         if res.is_true() {
-            return self.eval_exp(t_blk, env);
+            self.eval_exp(blk_t, env)
         } else {
             if res.is_empty() {
-                return ExprAst::Bool(BoolNode::new(false));
+                ExprAst::Bool(BoolNode::new(false))
             } else {
-                return self.eval_exp(f_blk.car(), env);
+                self.eval_exp(blk_f.car(), env)
             }
         }
     }
@@ -94,7 +94,7 @@ impl Evaler {
             }
             elems = elems.cdr();
         }
-        return self.eval_exp(elems.car(), env);
+        self.eval_exp(elems.car(), env)
     }
 
     fn eval_or(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
@@ -110,7 +110,7 @@ impl Evaler {
             }
             elems = elems.cdr();
         }
-        return self.eval_exp(elems.car(), env);
+        self.eval_exp(elems.car(), env)
     }
 
     fn eval_cond(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
@@ -124,7 +124,7 @@ impl Evaler {
             }
             elems = elems.cdr();
         }
-        return ExprAst::Bool(BoolNode::new(true));
+        ExprAst::Bool(BoolNode::new(true))
     }
 
     fn eval_let(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
@@ -132,8 +132,7 @@ impl Evaler {
             if exp.is_empty() {
                 ExprAst::Nil
             } else {
-                return ExprAst::Pair(PairNode::new(exp.car().car(),
-                                                   bind_params(exp.cdr())));
+                ExprAst::Pair(PairNode::new(exp.c("aa"), bind_params(exp.cdr())))
             }
         }
 
@@ -141,18 +140,17 @@ impl Evaler {
             if exp.is_empty() {
                 ExprAst::Nil
             } else {
-                return ExprAst::Pair(PairNode::new(exp.car().cdr().car(),
-                                                   bind_argus(exp.cdr())));
+                ExprAst::Pair(PairNode::new(exp.c("ada"), bind_argus(exp.cdr())))
             }
         }
 
         //FIXME : remove clone?
-        let bindings = exp.cdr().car();
+        let bindings = exp.c("da");
         bindings.print();
         let obj = ExprAst::Pair(PairNode::new(
-            bind_params(bindings.clone()).make_lambda(exp.cdr().cdr()),
+            bind_params(bindings.clone()).make_lambda(exp.c("dd")),
             bind_argus(bindings)));
-        return self.eval_exp(obj, env);
+        self.eval_exp(obj, env)
     }
 
     fn eval_begin(&self, exp: ExprAst, env: &mut Env) -> ExprAst {
@@ -162,22 +160,21 @@ impl Evaler {
             self.eval_exp(_exp.car(), env);
             _exp = _exp.cdr();
         }
-        return self.eval_exp(_exp.car(), env);
+        self.eval_exp(_exp.car(), env)
     }
 
     fn eval_values(&self, exprs: ExprAst, env: &mut Env) -> ExprAst {
         if exprs.is_empty() {
-            return ExprAst::Nil;
+            ExprAst::Nil
         } else {
             let first = self.eval_exp(exprs.car(), env);
-            return ExprAst::Pair(PairNode::new(first,
-                                               self.eval_values(exprs.cdr(), env)));
+            ExprAst::Pair(PairNode::new(first, self.eval_values(exprs.cdr(), env)))
         }
     }
 
     fn _make_begin(&self, exprs: ExprAst) -> ExprAst {
         let begin = ExprAst::Symbol(SymbolNode::new("begin"));
-        return ExprAst::Pair(PairNode::new(begin, exprs));
+        ExprAst::Pair(PairNode::new(begin, exprs))
     }
 
 
@@ -190,17 +187,15 @@ impl Evaler {
         } else {
             assert!(_proc.is_cproc());
             let _vars = _proc.params();
-            let res = self.eval_exp(self._make_begin(_proc.body()),
-                                 &mut env.extend(_vars, _args));
-            return res;
+            self.eval_exp(self._make_begin(_proc.body()), &mut env.extend(_vars, _args))
         }
     }
 
     fn eval_lambda(&self, expr: ExprAst, env: &Env) -> ExprAst {
         //FIXME: remove clone
-        return ExprAst::CompProc(CompProcNode::new(expr.cdr().car(), //vars
-                                                   expr.cdr().cdr(), //body
-                                                   box env.clone()));
+        ExprAst::CompProc(CompProcNode::new(expr.c("da"),  //vars
+                                            expr.c("dd"),  //body
+                                            box env.clone()))
 
     }
 }

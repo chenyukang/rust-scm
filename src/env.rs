@@ -65,7 +65,6 @@ impl Env {
         return res;
     }
 
-
     fn setup(&mut self) {
         macro_rules! def_proc {
             ($func_name:ident, $raw_func_name:ident) => (
@@ -119,7 +118,7 @@ fn add(args: ExprAst) -> ExprAst {
         res += exps.car().as_int();
         exps = exps.cdr();
     }
-    return ExprAst::Int(IntNode::new(res));
+    ExprAst::Int(IntNode::new(res))
 }
 
 fn sub(args: ExprAst) -> ExprAst {
@@ -130,7 +129,7 @@ fn sub(args: ExprAst) -> ExprAst {
         res -= exps.car().as_int();
         exps = exps.cdr();
     }
-    return ExprAst::Int(IntNode::new(res));
+    ExprAst::Int(IntNode::new(res))
 }
 
 
@@ -143,7 +142,7 @@ fn mul(args: ExprAst) -> ExprAst {
         res *= exps.car().as_int();
         exps = exps.cdr();
     }
-    return ExprAst::Int(IntNode::new(res));
+    ExprAst::Int(IntNode::new(res))
 }
 
 fn div(args: ExprAst) -> ExprAst {
@@ -159,20 +158,20 @@ fn div(args: ExprAst) -> ExprAst {
         res /= nxt;
         exps = exps.cdr();
     }
-    return ExprAst::Int(IntNode::new(res));
+    ExprAst::Int(IntNode::new(res))
 }
 
 fn cons(args: ExprAst) -> ExprAst {
     let obj1 = args.car();
-    let obj2 = args.cdr().car();
-    return ExprAst::Pair(PairNode::new(obj1,
-                      ExprAst::Pair(PairNode::new(obj2, ExprAst::Nil))));
+    let obj2 = args.c("da");
+    ExprAst::Pair(PairNode::new(obj1,
+                                ExprAst::Pair(PairNode::new(obj2, ExprAst::Nil))))
 }
 
 fn eq(args: ExprAst) -> ExprAst {
     let obj1 = args.car();
-    let obj2 = args.cdr().car();
-    return ExprAst::Bool(BoolNode::new(obj1 == obj2));
+    let obj2 = args.c("da");
+    ExprAst::Bool(BoolNode::new(obj1 == obj2))
 }
 
 fn less(args: ExprAst) -> ExprAst {
@@ -185,7 +184,7 @@ fn less(args: ExprAst) -> ExprAst {
         }
         exps = exps.cdr();
     }
-    return ExprAst::Bool(BoolNode::new(true));
+    ExprAst::Bool(BoolNode::new(true))
 }
 
 fn car(args: ExprAst) -> ExprAst {
@@ -193,12 +192,12 @@ fn car(args: ExprAst) -> ExprAst {
     println!("eval_car: ");
     args.print();
     println!("end_eval_car");
-    return args.car().car();
+    args.c("aa")
 }
 
 fn cdr(args: ExprAst) -> ExprAst {
     assert!(args.car().is_pair());
-    return args.car().cdr();
+    args.c("ad")
 }
 
 
@@ -212,7 +211,7 @@ fn large(args: ExprAst) -> ExprAst {
         }
         exps = exps.cdr();
     }
-    return ExprAst::Bool(BoolNode::new(true));
+    ExprAst::Bool(BoolNode::new(true))
 }
 
 #[test]
