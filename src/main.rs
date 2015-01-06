@@ -22,8 +22,8 @@ fn help() {
 fn main() {
 
     let mut evaler = Evaler::new();
-    let res = evaler.eval("((lambda (x y ) ( if (= y 0) 1 (* y (x x (- y 1)))))
-                            (lambda (x y ) ( if (= y 0) 1 (* y (x x (- y 1))))) 5)".to_string());
+    let res = evaler.eval("((lambda (x y) (if (= y 0) 1 (+ y (x x (- y 1)))))
+                            (lambda (x y) (if (= y 0) 1 (+ y (x x (- y 1))))) 30)".to_string());
     res.print();
 
     let args = os::args();
