@@ -44,8 +44,6 @@ fn main() {
         }
     };
     let parser = parser::Parser::new();
-    let res = UnicodeChar::is_numeric('a');
-    println!("res: {}", res);
     println!("parser: {}", parser);
     println!("code: {}", code);
 

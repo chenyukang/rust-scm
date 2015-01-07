@@ -1,6 +1,6 @@
 use ast::*;
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub struct Parser {
     code: String,
     cur: uint,
@@ -57,8 +57,8 @@ impl Parser {
                 '\\' => return self.read_char(),
                 _ => panic!("error")
             }
-        } else if UnicodeChar::is_numeric(cur) ||
-            (cur == '-' && (UnicodeChar::is_numeric(self.peekc()))) {
+        } else if cur.is_numeric() ||
+            (cur == '-' && (self.peekc().is_numeric())) {
                 let mut sign = 1i;
                 let mut num = 0i;
                 if cur == '-' {
@@ -68,7 +68,7 @@ impl Parser {
                 }
                 loop {
                     cur = self.readc();
-                    if !UnicodeChar::is_numeric(cur) {
+                    if !cur.is_numeric() {
                         break;
                     }
                     num = (num * 10i) + (cur as int - '0' as int);
@@ -97,7 +97,7 @@ impl Parser {
                 buf.push(cur);
                 loop {
                     cur = self.readc();
-                    if !(self.is_initial(cur) || UnicodeChar::is_numeric(cur)) {
+                    if !(self.is_initial(cur) || cur.is_numeric()) {
                         break;
                     }
                     buf.push(cur);

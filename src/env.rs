@@ -1,6 +1,6 @@
 use ast::*;
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Env {
     pub vars: Vec<ExprAst>,
     pub vals: Vec<ExprAst>,

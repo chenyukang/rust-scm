@@ -1,6 +1,6 @@
 use env;
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum ExprAst {
     Int(IntNode),
     Str(StrNode),
@@ -219,7 +219,7 @@ impl ExprAst {
     }
 }
 
-#[deriving(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct IntNode {
     value: int
 }
@@ -235,7 +235,7 @@ impl IntNode {
 }
 
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct StrNode {
     value: String
 }
@@ -250,7 +250,7 @@ impl StrNode {
     }
 }
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct BoolNode {
     value: bool
 }
@@ -265,7 +265,7 @@ impl BoolNode {
     }
 }
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct PairNode{
     pair: Vec<ExprAst>,
 }
@@ -285,7 +285,7 @@ impl PairNode {
     }
 }
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct SymbolNode {
     value: String
 }
@@ -300,7 +300,7 @@ impl SymbolNode {
     }
 }
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct CharNode {
     value: char
 }
@@ -315,7 +315,7 @@ impl CharNode {
     }
 }
 
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct ProcFunc(fn(ExprAst) -> ExprAst);
 impl PartialEq for ProcFunc {
     fn eq(&self, o: &ProcFunc) -> bool {
@@ -336,7 +336,7 @@ impl ProcFunc {
     }
 }
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct ProcNode {
     value: String,
     func: ProcFunc
@@ -353,7 +353,7 @@ impl ProcNode {
 }
 
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct CompProcNode {
     pub pair:   Vec<ExprAst>,
     pub env:    Option<Box<env::Env>>
