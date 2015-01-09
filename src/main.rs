@@ -1,6 +1,3 @@
-#![feature(macro_rules)]
-#![feature(globs)]
-
 #[allow(unused_imports)]
 
 use std::os;
