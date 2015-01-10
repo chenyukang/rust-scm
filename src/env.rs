@@ -31,7 +31,7 @@ impl Env {
     }
 
     pub fn lookup(&self, var: ExprAst) -> Option<ExprAst> {
-        for i in range(0u, self.vars.len()).rev() {
+        for i in range(0us, self.vars.len()).rev() {
             if self.vars[i] == var {
                 return Some(self.vals[i].clone());
             }
@@ -53,7 +53,7 @@ impl Env {
         let mut res = Env {
             vars: vec![],
             vals: vec![],
-            parent: Some(box self.clone())
+            parent: Some(Box::new(self.clone()))
         };
         loop {
             if _vars.is_last() { break; }
@@ -112,7 +112,7 @@ impl Env {
 
 
 fn add(args: ExprAst) -> ExprAst {
-    let mut res = 0i;
+    let mut res = 0is;
     let mut exps = args;
     loop {
         if exps.is_empty() { break; }
@@ -136,7 +136,7 @@ fn sub(args: ExprAst) -> ExprAst {
 
 
 fn mul(args: ExprAst) -> ExprAst {
-    let mut res = 1i;
+    let mut res = 1is;
     let mut exps = args;
     loop {
         if exps.is_empty() { break; }

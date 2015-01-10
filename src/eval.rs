@@ -195,12 +195,11 @@ impl Evaler {
         //FIXME: remove clone
         ExprAst::CompProc(CompProcNode::new(expr.c("da"),  //vars
                                             expr.c("dd"),  //body
-                                            box env.clone()))
+                                            Box::new(env.clone())))
 
     }
 }
 
-#[test]
 fn test_evaler() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {

@@ -3,21 +3,21 @@ use ast::*;
 #[derive(Clone, Show)]
 pub struct Parser {
     code: String,
-    cur: uint,
-    col: uint,
-    line: uint
+    cur: usize,
+    col: usize,
+    line: usize
 }
 
 #[allow(dead_code)]
 pub struct ParserError {
-    line: uint,
-    col: uint,
+    line: usize,
+    col: usize,
     desc: String
 }
 
 #[allow(dead_code)]
 impl ParserError {
-    pub fn new(line: uint, col: uint, desc: String) -> ParserError {
+    pub fn new(line: usize, col: usize, desc: String) -> ParserError {
         ParserError {
             line: line,
             col: col,
@@ -59,8 +59,8 @@ impl Parser {
             }
         } else if cur.is_numeric() ||
             (cur == '-' && (self.peekc().is_numeric())) {
-                let mut sign = 1i;
-                let mut num = 0i;
+                let mut sign = 1is;
+                let mut num = 0is;
                 if cur == '-' {
                     sign = -1;
                 } else {
@@ -71,7 +71,7 @@ impl Parser {
                     if !cur.is_numeric() {
                         break;
                     }
-                    num = (num * 10i) + (cur as int - '0' as int);
+                    num = (num * 10is) + (cur as isize - '0' as isize);
                 }
                 num *= sign;
                 if self.is_delimiter(cur) {

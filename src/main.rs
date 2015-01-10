@@ -1,4 +1,6 @@
 #[allow(unused_imports)]
+#[allow(unused_variables)]
+#[allow(unstable)]
 
 use std::os;
 use std::io;
@@ -32,7 +34,7 @@ fn main() {
     }
 
     let program = args[0].as_slice();
-    println!("args: {} program: {}", args, program);
+    //println!("args: {} program: {}", args, program);
     let code = match io::File::open(&Path::new(args[1].as_slice())) {
         Ok(mut file) => file.read_to_string().unwrap(),
         Err(_) => {
@@ -41,7 +43,7 @@ fn main() {
         }
     };
     let parser = parser::Parser::new();
-    println!("parser: {}", parser);
+    //println!("parser: {}", parser);
     println!("code: {}", code);
 
 }

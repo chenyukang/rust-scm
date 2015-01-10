@@ -101,7 +101,7 @@ impl ExprAst {
         }
     }
 
-    pub fn as_int(&self) -> int {
+    pub fn as_int(&self) -> isize {
         match *self {
             ExprAst::Int(ref ast) => ast.value,
             _ => panic!("error type: expect IntNode")
@@ -221,11 +221,11 @@ impl ExprAst {
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct IntNode {
-    value: int
+    value: isize
 }
 
 impl IntNode {
-    pub fn new(val: int) -> IntNode {
+    pub fn new(val: isize) -> IntNode {
         IntNode{ value: val}
     }
 
