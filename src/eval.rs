@@ -19,7 +19,6 @@ impl Evaler {
 
     pub fn eval(&mut self, code: String) -> ExprAst {
         let ast = self.parser.load(code);
-        //self.eval_exp(ast, &mut Env::new())
         self.eval_exp(ast)
     }
 
@@ -140,11 +139,11 @@ impl Evaler {
             }
         }
 
-        fn bind_argus(exp: ExprAst) -> ExprAst {
+        fn bind_args(exp: ExprAst) -> ExprAst {
             if exp.is_empty() {
                 ExprAst::Nil
             } else {
-                ExprAst::Pair(PairNode::new(exp.c("ada"), bind_argus(exp.cdr())))
+                ExprAst::Pair(PairNode::new(exp.c("ada"), bind_args(exp.cdr())))
             }
         }
 
@@ -153,7 +152,7 @@ impl Evaler {
         bindings.print();
         let obj = ExprAst::Pair(PairNode::new(
             bind_params(bindings.clone()).make_lambda(exp.c("dd")),
-            bind_argus(bindings)));
+            bind_args(bindings)));
         self.eval_exp(obj)
     }
 
