@@ -5,7 +5,7 @@ use std::rc::Rc;
 pub struct Env {
     pub vars: Vec<ExprAst>,
     pub vals: Vec<ExprAst>,
-    pub parent: Option<Rc<Env>>
+    pub parent: Option<*const Env>
 }
 
 #[allow(unreachable_code)]
@@ -38,7 +38,10 @@ impl Env {
             }
         }
         match self.parent {
-            Some(ref sub) => return sub.lookup(var),
+            Some(sub) =>
+                unsafe {
+                    return (*sub).lookup(var)
+                },
             _ => {
                 var.print();
                 panic!("Not found:");
@@ -54,7 +57,7 @@ impl Env {
         let mut res = Env {
             vars: vec![],
             vals: vec![],
-            parent: Some(Rc::new(self.clone()))
+            parent: Some(self as (*const Env))
         };
         loop {
             if _vars.is_last() { break; }
