@@ -235,6 +235,7 @@ fn test_evaler() {
     test_case!("(> 2 1)", as_bool, true);
     test_case!("(> 1 2)", as_bool, false);
     test_case!("(> 1 1)", as_bool, false);
+    test_case!("(- (+ 3 (* 8 5)) 1)", as_int, 42);
     test_case!("(eq? 1 1)", as_bool, true);
     test_case!("(eq? 1 2)", as_bool, false);
     test_case!("(eq? 1 #f)", as_bool, false);
@@ -251,12 +252,16 @@ fn test_evaler() {
     test_case!("(car '(1 2))", as_int, 1);
     test_case!("(car (cdr '(1 2)))", as_int, 2);
     test_case!("(car (cons 1 2))", as_int, 1);
+    test_case!("(car (cons (pair? '(1)) pair? '()))", as_bool, true);
     test_case!("(car (cdr (cons 1 2)))", as_int, 2);
     test_case!("(car (car (cons (cons 2 3) (cons 1 2))))", as_int, 2);
     test_case!("((lambda (x) x) 1)", as_int, 1);
     test_case!("((lambda (x y) (+ x y )) 1 2)", as_int, 3);
     test_case!("(define add4 (let ((x 4)) (lambda (y) (+ x y))))", as_str, "OK");
+    test_case!("(begin 1 2)", as_int, 2);
+    test_case!("((lambda (x) x) 5)", as_int, 5);
     test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
-                (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 6)", as_int, 720);
+               (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 6)", as_int, 720);
+
 
 }
