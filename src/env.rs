@@ -1,10 +1,11 @@
 use ast::*;
+use std::rc::Rc;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
     pub vars: Vec<ExprAst>,
     pub vals: Vec<ExprAst>,
-    pub parent: Option<Box<Env>>
+    pub parent: Option<Rc<Env>>
 }
 
 #[allow(unreachable_code)]
@@ -46,14 +47,14 @@ impl Env {
         };
     }
 
-    pub fn extend(&mut self, vars: ExprAst, vals: ExprAst) -> Env {
+    pub fn extend(&self, vars: ExprAst, vals: ExprAst) -> Env {
         let mut _vars = vars;
         let mut _vals = vals;
         // FIXME: remove clone
         let mut res = Env {
             vars: vec![],
             vals: vec![],
-            parent: Some(Box::new(self.clone()))
+            parent: Some(Rc::new(self.clone()))
         };
         loop {
             if _vars.is_last() { break; }
