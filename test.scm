@@ -69,26 +69,8 @@
   (if x #f #t))
 
 
-
-(for-each (lambda (x) (+ x 1))
-          '(1 2 3 4))
-
-
 (define (not x)
   (if x #f #t))
 
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
-(define number? integer?)
+(for-each (lambda (x) (+ x 1))
+          '(1 2 3 4))

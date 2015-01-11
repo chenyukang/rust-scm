@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use env;
 
 #[derive(Clone, PartialEq)]
@@ -356,12 +358,13 @@ impl ProcNode {
 #[derive(Clone, PartialEq)]
 pub struct CompProcNode {
     pub pair:   Vec<ExprAst>,
-    pub env:    Option<Box<env::Env>>
+    //pub env:    Option<Box<env::Env>>
+    pub env:      Rc<RefCell<env::Env>>
 }
 
 impl CompProcNode {
-    pub fn new(params: ExprAst, body: ExprAst, env: Box<env::Env>) -> CompProcNode {
-        CompProcNode { pair: vec![params, body],  env: Some(env) }
+    pub fn new(params: ExprAst, body: ExprAst, env: Rc<RefCell<env::Env>>) -> CompProcNode {
+        CompProcNode { pair: vec![params, body],  env: env }
     }
 
     fn print(&self) {

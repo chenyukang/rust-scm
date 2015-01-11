@@ -1,11 +1,12 @@
-use ast::*;
+use std::cell::RefCell;
 use std::rc::Rc;
+use ast::*;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
     pub vars: Vec<ExprAst>,
     pub vals: Vec<ExprAst>,
-    pub parent: Option<Box<Env>>
+    pub parent: Option<Rc<RefCell<Env>>>
 }
 
 #[allow(unreachable_code)]
@@ -37,29 +38,29 @@ impl Env {
                 return Some(self.vals[i].clone());
             }
         }
-        match self.parent {
-            Some(ref p) =>
-                return p.lookup(var),
+        match self.parent.clone() {
+            Some(p) =>
+                return p.borrow().lookup(var),
             _ => {
                 return None;
             }
         };
     }
 
-    pub fn parent(&self) -> Option<Box<Env>> {
-        match self.parent {
-            Some(ref p) => Some((*p).clone()),
+    pub fn parent(&self) ->  Option<Rc<RefCell<Env>>> {
+        match self.parent.clone() {
+            Some(p) => return Some(p.clone()),
             _ => { return None; }
         }
     }
 
-    pub fn extend(&mut self, vars: ExprAst, vals: ExprAst) -> Env {
+    pub fn extend(&mut self, vars: ExprAst, vals: ExprAst) -> Rc<RefCell<Env>> {
         let mut _vars = vars;
         let mut _vals = vals;
         let mut res = Env {
             vars: vec![],
             vals: vec![],
-            parent: Some(Box::new(self.clone()))
+            parent: Some(Rc::new(RefCell::new(self.clone())))
         };
         loop {
             if _vars.is_last() { break; }
@@ -68,7 +69,7 @@ impl Env {
             _vals = _vals.cdr();
         }
         res.add_bingding(_vars.car(), _vals.car());
-        return res;
+        return Rc::new(RefCell::new(res));
     }
 
     fn setup(&mut self) {
@@ -169,8 +170,7 @@ fn div(args: ExprAst) -> ExprAst {
 fn cons(args: ExprAst) -> ExprAst {
     let obj1 = args.car();
     let obj2 = args.c("da");
-    ExprAst::Pair(PairNode::new(obj1,
-                                ExprAst::Pair(PairNode::new(obj2, ExprAst::Nil))))
+    ExprAst::Pair(PairNode::new(obj1, ExprAst::Pair(PairNode::new(obj2, ExprAst::Nil))))
 }
 
 fn eq(args: ExprAst) -> ExprAst {
@@ -262,22 +262,22 @@ fn test_env_extend() {
     let vals = ExprAst::Pair(PairNode::new( ExprAst::Str(StrNode::new("val")), ExprAst::Nil));
 
     let mut extend_env = env.extend(vars, vals);
-    let val = extend_env.lookup(ExprAst::Str(StrNode::new("var")));
+    let val = extend_env.clone().borrow_mut().lookup(ExprAst::Str(StrNode::new("var")));
     assert!(val.unwrap().as_str() == "val");
 
-    let val = extend_env.lookup(ExprAst::Str(StrNode::new("hello")));
+    let val = extend_env.clone().borrow_mut().lookup(ExprAst::Str(StrNode::new("hello")));
     assert!(val.unwrap().as_str() == "world");
 
     let vars = ExprAst::Pair(PairNode::new( ExprAst::Str(StrNode::new("var_x")), ExprAst::Nil));
     let vals = ExprAst::Pair(PairNode::new( ExprAst::Str(StrNode::new("val_x")), ExprAst::Nil));
 
-    let mut extend_env = extend_env.extend(vars, vals);
-    let val = extend_env.lookup(ExprAst::Str(StrNode::new("var_x")));
+    let mut extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
+    let val = extend_env.clone().borrow_mut().lookup(ExprAst::Str(StrNode::new("var_x")));
     assert!(val.unwrap().as_str() == "val_x");
 
-    extend_env.def_var(ExprAst::Str(StrNode::new("1")), ExprAst::Str(StrNode::new("1")));
+    extend_env.clone().borrow_mut().def_var(ExprAst::Str(StrNode::new("1")), ExprAst::Str(StrNode::new("1")));
 
-    let val = extend_env.lookup(ExprAst::Str(StrNode::new("1")));
+    let val = extend_env.clone().borrow_mut().lookup(ExprAst::Str(StrNode::new("1")));
     assert!(val.unwrap().as_str() == "1");
 }
 
@@ -290,7 +290,7 @@ fn test_env_parent() {
     let vals = ExprAst::Pair(PairNode::new( ExprAst::Str(StrNode::new("val")), ExprAst::Nil));
 
     let mut extend_env = env.extend(vars, vals);
-    let mut parent = extend_env.parent().unwrap();
-    let val = parent.lookup(ExprAst::Str(StrNode::new("hello")));
+    let mut parent = extend_env.clone().borrow_mut().parent().unwrap();
+    let val = parent.clone().borrow_mut().lookup(ExprAst::Str(StrNode::new("hello")));
     assert!(val.unwrap().as_str() == "world");
 }

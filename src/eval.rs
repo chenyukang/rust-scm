@@ -1,19 +1,22 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use ast::*;
 use env::*;
 use parser::*;
 
 pub struct Evaler {
     parser: Parser,
-    env:    Env
-
+    env:    Rc<RefCell<Env>>
 }
 
 #[allow(dead_code)]
 impl Evaler {
     pub fn new() -> Evaler {
+        let mut env = Env::new();
         Evaler {
             parser: Parser::new(),
-            env:    Env::new()
+            env:    Rc::new(RefCell::new(env))
         }
     }
 
@@ -38,7 +41,7 @@ impl Evaler {
         if exp.is_self() {
             return exp;
         } else if exp.is_symbol() {
-            return self.env.lookup(exp).unwrap();
+            return self.env.clone().borrow().lookup(exp).unwrap();
         } else if exp.is_quote() {
             return exp.cdr().car();
         } else if exp.is_assign() {
@@ -68,18 +71,15 @@ impl Evaler {
     fn eval_assign(&mut self, exp: ExprAst) -> ExprAst {
         let var = exp.c("da");
         let val = self.eval_exp(exp.c("dda"));
-        self.env.def_var(var, val);
+        self.env.clone().borrow_mut().def_var(var, val);
         ExprAst::Symbol(SymbolNode::new("OK"))
     }
 
     fn eval_def(&mut self, exp: ExprAst) -> ExprAst {
-
         let var = exp.def_var();
         let val = exp.def_val();
-        println!("finished");
         let val = self.eval_exp(val);
-        println!("finished");
-        self.env.def_var(var, val);
+        self.env.clone().borrow_mut().def_var(var, val);
         ExprAst::Symbol(SymbolNode::new("OK"))
     }
 
@@ -162,7 +162,6 @@ impl Evaler {
             }
         }
 
-        //FIXME : remove clone?
         let bindings = exp.c("da");
         bindings.print();
         let obj = ExprAst::Pair(PairNode::new(
@@ -199,10 +198,10 @@ impl Evaler {
         } else {
             assert!(_proc.is_cproc());
             let _vars = _proc.params();
-            self.env = self.env.extend(_vars, _args);
+            self.env = self.env.clone().borrow_mut().extend(_vars, _args);
             let begin = ExprAst::Symbol(SymbolNode::new("begin"));
             let res = self.eval_exp(ExprAst::Pair(PairNode::new(begin, _proc.body())));
-            self.env = *(self.env.parent().unwrap());
+            self.env = self.env.clone().borrow_mut().parent().unwrap();
             res
         }
     }
@@ -210,8 +209,7 @@ impl Evaler {
     fn eval_lambda(&mut self, expr: ExprAst) -> ExprAst {
         ExprAst::CompProc(CompProcNode::new(expr.c("da"),  //vars
                                             expr.c("dd"),  //body
-                                            Box::new(self.env.clone())))
-
+                                            self.env.clone()))
     }
 }
 
