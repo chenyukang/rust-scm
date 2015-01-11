@@ -74,3 +74,9 @@
 
 (for-each (lambda (x) (+ x 1))
           '(1 2 3 4))
+
+(map (lambda (x) (+ x 1))
+     '(1 2 3 4 5 6 7))
+
+((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
+ (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)

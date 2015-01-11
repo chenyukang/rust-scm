@@ -272,8 +272,7 @@ fn test_evaler() {
     test_case!("(define add4 (let ((x 4)) (lambda (y) (+ x y))))", as_str, "OK");
     test_case!("(begin 1 2)", as_int, 2);
     test_case!("((lambda (x) x) 5)", as_int, 5);
-    test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
-              (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
-
     test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
+    test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
+                (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
 }

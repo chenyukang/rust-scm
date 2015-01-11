@@ -230,7 +230,6 @@ impl IntNode {
     pub fn new(val: isize) -> IntNode {
         IntNode{ value: val}
     }
-
     fn print(&self) {
         println!("IntNode: {}", self.value);
     }
