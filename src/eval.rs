@@ -188,13 +188,12 @@ impl Evaler {
             self.env = self.env.extend(_vars, _args);
             let begin = ExprAst::Symbol(SymbolNode::new("begin"));
             let res = self.eval_exp(ExprAst::Pair(PairNode::new(begin, _proc.body())));
-            self.env = self.env.parent().unwrap();
+            self.env = *(self.env.parent().unwrap());
             res
         }
     }
 
     fn eval_lambda(&mut self, expr: ExprAst) -> ExprAst {
-        //FIXME: remove clone
         ExprAst::CompProc(CompProcNode::new(expr.c("da"),  //vars
                                             expr.c("dd"),  //body
                                             Box::new(self.env.clone())))
@@ -202,6 +201,7 @@ impl Evaler {
     }
 }
 
+#[test]
 fn test_evaler() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
@@ -261,7 +261,9 @@ fn test_evaler() {
     test_case!("(begin 1 2)", as_int, 2);
     test_case!("((lambda (x) x) 5)", as_int, 5);
     test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
-               (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 6)", as_int, 720);
+              (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
+
+    test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
 
 
 }

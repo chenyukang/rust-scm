@@ -5,7 +5,7 @@ use std::rc::Rc;
 pub struct Env {
     pub vars: Vec<ExprAst>,
     pub vals: Vec<ExprAst>,
-    pub parent: Option<*const Env>
+    pub parent: Option<Box<Env>>
 }
 
 #[allow(unreachable_code)]
@@ -38,24 +38,20 @@ impl Env {
             }
         }
         match self.parent {
-            Some(p) =>
-                unsafe { return (*p).lookup(var) },
+            Some(ref p) =>
+                return p.lookup(var),
             _ => {
-                var.print();
-                panic!("Not found:");
                 return None;
             }
         };
     }
 
-    pub fn parent(&self) -> Option<Env> {
+    pub fn parent(&self) -> Option<Box<Env>> {
         match self.parent {
-            Some(p) =>
-                unsafe { return Some((*p).clone()); },
+            Some(ref p) => Some((*p).clone()),
             _ => { return None; }
         }
     }
-
 
     pub fn extend(&mut self, vars: ExprAst, vals: ExprAst) -> Env {
         let mut _vars = vars;
@@ -63,7 +59,7 @@ impl Env {
         let mut res = Env {
             vars: vec![],
             vals: vec![],
-            parent: Some(self as (*const Env))
+            parent: Some(Box::new(self.clone()))
         };
         loop {
             if _vars.is_last() { break; }
@@ -142,8 +138,6 @@ fn sub(args: ExprAst) -> ExprAst {
     }
     ExprAst::Int(IntNode::new(res))
 }
-
-
 
 fn mul(args: ExprAst) -> ExprAst {
     let mut res = 1is;
@@ -293,11 +287,9 @@ fn test_env_parent() {
     env.def_var(ExprAst::Str(StrNode::new("hello")), ExprAst::Str(StrNode::new("world")));
 
     let vars = ExprAst::Pair(PairNode::new( ExprAst::Str(StrNode::new("var")), ExprAst::Nil));
-
     let vals = ExprAst::Pair(PairNode::new( ExprAst::Str(StrNode::new("val")), ExprAst::Nil));
 
     let mut extend_env = env.extend(vars, vals);
-
     let mut parent = extend_env.parent().unwrap();
     let val = parent.lookup(ExprAst::Str(StrNode::new("hello")));
     assert!(val.unwrap().as_str() == "world");
