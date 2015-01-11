@@ -19,11 +19,6 @@ fn help() {
 
 #[allow(dead_code)]
 fn main() {
-
-    let mut evaler = Evaler::new();
-    let res = evaler.eval("(let ((a 1)) (+ a 1))".to_string());
-    res.print();
-
     let args = os::args();
 
     if args.len() < 2 {
@@ -33,7 +28,6 @@ fn main() {
     }
 
     let program = args[0].as_slice();
-    //println!("args: {} program: {}", args, program);
     let code = match io::File::open(&Path::new(args[1].as_slice())) {
         Ok(mut file) => file.read_to_string().unwrap(),
         Err(_) => {
@@ -42,7 +36,8 @@ fn main() {
         }
     };
     let parser = parser::Parser::new();
-    //println!("parser: {}", parser);
-    println!("code: {}", code);
-
+    println!("code:\n{}", code);
+    let mut evaler = Evaler::new();
+    let res = evaler.eval(code).unwrap();
+    res.print();
 }

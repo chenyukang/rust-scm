@@ -17,9 +17,21 @@ impl Evaler {
         }
     }
 
-    pub fn eval(&mut self, code: String) -> ExprAst {
-        let ast = self.parser.load(code);
-        self.eval_exp(ast)
+    pub fn eval(&mut self, code: String) -> Option<ExprAst> {
+        self.parser.load(code);
+        let mut res = None;
+        loop {
+            let exp = self.parser.read_exp();
+            match exp {
+                Some(_exp) => {
+                    let r = self.eval_exp(_exp);
+                    r.print();
+                    res = Some(r);
+                },
+                None => break
+            }
+        }
+        res
     }
 
     fn eval_exp(&mut self, exp: ExprAst) -> ExprAst {
@@ -61,9 +73,12 @@ impl Evaler {
     }
 
     fn eval_def(&mut self, exp: ExprAst) -> ExprAst {
+
         let var = exp.def_var();
         let val = exp.def_val();
+        println!("finished");
         let val = self.eval_exp(val);
+        println!("finished");
         self.env.def_var(var, val);
         ExprAst::Symbol(SymbolNode::new("OK"))
     }
@@ -175,7 +190,6 @@ impl Evaler {
         }
     }
 
-
     fn eval_app(&mut self, expr: ExprAst) -> ExprAst {
         let _proc = self.eval_exp(expr.car());
         let _args = self.eval_values(expr.cdr());
@@ -206,7 +220,7 @@ fn test_evaler() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
             let mut evaler = Evaler::new();
-            let res = evaler.eval($test_str.to_string());
+            let res = evaler.eval($test_str.to_string()).unwrap();
             if res.$expect_type() != $expect_val {
                 assert!(false);
             }
@@ -264,6 +278,4 @@ fn test_evaler() {
               (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
 
     test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
-
-
 }
