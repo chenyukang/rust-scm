@@ -201,32 +201,41 @@ impl Parser {
 
 #[test]
 fn test_parser() {
-    // let mut parser = Parser::new();
-    // let res = parser.load("11".to_string());
-    // assert!(res.as_int() == 11);
-    // res.print();
+    macro_rules! test_case {
+        ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
+            let mut parser = Parser::new();
+            parser.load($test_str.to_string());
+            let res = parser.read_exp().unwrap();
+            if res.$expect_type() != $expect_val {
+                assert!(false);
+            }
+        }}
+    }
 
-    // let res = parser.load("-11".to_string());
-    // assert!(res.as_int() == -11);
-    // res.print();
+    macro_rules! test_res {
+        ($test_str:expr) => { {
+            let mut parser = Parser::new();
+            parser.load($test_str.to_string());
+            parser.read_exp().unwrap()
+        }}
+    }
 
-    // let res = parser.load(r#""hello""#.to_string());
-    // assert!(res.as_str() == "hello");
-    // res.print();
+    test_case!("11", as_int, 11);
+    test_case!("-11", as_int, -11);
+    test_case!(r#""hello""#, as_str, "hello");
 
-    // let res = parser.load("()".to_string());
-    // assert!(res.is_empty());
-    // res.print();
+    let res = test_res!("()");
+    assert!(res.is_empty());
 
-    // let res = parser.load("(1 2)".to_string());
-    // assert!(res.is_pair());
-    // assert!(res.car().as_int() == 1);
-    // assert!(res.cdr().car().as_int() == 2);
-    // assert!(res.cdr().cdr().is_empty());
+    let res = test_res!("(1 2)");
+    assert!(res.is_pair());
+    assert!(res.car().as_int() == 1);
+    assert!(res.cdr().car().as_int() == 2);
+    assert!(res.cdr().cdr().is_empty());
 
-    // let res = parser.load("(+ 1 2)".to_string());
-    // assert!(res.is_pair());
-    // assert!(res.car().is_symbol());
-    // assert!(res.cdr().car().as_int() == 1);
-    // assert!(res.cdr().cdr().car().as_int() == 2);
+    let res = test_res!("(+ 1 2)");
+    assert!(res.is_pair());
+    assert!(res.car().is_symbol());
+    assert!(res.cdr().car().as_int() == 1);
+    assert!(res.cdr().cdr().car().as_int() == 2);
 }
