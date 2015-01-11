@@ -8,27 +8,6 @@ pub struct Parser {
     line: usize
 }
 
-#[allow(dead_code)]
-pub struct ParserError {
-    line: usize,
-    col: usize,
-    desc: String
-}
-
-#[allow(dead_code)]
-impl ParserError {
-    pub fn new(line: usize, col: usize, desc: String) -> ParserError {
-        ParserError {
-            line: line,
-            col: col,
-            desc: desc
-        }
-    }
-}
-
-#[allow(dead_code)]
-pub type ParseResult<T> = Result<T, ParserError>;
-
 impl Parser {
     pub fn new() -> Parser {
         Parser{
