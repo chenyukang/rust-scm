@@ -38,19 +38,19 @@ impl Evaler {
     }
 
     fn eval_exp(&mut self, exp: ExprAst) -> ExprAst {
-        if exp.is_self() { return exp;}
-        else if exp.is_symbol() { return self.env.clone().borrow().lookup(exp).unwrap();}
-        else if exp.is_quote()  { return exp.cdr().car(); }
-        else if exp.is_assign() { return self.eval_assign(exp); }
-        else if exp.is_def()    { return self.eval_def(exp); }
-        else if exp.is_begin()  { return self.eval_begin(exp); }
-        else if exp.is_if()     { return self.eval_if(exp); }
-        else if exp.is_lambda() { return self.eval_lambda(exp); }
-        else if exp.is_and()    { return self.eval_and(exp); }
-        else if exp.is_or()     { return self.eval_or(exp); }
-        else if exp.is_cond()   { return self.eval_cond(exp); }
-        else if exp.is_let()    { return self.eval_let(exp); }
-        else if exp.is_pair()   { return self.eval_app(exp);}
+        if exp.is_self()   { return exp; }
+        if exp.is_symbol() { return self.env.clone().borrow().lookup(exp).unwrap(); }
+        if exp.is_quote()  { return exp.cdr().car(); }
+        if exp.is_assign() { return self.eval_assign(exp); }
+        if exp.is_def()    { return self.eval_def(exp); }
+        if exp.is_begin()  { return self.eval_begin(exp); }
+        if exp.is_if()     { return self.eval_if(exp); }
+        if exp.is_lambda() { return self.eval_lambda(exp); }
+        if exp.is_and()    { return self.eval_and(exp); }
+        if exp.is_or()     { return self.eval_or(exp); }
+        if exp.is_cond()   { return self.eval_cond(exp); }
+        if exp.is_let()    { return self.eval_let(exp); }
+        if exp.is_pair()   { return self.eval_app(exp); }
         ExprAst::Symbol(SymbolNode::new("OK"))
     }
 
