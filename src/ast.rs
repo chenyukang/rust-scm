@@ -25,12 +25,20 @@ impl Ast for ExprAst {
             ExprAst::Int(ref ast) =>  ast.print(),
             ExprAst::Str(ref ast) =>  ast.print(),
             ExprAst::Bool(ref ast) => ast.print(),
-            ExprAst::Pair(ref ast) => ast.print(),
             ExprAst::Symbol(ref ast) => ast.print(),
             ExprAst::Char(ref ast) => ast.print(),
+            ExprAst::Pair(_) => {
+                print!("(");
+                let exps = self.collect();
+                for i in 0..exps.len() {
+                    exps[i].print();
+                    if i != exps.len()-1 {print!(" ");}
+                }
+                print!(")");
+            }
             ExprAst::Proc(ref ast) => ast.print(),
             ExprAst::CompProc(ref ast) => ast.print(),
-            ExprAst::Nil => println!("Nil")
+            ExprAst::Nil => print!("Nil")
         }
     }
 }
@@ -135,7 +143,10 @@ impl ExprAst {
     pub fn car(&self) -> ExprAst {
         match *self {
             ExprAst::Pair(ref ast) => ast.pair[0].clone(),
-            _ => panic!("error type: expect PairNode")
+            _ => {
+                self.print();
+                panic!("error type: expect PairNode");
+            }
         }
     }
 
@@ -156,7 +167,6 @@ impl ExprAst {
         return r;
     }
 
-
     pub fn is_last(&self) -> bool {
         assert!(self.is_pair());
         return self.cdr().is_empty();
@@ -164,10 +174,9 @@ impl ExprAst {
 
     pub fn is_self(&self) -> bool {
         match *self {
-            ExprAst::Bool(_) => true,
-            ExprAst::Int(_) => true,
-            ExprAst::Char(_) => true,
-            ExprAst::Str(_) => true,
+            ExprAst::Bool(_) | ExprAst::Int(_) |
+            ExprAst::Char(_) | ExprAst::Str(_)
+                => true ,
             _ => false
         }
     }
@@ -219,6 +228,23 @@ impl ExprAst {
         }
         return false;
     }
+
+    fn collect(&self) -> Vec<ExprAst> {
+        let mut res: Vec<ExprAst> = vec![];
+        let mut _exp = self.clone();
+        loop {
+            let f = _exp.car();
+            if f.is_self() {
+                res.push(f);
+            } else if !f.is_empty() {
+                res.push_all(f.collect().as_slice());
+            }
+            _exp = _exp.cdr();
+            if !_exp.is_pair() { break; }
+            if _exp.is_empty() { break; }
+        }
+        res
+    }
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -231,7 +257,7 @@ impl IntNode {
         IntNode{ value: val}
     }
     fn print(&self) {
-        println!("IntNode: {}", self.value);
+        print!("{}", self.value);
     }
 }
 
@@ -247,7 +273,7 @@ impl StrNode {
     }
 
     fn print(&self) {
-        println!("StrNode: {}", self.value);
+        print!("{}", self.value);
     }
 }
 
@@ -262,7 +288,7 @@ impl BoolNode {
     }
 
     fn print(&self) {
-        println!("BoolNode: {}", self.value);
+        print!("{}", self.value);
     }
 }
 
@@ -277,13 +303,6 @@ impl PairNode {
             pair: vec![car, cdr]
         }
     }
-
-    fn print(&self) {
-        println!("PairNode (");
-        self.pair[0].print();
-        self.pair[1].print();
-        println!(")");
-    }
 }
 
 #[derive(Clone, PartialEq)]
@@ -297,7 +316,7 @@ impl SymbolNode {
     }
 
     fn print(&self) {
-        println!("SymbolNode: {}", self.value);
+        print!("{}", self.value);
     }
 }
 
@@ -312,7 +331,7 @@ impl CharNode {
     }
 
     fn print(&self) {
-        println!("CharNode: {}", self.value);
+        print!("{}", self.value);
     }
 }
 
@@ -349,7 +368,7 @@ impl ProcNode {
     }
 
     fn print(&self) {
-        println!("ProcNode: {}", self.value);
+        print!("{}", self.value);
     }
 }
 
@@ -361,12 +380,13 @@ pub struct CompProcNode {
 }
 
 impl CompProcNode {
-    pub fn new(params: ExprAst, body: ExprAst, env: Rc<RefCell<env::Env>>) -> CompProcNode {
+    pub fn new(params: ExprAst, body: ExprAst,
+               env: Rc<RefCell<env::Env>>) -> CompProcNode {
         CompProcNode { pair: vec![params, body],  env: env }
     }
 
     fn print(&self) {
-        println!("CompProcNode: ");
+        print!("CompProcNode: ");
     }
 }
 
@@ -386,9 +406,7 @@ fn test_ast() {
     assert!(str_node.is_self());
 
     let int_node = ExprAst::Int(IntNode::new(3));
-    int_node.print();
     let str_node = ExprAst::Str(StrNode::new("hello"));
-    str_node.print();
     let pair_node = ExprAst::Pair(PairNode::new(int_node, str_node));
     let car_node = pair_node.car();
     let cdr_node = pair_node.cdr();
@@ -434,7 +452,6 @@ fn test_symbol_eq() {
 #[test]
 fn test_proc() {
     fn _proc(obj: ExprAst) -> ExprAst {
-        obj.print();
         return ExprAst::Symbol(SymbolNode::new("ok"));
     }
 

@@ -29,6 +29,7 @@ impl Evaler {
                 Some(_exp) => {
                     let r = self.eval_exp(_exp);
                     r.print();
+                    println!("");
                     res = Some(r);
                 },
                 None => break

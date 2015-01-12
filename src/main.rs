@@ -39,4 +39,5 @@ fn main() {
     let mut evaler = Evaler::new();
     let res = evaler.eval(code).unwrap();
     res.print();
+    println!("");
 }
