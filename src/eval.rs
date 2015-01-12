@@ -149,7 +149,6 @@ impl Evaler {
         }
 
         let bindings = exp.c("da");
-        bindings.print();
         let obj = ExprAst::Pair(PairNode::new(
             bind_params(bindings.clone()).make_lambda(exp.c("dd")),
             bind_args(bindings)));
@@ -193,9 +192,8 @@ impl Evaler {
     }
 
     fn eval_lambda(&mut self, expr: ExprAst) -> ExprAst {
-        ExprAst::CompProc(CompProcNode::new(expr.c("da"),  //vars
-                                            expr.c("dd"),  //body
-                                            self.env.clone()))
+        // vars + body + env
+        ExprAst::CompProc(CompProcNode::new(expr.c("da"), expr.c("dd"), self.env.clone()))
     }
 }
 
