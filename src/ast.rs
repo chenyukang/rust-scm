@@ -357,8 +357,7 @@ impl ProcNode {
 #[derive(Clone, PartialEq)]
 pub struct CompProcNode {
     pub pair:   Vec<ExprAst>,
-    //pub env:    Option<Box<env::Env>>
-    pub env:      Rc<RefCell<env::Env>>
+    pub env:    Rc<RefCell<env::Env>>
 }
 
 impl CompProcNode {
