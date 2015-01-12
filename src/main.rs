@@ -20,11 +20,6 @@ fn help() {
 #[allow(dead_code)]
 fn main() {
     let args = os::args();
-
-    let mut evaler = Evaler::new();
-    let res = evaler.eval("(define (caaaar x) (car (car (car (car x)))))".to_string()).unwrap();
-    res.print();
-
     if args.len() < 2 {
         help();
         os::set_exit_status(1);
