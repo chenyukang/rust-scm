@@ -78,6 +78,14 @@
      '(1 2 3 4 5 6 7))
 
 ((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
- (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)
+ (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 20)
 
 (cons 1 2)
+
+(cons "hello" "world")
+
+(cons 1 (cons 1 2))
+
+(if (> 1 2)
+    (cons "this is not" "real")
+    (cons "real" "world"))

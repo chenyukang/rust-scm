@@ -24,15 +24,15 @@ impl Parser {
     }
 
     //============= private methods =================
-    pub fn read_exp(&mut self) -> Option<ExprAst> {
+    pub fn read_exp(&mut self) -> Option<Expr> {
         if self.eof() { return None }
         self.skip_space();
         let mut cur = self.readc();
         if cur == '#' {
             let next = self.readc();
             match next {
-                't' => return Some(ExprAst::Bool(BoolNode::new(true))),
-                'f' => return Some(ExprAst::Bool(BoolNode::new(false))),
+                't' => return Some(Expr::Bool(BoolNode::new(true))),
+                'f' => return Some(Expr::Bool(BoolNode::new(false))),
                 '\\' => return self.read_char(),
                 _ => panic!("error")
             }
@@ -56,7 +56,7 @@ impl Parser {
                 if self.is_delimiter(cur) {
                     self.unread();
                 }
-                return Some(ExprAst::Int(IntNode::new(num)));
+                return Some(Expr::Int(IntNode::new(num)));
             } else if cur == '\"' {
                 let mut buf = String::new();
                 loop {
@@ -66,7 +66,7 @@ impl Parser {
                     }
                     buf.push(cur);
                 }
-                return Some(ExprAst::Str(StrNode::new(buf.as_slice())));
+                return Some(Expr::Str(StrNode::new(buf.as_slice())));
             } else if cur == '(' {
                 return self.read_pair();
             } else if self.is_initial(cur) {
@@ -82,22 +82,22 @@ impl Parser {
                 if self.is_delimiter(cur) {
                     self.unread();
                 }
-                return Some(ExprAst::Symbol(SymbolNode::new(buf.as_slice())));
+                return Some(Expr::Symbol(SymbolNode::new(buf.as_slice())));
             } else if cur == '\'' {
-                let quote_sym = ExprAst::Symbol(SymbolNode::new("quote"));
-                let quote_exp = ExprAst::Pair(PairNode::new(self.read_exp().unwrap(),
-                                                            ExprAst::Nil));
-                return Some(ExprAst::Pair(PairNode::new(quote_sym, quote_exp)));
+                let quote_sym = Expr::Symbol(SymbolNode::new("quote"));
+                let quote_exp = Expr::Pair(PairNode::new(self.read_exp().unwrap(),
+                                                            Expr::Nil));
+                return Some(Expr::Pair(PairNode::new(quote_sym, quote_exp)));
             }
         None
     }
 
-    fn read_pair(&mut self) -> Option<ExprAst> {
+    fn read_pair(&mut self) -> Option<Expr> {
         self.skip_space();
         let mut cur = self.readc();
         // rust-mode bug here
         if cur != '(' && cur == ')' {
-            return Some(ExprAst::Nil);
+            return Some(Expr::Nil);
         }
         self.unread();
         let car_obj = self.read_exp();
@@ -106,10 +106,10 @@ impl Parser {
         if cur != '.' {
             self.unread();
             let cdr_obj = self.read_pair();
-            return Some(ExprAst::Pair(PairNode::new(car_obj.unwrap(),
+            return Some(Expr::Pair(PairNode::new(car_obj.unwrap(),
                                                     cdr_obj.unwrap())));
         } else {
-            return Some(ExprAst::Nil);
+            return Some(Expr::Nil);
         }
     }
 
@@ -173,8 +173,8 @@ impl Parser {
         self.cur -= 1;
     }
 
-    fn read_char(&mut self) -> Option<ExprAst> {
-        Some(ExprAst::Char(CharNode::new('a')))
+    fn read_char(&mut self) -> Option<Expr> {
+        Some(Expr::Char(CharNode::new('a')))
     }
 }
 

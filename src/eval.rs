@@ -20,7 +20,7 @@ impl Evaler {
         }
     }
 
-    pub fn eval(&mut self, code: String) -> Option<ExprAst> {
+    pub fn eval(&mut self, code: String) -> Option<Expr> {
         self.parser.load(code);
         let mut res = None;
         loop {
@@ -38,7 +38,7 @@ impl Evaler {
         res
     }
 
-    fn eval_exp(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_exp(&mut self, exp: Expr) -> Expr {
         if exp.is_self()   { return exp; }
         if exp.is_symbol() { return self.env.clone().borrow().lookup(exp).unwrap(); }
         if exp.is_quote()  { return exp.cdr().car(); }
@@ -52,25 +52,25 @@ impl Evaler {
         if exp.is_cond()   { return self.eval_cond(exp); }
         if exp.is_let()    { return self.eval_let(exp); }
         if exp.is_pair()   { return self.eval_app(exp); }
-        ExprAst::Symbol(SymbolNode::new("OK"))
+        Expr::Symbol(SymbolNode::new("OK"))
     }
 
-    fn eval_assign(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_assign(&mut self, exp: Expr) -> Expr {
         let var = exp.c("da");
         let val = self.eval_exp(exp.c("dda"));
         self.env.clone().borrow_mut().def_var(var, val);
-        ExprAst::Symbol(SymbolNode::new("OK"))
+        Expr::Symbol(SymbolNode::new("OK"))
     }
 
-    fn eval_def(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_def(&mut self, exp: Expr) -> Expr {
         let var = exp.def_var();
         let val = exp.def_val();
         let val = self.eval_exp(val);
         self.env.clone().borrow_mut().def_var(var, val);
-        ExprAst::Symbol(SymbolNode::new("OK"))
+        Expr::Symbol(SymbolNode::new("OK"))
     }
 
-    fn eval_if(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_if(&mut self, exp: Expr) -> Expr {
         let pred = exp.c("da");
         let blk_t = exp.c("dda");
         let blk_f = exp.c("ddd");
@@ -79,84 +79,84 @@ impl Evaler {
             self.eval_exp(blk_t)
         } else {
             if res.is_empty() {
-                ExprAst::Bool(BoolNode::new(false))
+                Expr::Bool(BoolNode::new(false))
             } else {
                 self.eval_exp(blk_f.car())
             }
         }
     }
 
-    fn eval_and(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_and(&mut self, exp: Expr) -> Expr {
         let mut elems = exp.cdr();
         if elems.is_empty() {
-            return ExprAst::Bool(BoolNode::new(true));
+            return Expr::Bool(BoolNode::new(true));
         }
         loop {
             if elems.is_last() { break; }
             let res = self.eval_exp(elems.car());
             if res.is_false() {
-                return ExprAst::Bool(BoolNode::new(false));
+                return Expr::Bool(BoolNode::new(false));
             }
             elems = elems.cdr();
         }
         self.eval_exp(elems.car())
     }
 
-    fn eval_or(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_or(&mut self, exp: Expr) -> Expr {
         let mut elems = exp.cdr();
         if elems.is_empty() {
-            return ExprAst::Bool(BoolNode::new(true));
+            return Expr::Bool(BoolNode::new(true));
         }
         loop {
             if elems.is_last() { break; }
             let res = self.eval_exp(elems.car());
             if res.is_true() {
-                return ExprAst::Bool(BoolNode::new(true));
+                return Expr::Bool(BoolNode::new(true));
             }
             elems = elems.cdr();
         }
         self.eval_exp(elems.car())
     }
 
-    fn eval_cond(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_cond(&mut self, exp: Expr) -> Expr {
         let mut elems = exp.cdr().car();
         loop {
             if elems.is_empty() { break; }
             let cur = elems.car();
             let val = self.eval_exp(cur.clone());
-            if val.is_true() || val == ExprAst::Symbol(SymbolNode::new("else")) {
+            if val.is_true() || val == Expr::Symbol(SymbolNode::new("else")) {
                 return self.eval_exp(cur.clone().cdr().car());
             }
             elems = elems.cdr();
         }
-        ExprAst::Bool(BoolNode::new(true))
+        Expr::Bool(BoolNode::new(true))
     }
 
-    fn eval_let(&mut self, exp: ExprAst) -> ExprAst {
-        fn bind_params(exp: ExprAst) -> ExprAst {
+    fn eval_let(&mut self, exp: Expr) -> Expr {
+        fn bind_params(exp: Expr) -> Expr {
             if exp.is_empty() {
-                ExprAst::Nil
+                Expr::Nil
             } else {
-                ExprAst::Pair(PairNode::new(exp.c("aa"), bind_params(exp.cdr())))
+                Expr::Pair(PairNode::new(exp.c("aa"), bind_params(exp.cdr())))
             }
         }
 
-        fn bind_args(exp: ExprAst) -> ExprAst {
+        fn bind_args(exp: Expr) -> Expr {
             if exp.is_empty() {
-                ExprAst::Nil
+                Expr::Nil
             } else {
-                ExprAst::Pair(PairNode::new(exp.c("ada"), bind_args(exp.cdr())))
+                Expr::Pair(PairNode::new(exp.c("ada"), bind_args(exp.cdr())))
             }
         }
 
         let bindings = exp.c("da");
-        let obj = ExprAst::Pair(PairNode::new(
+        let obj = Expr::Pair(PairNode::new(
             bind_params(bindings.clone()).make_lambda(exp.c("dd")),
             bind_args(bindings)));
         self.eval_exp(obj)
     }
 
-    fn eval_begin(&mut self, exp: ExprAst) -> ExprAst {
+    fn eval_begin(&mut self, exp: Expr) -> Expr {
         let mut _exp = exp.cdr();
         loop {
             if _exp.is_last() { break; }
@@ -166,16 +166,16 @@ impl Evaler {
         self.eval_exp(_exp.car())
     }
 
-    fn eval_values(&mut self, exprs: ExprAst) -> ExprAst {
+    fn eval_values(&mut self, exprs: Expr) -> Expr {
         if exprs.is_empty() {
-            ExprAst::Nil
+            Expr::Nil
         } else {
             let first = self.eval_exp(exprs.car());
-            ExprAst::Pair(PairNode::new(first, self.eval_values(exprs.cdr())))
+            Expr::Pair(PairNode::new(first, self.eval_values(exprs.cdr())))
         }
     }
 
-    fn eval_app(&mut self, expr: ExprAst) -> ExprAst {
+    fn eval_app(&mut self, expr: Expr) -> Expr {
         let _proc = self.eval_exp(expr.car());
         let _args = self.eval_values(expr.cdr());
         if _proc.is_proc() {
@@ -185,16 +185,16 @@ impl Evaler {
             assert!(_proc.is_cproc());
             let _vars = _proc.params();
             self.env = self.env.clone().borrow_mut().extend(_vars, _args);
-            let begin = ExprAst::Symbol(SymbolNode::new("begin"));
-            let res = self.eval_exp(ExprAst::Pair(PairNode::new(begin, _proc.body())));
+            let begin = Expr::Symbol(SymbolNode::new("begin"));
+            let res = self.eval_exp(Expr::Pair(PairNode::new(begin, _proc.body())));
             self.env = self.env.clone().borrow_mut().parent().unwrap();
             res
         }
     }
 
-    fn eval_lambda(&mut self, expr: ExprAst) -> ExprAst {
+    fn eval_lambda(&mut self, expr: Expr) -> Expr {
         // vars + body + env
-        ExprAst::CompProc(CompProcNode::new(expr.c("da"), expr.c("dd"), self.env.clone()))
+        Expr::CompProc(CompProcNode::new(expr.c("da"), expr.c("dd"), self.env.clone()))
     }
 }
 
