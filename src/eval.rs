@@ -4,6 +4,7 @@ use std::rc::Rc;
 use ast::*;
 use env::*;
 use parser::*;
+use test::Bencher;
 
 pub struct Evaler {
     parser: Parser,
@@ -28,8 +29,8 @@ impl Evaler {
             match exp {
                 Some(_exp) => {
                     let r = self.eval_exp(_exp);
-                    r.print();
-                    println!("");
+                    //r.print();
+                    //println!("");
                     res = Some(r);
                 },
                 None => break
@@ -198,17 +199,17 @@ impl Evaler {
     }
 }
 
-#[test]
-fn test_evaler() {
-    macro_rules! test_case {
-        ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-            let mut evaler = Evaler::new();
-            let res = evaler.eval($test_str.to_string()).unwrap();
-            if res.$expect_type() != $expect_val {
-                assert!(false);
-            }
-        }}
-    }
+macro_rules! test_case {
+    ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
+        let mut evaler = Evaler::new();
+        let res = evaler.eval($test_str.to_string()).unwrap();
+        if res.$expect_type() != $expect_val {
+            assert!(false);
+        }
+    }}
+}
+
+fn run_test() {
     test_case!("11", as_int, 11);
     test_case!("'a", as_str, "a");
     test_case!(r#""hello""#, as_str, "hello");
@@ -259,5 +260,22 @@ fn test_evaler() {
     test_case!("((lambda (x) x) 5)", as_int, 5);
     test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
     test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
-                (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
+               (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
+}
+
+#[test]
+fn test_evaler() {
+    run_test();
+}
+
+#[bench]
+fn eval_bench(b: &mut Bencher) {
+    b.iter(|| run_test());
+}
+
+#[bench]
+fn lambda_bench(b: &mut Bencher) {
+    b.iter(||
+           test_case!("((lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1)))))
+                      (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2));
 }

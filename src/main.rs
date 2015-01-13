@@ -2,6 +2,8 @@
 #[allow(unused_variables)]
 #[allow(unstable)]
 
+extern crate test;
+
 use std::os;
 use std::io;
 
