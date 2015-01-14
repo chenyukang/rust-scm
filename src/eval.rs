@@ -14,7 +14,7 @@ pub struct Evaler {
 #[allow(dead_code)]
 impl Evaler {
     pub fn new() -> Evaler {
-        let mut env = Env::new();
+        let env = Env::new();
         Evaler {
             parser: Parser::new(),
             env:    Rc::new(RefCell::new(env))
@@ -209,7 +209,8 @@ macro_rules! test_case {
     }}
 }
 
-fn run_test() {
+#[test]
+fn test_evaler() {
     test_case!("11", as_int, 11);
     test_case!("'a", as_str, "a");
     test_case!(r#""hello""#, as_str, "hello");
@@ -263,14 +264,9 @@ fn run_test() {
                (lambda ( x y ) ( if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
 }
 
-#[test]
-fn test_evaler() {
-    run_test();
-}
-
 #[bench]
 fn eval_bench(b: &mut Bencher) {
-    b.iter(|| run_test());
+    b.iter(|| test_evaler());
 }
 
 #[bench]

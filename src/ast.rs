@@ -456,6 +456,7 @@ mod tests {
     #[test]
     fn test_proc() {
         fn _proc(obj: Expr) -> Expr {
+            obj.print();
             return Expr::Symbol(SymbolNode::new("ok"));
         }
 

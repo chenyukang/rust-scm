@@ -1,6 +1,6 @@
+#![allow(unstable)]
 #[allow(unused_imports)]
-#[allow(unused_variables)]
-#[allow(unstable)]
+
 
 extern crate test;
 
@@ -36,7 +36,7 @@ fn main() {
             return
         }
     };
-    let parser = parser::Parser::new();
+    println!("code:\n{}", program);
     println!("code:\n{}", code);
     let mut evaler = Evaler::new();
     let res = evaler.eval(code).unwrap();

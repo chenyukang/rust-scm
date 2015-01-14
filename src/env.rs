@@ -261,7 +261,8 @@ fn test_env_extend() {
     let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var")), Expr::Nil));
     let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val")), Expr::Nil));
 
-    let mut extend_env = env.extend(vars, vals);
+
+    let extend_env = env.extend(vars, vals);
     let val = extend_env.clone().borrow_mut().lookup(Expr::Str(StrNode::new("var")));
     assert!(val.unwrap().as_str() == "val");
 
@@ -271,7 +272,8 @@ fn test_env_extend() {
     let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var_x")), Expr::Nil));
     let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val_x")), Expr::Nil));
 
-    let mut extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
+
+    let extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
     let val = extend_env.clone().borrow_mut().lookup(Expr::Str(StrNode::new("var_x")));
     assert!(val.unwrap().as_str() == "val_x");
 
@@ -289,8 +291,9 @@ fn test_env_parent() {
     let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var")), Expr::Nil));
     let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val")), Expr::Nil));
 
-    let mut extend_env = env.extend(vars, vals);
-    let mut parent = extend_env.clone().borrow_mut().parent().unwrap();
+
+    let extend_env = env.extend(vars, vals);
+    let parent = extend_env.clone().borrow_mut().parent().unwrap();
     let val = parent.clone().borrow_mut().lookup(Expr::Str(StrNode::new("hello")));
     assert!(val.unwrap().as_str() == "world");
 }
