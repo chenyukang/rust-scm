@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use ast::*;
+use test::Bencher;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
@@ -302,4 +303,18 @@ fn test_env_parent() {
     let parent = extend_env.clone().borrow_mut().parent().unwrap();
     let val = parent.clone().borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
+}
+
+#[bench]
+fn env_bench(b: &mut Bencher) {
+    fn test_env() {
+        let mut env = Env::new();
+        for i in 1..1000 {
+            env.str_def("hello", Expr::Str(StrNode::new("world")));
+            let val = env.str_lookup("hello");
+            assert!(val.unwrap().as_str() == "world");
+        }
+    }
+
+    b.iter(|| test_env());
 }
