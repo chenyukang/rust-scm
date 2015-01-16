@@ -304,9 +304,10 @@ fn test_env_parent() {
 fn env_bench(b: &mut Bencher) {
     fn test_env() {
         let mut env = Env::new();
-        for i in 1..100 {
-            env.str_def("hello", Expr::Str(StrNode::new("world")));
-            let val = env.str_lookup("hello");
+        for i in 1..1000 {
+            let key = i.to_string();
+            env.def_var(key.clone(), Expr::Str(StrNode::new("world")));
+            let val = env.lookup(key);
             assert!(val.unwrap().as_str() == "world");
         }
     }
