@@ -310,6 +310,22 @@ fn env_bench(b: &mut Bencher) {
     fn test_env() {
         let mut env = Env::new();
         for i in 1..1000 {
+            let key = i.to_string();
+            env.def_var(key.clone(), Expr::Str(StrNode::new("world")));
+            let val = env.lookup(key);
+            assert!(val.unwrap().as_str() == "world");
+        }
+    }
+
+    b.iter(|| test_env());
+}
+
+
+#[bench]
+fn env_bench_iter(b: &mut Bencher) {
+    fn test_env() {
+        let mut env = Env::new();
+        for i in 1..1000 {
             env.str_def("hello", Expr::Str(StrNode::new("world")));
             let val = env.str_lookup("hello");
             assert!(val.unwrap().as_str() == "world");
