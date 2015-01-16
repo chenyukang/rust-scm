@@ -41,7 +41,7 @@ impl Evaler {
 
     fn eval_exp(&mut self, exp: Expr) -> Expr {
         if exp.is_self()   { return exp; }
-        if exp.is_symbol() { return self.env.clone().borrow().lookup(exp).unwrap(); }
+        if exp.is_symbol() { return self.env.clone().borrow().lookup(exp.as_str()).unwrap(); }
         if exp.is_quote()  { return exp.cdr().car(); }
         if exp.is_assign() { return self.eval_assign(exp); }
         if exp.is_def()    { return self.eval_def(exp); }
@@ -59,7 +59,7 @@ impl Evaler {
     fn eval_assign(&mut self, exp: Expr) -> Expr {
         let var = exp.c("da");
         let val = self.eval_exp(exp.c("dda"));
-        self.env.clone().borrow_mut().def_var(var, val);
+        self.env.clone().borrow_mut().def_var(var.as_str(), val);
         Expr::Symbol(SymbolNode::new("OK"))
     }
 
@@ -67,7 +67,7 @@ impl Evaler {
         let var = exp.def_var();
         let val = exp.def_val();
         let val = self.eval_exp(val);
-        self.env.clone().borrow_mut().def_var(var, val);
+        self.env.clone().borrow_mut().def_var(var.as_str(), val);
         Expr::Symbol(SymbolNode::new("OK"))
     }
 

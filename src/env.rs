@@ -4,7 +4,7 @@ use ast::*;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
-    pub vars: Vec<Expr>,
+    pub vars: Vec<String>,
     pub vals: Vec<Expr>,
     pub parent: Option<Rc<RefCell<Env>>>
 }
@@ -22,17 +22,21 @@ impl Env {
         res
     }
 
-    pub fn def_var(&mut self, var: Expr, val: Expr) {
+    pub fn def_var(&mut self, var: String, val: Expr) {
         self.add_bingding(var, val);
     }
 
-    pub fn add_bingding(&mut self, var: Expr, val: Expr) {
+    pub fn str_def(&mut self, var: &str, val: Expr) {
+        self.def_var(var.to_string(), val);
+    }
+
+    pub fn add_bingding(&mut self, var: String, val: Expr) {
         assert!(self.vars.len() == self.vals.len());
         self.vars.push(var);
         self.vals.push(val);
     }
 
-    pub fn lookup(&self, var: Expr) -> Option<Expr> {
+    pub fn lookup(&self, var: String) -> Option<Expr> {
         for i in range(0us, self.vars.len()).rev() {
             if self.vars[i] == var {
                 return Some(self.vals[i].clone());
@@ -45,6 +49,10 @@ impl Env {
                 return None;
             }
         };
+    }
+
+    pub fn str_lookup(&self, var: &str) -> Option<Expr> {
+        self.lookup(var.to_string())
     }
 
     pub fn parent(&self) ->  Option<Rc<RefCell<Env>>> {
@@ -64,11 +72,11 @@ impl Env {
         };
         loop {
             if _vars.is_last() { break; }
-            res.add_bingding(_vars.car(), _vals.car());
+            res.add_bingding(_vars.car().as_str(), _vals.car());
             _vars = _vars.cdr();
             _vals = _vals.cdr();
         }
-        res.add_bingding(_vars.car(), _vals.car());
+        res.add_bingding(_vars.car().as_str(), _vals.car());
         return Rc::new(RefCell::new(res));
     }
 
@@ -83,7 +91,7 @@ impl Env {
 
         macro_rules! add_proc {
             ($type_str:expr, $func_name:ident) => (
-                self.def_var(Expr::Symbol(SymbolNode::new($type_str)),
+                self.def_var($type_str.to_string(),
                              Expr::Proc(ProcNode::new($func_name)))
                     )
         }
@@ -216,38 +224,38 @@ fn large(args: Expr) -> Expr {
     Expr::Bool(BoolNode::new(true))
 }
 
+
 #[test]
 fn test_env() {
     let mut env = Env::new();
-    env.def_var(Expr::Str(StrNode::new("hello")),
-                Expr::Str(StrNode::new("world")));
+    env.str_def("hello", Expr::Str(StrNode::new("world")));
 
-    let val = env.lookup(Expr::Str(StrNode::new("hello")));
+    let val = env.str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 
-    env.def_var(Expr::Str(StrNode::new("1")), Expr::Int(IntNode::new(1)));
-    let val = env.lookup(Expr::Str(StrNode::new("1")));
+    env.str_def("1", Expr::Int(IntNode::new(1)));
+    let val = env.str_lookup("1");
     assert!(val.unwrap().as_int() == 1);
 
-    env.def_var(Expr::Str(StrNode::new("1")), Expr::Int(IntNode::new(2)));
-    let val = env.lookup(Expr::Str(StrNode::new("1")));
+    env.str_def("1", Expr::Int(IntNode::new(2)));
+    let val = env.str_lookup("1");
     assert!(val.unwrap().as_int() == 2);
 
-    env.def_var(Expr::Symbol(SymbolNode::new("sym")), Expr::Int(IntNode::new(2)));
-    let val = env.lookup(Expr::Symbol(SymbolNode::new("sym")));
+    env.str_def("sym", Expr::Int(IntNode::new(2)));
+    let val = env.str_lookup("sym");
     assert!(val.unwrap().as_int() == 2);
 
-    let val = env.lookup(Expr::Symbol(SymbolNode::new("null?")));
+    let val = env.str_lookup("null?");
     assert!(val.unwrap().is_proc());
-    let val = env.lookup(Expr::Symbol(SymbolNode::new("char?")));
+    let val = env.str_lookup("char?");
     assert!(val.unwrap().is_proc());
-    let val = env.lookup(Expr::Symbol(SymbolNode::new("integer?")));
-    assert!(val.unwrap().is_proc());
-
-    let val = env.lookup(Expr::Symbol(SymbolNode::new(">")));
+    let val = env.str_lookup("integer?");
     assert!(val.unwrap().is_proc());
 
-    let val = env.lookup(Expr::Symbol(SymbolNode::new("<")));
+    let val = env.str_lookup(">");
+    assert!(val.unwrap().is_proc());
+
+    let val = env.str_lookup("<");
     assert!(val.unwrap().is_proc());
 
 }
@@ -255,18 +263,16 @@ fn test_env() {
 #[test]
 fn test_env_extend() {
     let mut env = Env::new();
-    env.def_var(Expr::Str(StrNode::new("hello")),
-                Expr::Str(StrNode::new("world")));
+    env.str_def("hello", Expr::Str(StrNode::new("world")));
 
     let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var")), Expr::Nil));
     let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val")), Expr::Nil));
 
-
     let extend_env = env.extend(vars, vals);
-    let val = extend_env.clone().borrow_mut().lookup(Expr::Str(StrNode::new("var")));
+    let val = extend_env.clone().borrow_mut().str_lookup("var");
     assert!(val.unwrap().as_str() == "val");
 
-    let val = extend_env.clone().borrow_mut().lookup(Expr::Str(StrNode::new("hello")));
+    let val = extend_env.clone().borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 
     let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var_x")), Expr::Nil));
@@ -274,19 +280,19 @@ fn test_env_extend() {
 
 
     let extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
-    let val = extend_env.clone().borrow_mut().lookup(Expr::Str(StrNode::new("var_x")));
+    let val = extend_env.clone().borrow_mut().str_lookup("var_x");
     assert!(val.unwrap().as_str() == "val_x");
 
-    extend_env.clone().borrow_mut().def_var(Expr::Str(StrNode::new("1")), Expr::Str(StrNode::new("1")));
+    extend_env.clone().borrow_mut().str_def("1", Expr::Str(StrNode::new("1")));
 
-    let val = extend_env.clone().borrow_mut().lookup(Expr::Str(StrNode::new("1")));
+    let val = extend_env.clone().borrow_mut().str_lookup("1");
     assert!(val.unwrap().as_str() == "1");
 }
 
 #[test]
 fn test_env_parent() {
     let mut env = Env::new();
-    env.def_var(Expr::Str(StrNode::new("hello")), Expr::Str(StrNode::new("world")));
+    env.str_def("hello", Expr::Str(StrNode::new("world")));
 
     let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var")), Expr::Nil));
     let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val")), Expr::Nil));
@@ -294,6 +300,6 @@ fn test_env_parent() {
 
     let extend_env = env.extend(vars, vals);
     let parent = extend_env.clone().borrow_mut().parent().unwrap();
-    let val = parent.clone().borrow_mut().lookup(Expr::Str(StrNode::new("hello")));
+    let val = parent.clone().borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 }
