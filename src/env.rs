@@ -1,11 +1,12 @@
+use std::collections::HashMap;
 use std::cell::RefCell;
 use std::rc::Rc;
 use ast::*;
+use test::Bencher;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
-    pub vars: Vec<String>,
-    pub vals: Vec<Expr>,
+    pub table: HashMap<String, Expr>,
     pub parent: Option<Rc<RefCell<Env>>>
 }
 
@@ -14,8 +15,7 @@ pub struct Env {
 impl Env {
     pub fn new() -> Env {
         let mut res = Env {
-            vars: vec![],
-            vals: vec![],
+            table: HashMap::new(),
             parent: None
         };
         res.setup();
@@ -23,24 +23,21 @@ impl Env {
     }
 
     pub fn def_var(&mut self, var: String, val: Expr) {
-        self.add_bingding(var, val);
+        self.add_binding(var, val);
     }
 
     pub fn str_def(&mut self, var: &str, val: Expr) {
-        self.def_var(var.to_string(), val);
+        self.add_binding(var.to_string(), val);
     }
 
-    pub fn add_bingding(&mut self, var: String, val: Expr) {
-        assert!(self.vars.len() == self.vals.len());
-        self.vars.push(var);
-        self.vals.push(val);
+    pub fn add_binding(&mut self, var: String, val: Expr) {
+        self.table.insert(var, val);
     }
 
     pub fn lookup(&self, var: String) -> Option<Expr> {
-        for i in range(0us, self.vars.len()).rev() {
-            if self.vars[i] == var {
-                return Some(self.vals[i].clone());
-            }
+        match self.table.get(&var) {
+            Some(val) => return Some(val.clone()),
+            _ => {}
         }
         match self.parent.clone() {
             Some(p) =>
@@ -66,17 +63,16 @@ impl Env {
         let mut _vars = vars;
         let mut _vals = vals;
         let mut res = Env {
-            vars: vec![],
-            vals: vec![],
+            table: HashMap::new(),
             parent: Some(Rc::new(RefCell::new(self.clone())))
         };
         loop {
             if _vars.is_last() { break; }
-            res.add_bingding(_vars.car().as_str(), _vals.car());
+            res.add_binding(_vars.car().as_str(), _vals.car());
             _vars = _vars.cdr();
             _vals = _vals.cdr();
         }
-        res.add_bingding(_vars.car().as_str(), _vals.car());
+        res.add_binding(_vars.car().as_str(), _vals.car());
         return Rc::new(RefCell::new(res));
     }
 
@@ -302,4 +298,18 @@ fn test_env_parent() {
     let parent = extend_env.clone().borrow_mut().parent().unwrap();
     let val = parent.clone().borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
+}
+
+#[bench]
+fn env_bench(b: &mut Bencher) {
+    fn test_env() {
+        let mut env = Env::new();
+        for i in 1..100 {
+            env.str_def("hello", Expr::Str(StrNode::new("world")));
+            let val = env.str_lookup("hello");
+            assert!(val.unwrap().as_str() == "world");
+        }
+    }
+
+    b.iter(|| test_env());
 }
