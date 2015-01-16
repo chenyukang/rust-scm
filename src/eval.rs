@@ -41,7 +41,7 @@ impl Evaler {
 
     fn eval_exp(&mut self, exp: Expr) -> Expr {
         if exp.is_self()   { return exp; }
-        if exp.is_symbol() { return self.env.clone().borrow().lookup(exp.as_str()).unwrap(); }
+        if exp.is_symbol() { return self.env.borrow().lookup(exp.as_str()).unwrap(); }
         if exp.is_quote()  { return exp.cdr().car(); }
         if exp.is_assign() { return self.eval_assign(exp); }
         if exp.is_def()    { return self.eval_def(exp); }
