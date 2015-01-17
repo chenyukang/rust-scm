@@ -17,10 +17,14 @@ Env use Vec, should be very slow.
 
 Env v2, use String as env key, not the SymboNode
 
-    test eval::eval_bench   ... bench:   1383174 ns/iter (+/- 197825)
-    test eval::lambda_bench ... bench:    424701 ns/iter (+/- 109524)
+    test env::env_bench      ... bench:   8108095 ns/iter (+/- 1626045)
+    test env::env_bench_iter ... bench:    623332 ns/iter (+/- 639534)
+    test eval::eval_bench    ... bench:   1469169 ns/iter (+/- 333122)
+    test eval::lambda_bench  ... bench:    487463 ns/iter (+/- 91102)
 
 Env v3, use HashMap represent env
 
-    test eval::eval_bench   ... bench:   1567936 ns/iter (+/- 195648)
-    test eval::lambda_bench ... bench:    475842 ns/iter (+/- 73110)
+    test env::env_bench      ... bench:   1220791 ns/iter (+/- 174220)
+    test env::env_bench_iter ... bench:    773957 ns/iter (+/- 128140)
+    test eval::eval_bench    ... bench:   1517271 ns/iter (+/- 267982)
+    test eval::lambda_bench  ... bench:    458025 ns/iter (+/- 100774)
