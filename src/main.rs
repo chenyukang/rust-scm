@@ -38,8 +38,8 @@ fn main() {
     };
     println!("code:\n{}", program);
     println!("code:\n{}", code);
-    let mut evaler = Evaler::new();
-    let res = evaler.eval(code).unwrap();
+    let mut evaler = Evaler::new(io::stdin());
+    let res = evaler.eval_from(code).unwrap();
     res.print();
     println!("");
 }

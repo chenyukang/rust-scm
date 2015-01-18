@@ -1,18 +1,22 @@
 use ast::*;
+use std::io::Reader;
+use std::io;
 
 #[derive(Clone, Show)]
-pub struct Parser {
+pub struct Parser<R> {
     code: String,
     cur: usize,
     col: usize,
-    line: usize
+    line: usize,
+    inner: R
 }
 
-impl Parser {
-    pub fn new() -> Parser {
+impl <R: Reader> Parser<R> {
+    pub fn new_from(inner: R) -> Parser<R> {
         Parser{
             code: "".to_string(),
-            line: 0, cur: 0, col: 0
+            line: 0, cur: 0, col: 0,
+            inner: inner
         }
     }
 
@@ -182,7 +186,7 @@ impl Parser {
 fn test_parser() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-            let mut parser = Parser::new();
+            let mut parser = Parser::new_from(io::stdin());
             parser.load($test_str.to_string());
             let res = parser.read_exp().unwrap();
             if res.$expect_type() != $expect_val {
@@ -193,7 +197,7 @@ fn test_parser() {
 
     macro_rules! test_res {
         ($test_str:expr) => { {
-            let mut parser = Parser::new();
+            let mut parser = Parser::new_from(io::stdin());
             parser.load($test_str.to_string());
             parser.read_exp().unwrap()
         }}

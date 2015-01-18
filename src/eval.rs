@@ -1,27 +1,43 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::io;
 
 use ast::*;
 use env::*;
 use parser::*;
 use test::Bencher;
 
-pub struct Evaler {
-    parser: Parser,
+pub struct Evaler<R>  {
+    parser: Parser<R>,
     env:    Rc<RefCell<Env>>
 }
 
 #[allow(dead_code)]
-impl Evaler {
-    pub fn new() -> Evaler {
+impl <R: Reader> Evaler<R> {
+    pub fn new(inner: R) -> Evaler<R> {
         let env = Env::new();
         Evaler {
-            parser: Parser::new(),
+            parser: Parser::new_from(inner),
             env:    Rc::new(RefCell::new(env))
         }
     }
 
-    pub fn eval(&mut self, code: String) -> Option<Expr> {
+    pub fn eval(&mut self) -> Option<Expr> {
+        let mut res = None;
+        loop {
+            let exp = self.parser.read_exp();
+            match exp {
+                Some(_exp) => {
+                    let r = self.eval_exp(_exp);
+                    res = Some(r);
+                },
+                None => break
+            }
+        }
+        res
+    }
+
+    pub fn eval_from(&mut self, code: String) -> Option<Expr> {
         self.parser.load(code);
         let mut res = None;
         loop {
@@ -201,8 +217,8 @@ impl Evaler {
 
 macro_rules! test_case {
     ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-        let mut evaler = Evaler::new();
-        let res = evaler.eval($test_str.to_string()).unwrap();
+        let mut evaler = Evaler::new(io::stdin());
+        let res = evaler.eval_from($test_str.to_string()).unwrap();
         if res.$expect_type() != $expect_val {
             assert!(false);
         }
