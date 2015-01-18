@@ -6,14 +6,14 @@ use env::*;
 use parser::*;
 use test::Bencher;
 
-pub struct Evaler {
-    parser: Parser,
+pub struct Evaler<'a> {
+    parser: Parser<'a>,
     env:    Rc<RefCell<Env>>
 }
 
 #[allow(dead_code)]
-impl Evaler {
-    pub fn new() -> Evaler {
+impl <'a> Evaler<'a> {
+    pub fn new() -> Evaler<'a> {
         let env = Env::new();
         Evaler {
             parser: Parser::new(),

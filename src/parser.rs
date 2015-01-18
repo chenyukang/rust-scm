@@ -1,18 +1,34 @@
 use ast::*;
+use std::io;
+use std::io::Reader;
+use std::io::{File, Open, Read};
 
-#[derive(Clone, Show)]
-pub struct Parser {
+pub struct CodeReader<'a> {
+    reader: Box<Reader + 'a>
+}
+
+impl <'a> CodeReader<'a> {
+    pub fn new(reader: Box<Reader + 'a>) -> CodeReader<'a> {
+        CodeReader {
+            reader: reader
+        }
+    }
+}
+
+pub struct Parser<'a> {
     code: String,
     cur: usize,
     col: usize,
-    line: usize
+    line: usize,
+    reader: CodeReader<'a>
 }
 
-impl Parser {
-    pub fn new() -> Parser {
+impl <'a> Parser<'a> {
+    pub fn new() -> Parser<'a> {
         Parser{
             code: "".to_string(),
-            line: 0, cur: 0, col: 0
+            line: 0, cur: 0, col: 0,
+            reader: CodeReader::new(Box::new(io::stdin()) as Box<Reader>)
         }
     }
 

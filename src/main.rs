@@ -1,5 +1,5 @@
 #![allow(unstable)]
-#[allow(unused_imports)]
+#![allow(unused_imports)]
 
 
 extern crate test;
