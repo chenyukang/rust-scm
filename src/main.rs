@@ -23,23 +23,27 @@ fn help() {
 fn main() {
     let args = os::args();
     if args.len() < 2 {
+        let mut evaler = Evaler::new(io::stdin(), true);
+        let res = evaler.eval().unwrap();
+        res.print();
+        println!("");
+    } else if args.len() == 2 {
+        let program = args[0].as_slice();
+        let code = match io::File::open(&Path::new(args[1].as_slice())) {
+            Ok(mut file) => file.read_to_string().unwrap(),
+            Err(_) => {
+                os::set_exit_status(1);
+                return
+            }
+        };
+        println!("code:\n{}", program);
+        println!("code:\n{}", code);
+        let mut evaler = Evaler::new(io::stdin(), false);
+        let res = evaler.eval_from(code).unwrap();
+        res.print();
+        println!("");
+    } else {
         help();
-        os::set_exit_status(1);
-        return;
     }
 
-    let program = args[0].as_slice();
-    let code = match io::File::open(&Path::new(args[1].as_slice())) {
-        Ok(mut file) => file.read_to_string().unwrap(),
-        Err(_) => {
-            os::set_exit_status(1);
-            return
-        }
-    };
-    println!("code:\n{}", program);
-    println!("code:\n{}", code);
-    let mut evaler = Evaler::new(io::stdin());
-    let res = evaler.eval_from(code).unwrap();
-    res.print();
-    println!("");
 }

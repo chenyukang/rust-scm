@@ -8,14 +8,16 @@ pub struct Parser<R> {
     cur: usize,
     col: usize,
     line: usize,
+    iteractive: bool,
     inner: R
 }
 
 impl <R: Reader> Parser<R> {
-    pub fn new_from(inner: R) -> Parser<R> {
+    pub fn new_from(inner: R, iteractive: bool) -> Parser<R> {
         Parser{
             code: "".to_string(),
             line: 0, cur: 0, col: 0,
+            iteractive: iteractive,
             inner: inner
         }
     }
@@ -71,7 +73,7 @@ impl <R: Reader> Parser<R> {
                     buf.push(cur);
                 }
                 return Some(Expr::Str(StrNode::new(buf.as_slice())));
-            } else if cur == '(' {
+            } else if cur == '(' && cur != ')' {
                 return self.read_pair();
             } else if self.is_initial(cur) {
                 let mut buf = String::new();
@@ -135,13 +137,37 @@ impl <R: Reader> Parser<R> {
         }
     }
 
-    fn eof(&self) -> bool {
+    fn eof(&mut self) -> bool {
+        if self.iteractive {
+            let mut vec: Vec<u8> = Vec::new();
+            match self.inner.push(1us, &mut vec) {
+                Ok(len) => {
+                    for i in vec.into_iter() {
+                        self.code.push(i as char);
+                    }
+                },
+                Err(_) => { return true; }
+            }
+        }
         self.cur >= self.code.len()
     }
 
-    fn peekc(&self) -> char {
+    fn peekc(&mut self) -> char {
         if self.cur >= self.code.len() {
-            return 0 as char
+            if self.iteractive {
+                let mut vec: Vec<u8> = Vec::new();
+                match self.inner.push(1us, &mut vec) {
+                    Ok(len) => {
+                        for i in vec.into_iter() {
+                            self.code.push(i as char);
+                        }
+                    },
+                    Err(_) => { return 0 as char; }
+                }
+            }
+        }
+        if self.cur >= self.code.len() {
+            return 0 as char;
         }
         self.code.char_at(self.cur)
     }
@@ -171,7 +197,7 @@ impl <R: Reader> Parser<R> {
             panic!("error current position");
         }
         if self.prevc() == '\n' {
-            assert!(self.line > 1);
+            assert!(self.line >= 1);
             self.line -= 1;
         }
         self.cur -= 1;
@@ -186,7 +212,7 @@ impl <R: Reader> Parser<R> {
 fn test_parser() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-            let mut parser = Parser::new_from(io::stdin());
+            let mut parser = Parser::new_from(io::stdin(), false);
             parser.load($test_str.to_string());
             let res = parser.read_exp().unwrap();
             if res.$expect_type() != $expect_val {
@@ -197,7 +223,7 @@ fn test_parser() {
 
     macro_rules! test_res {
         ($test_str:expr) => { {
-            let mut parser = Parser::new_from(io::stdin());
+            let mut parser = Parser::new_from(io::stdin(), false);
             parser.load($test_str.to_string());
             parser.read_exp().unwrap()
         }}

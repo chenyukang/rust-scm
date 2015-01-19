@@ -9,26 +9,37 @@ use test::Bencher;
 
 pub struct Evaler<R>  {
     parser: Parser<R>,
-    env:    Rc<RefCell<Env>>
+    env:    Rc<RefCell<Env>>,
+    iteractive: bool
+
 }
 
 #[allow(dead_code)]
 impl <R: Reader> Evaler<R> {
-    pub fn new(inner: R) -> Evaler<R> {
+    pub fn new(inner: R, iteractive: bool) -> Evaler<R> {
         let env = Env::new();
         Evaler {
-            parser: Parser::new_from(inner),
-            env:    Rc::new(RefCell::new(env))
+            parser: Parser::new_from(inner, iteractive),
+            env:    Rc::new(RefCell::new(env)),
+            iteractive: iteractive
+
         }
     }
 
     pub fn eval(&mut self) -> Option<Expr> {
         let mut res = None;
         loop {
+            if self.iteractive {
+                print!("> ");
+            }
             let exp = self.parser.read_exp();
             match exp {
                 Some(_exp) => {
                     let r = self.eval_exp(_exp);
+                    if self.iteractive {
+                        r.print();
+                        println!("");
+                    }
                     res = Some(r);
                 },
                 None => break
@@ -45,8 +56,6 @@ impl <R: Reader> Evaler<R> {
             match exp {
                 Some(_exp) => {
                     let r = self.eval_exp(_exp);
-                    //r.print();
-                    //println!("");
                     res = Some(r);
                 },
                 None => break
@@ -217,7 +226,7 @@ impl <R: Reader> Evaler<R> {
 
 macro_rules! test_case {
     ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-        let mut evaler = Evaler::new(io::stdin());
+        let mut evaler = Evaler::new(io::stdin(), false);
         let res = evaler.eval_from($test_str.to_string()).unwrap();
         if res.$expect_type() != $expect_val {
             assert!(false);
