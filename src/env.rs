@@ -311,11 +311,11 @@ fn test_env_parent() {
 fn env_bench(b: &mut Bencher) {
     fn test_env() {
         let mut env = Env::new();
-        for i in 1..1000 {
+        for i in 1is..1000 {
             let key = i.to_string();
             env.def_var(key.clone(), Expr::new_str("world"));
         }
-        for i in 1..1000 {
+        for i in 1is..1000 {
             let val = env.lookup(i.to_string());
             assert!(val.unwrap().as_str() == "world");
         }
