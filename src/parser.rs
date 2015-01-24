@@ -37,8 +37,8 @@ impl <R: Reader> Parser<R> {
         if cur == '#' {
             let next = self.readc();
             match next {
-                't' => return Some(Expr::Bool(BoolNode::new(true))),
-                'f' => return Some(Expr::Bool(BoolNode::new(false))),
+                't' => return Some(Expr::Bool(true)),
+                'f' => return Some(Expr::Bool(false)),
                 '\\' => return self.read_char(),
                 _ => panic!("error")
             }
@@ -62,7 +62,7 @@ impl <R: Reader> Parser<R> {
                 if self.is_delimiter(cur) {
                     self.unread();
                 }
-                return Some(Expr::Int(IntNode::new(num)));
+                return Some(Expr::Int(num));
             } else if cur == '\"' {
                 let mut buf = String::new();
                 loop {
@@ -72,7 +72,7 @@ impl <R: Reader> Parser<R> {
                     }
                     buf.push(cur);
                 }
-                return Some(Expr::Str(StrNode::new(buf.as_slice())));
+                return Some(Expr::new_str(buf.as_slice()));
             } else if cur == '(' && cur != ')' {
                 return self.read_pair();
             } else if self.is_initial(cur) {
@@ -88,12 +88,11 @@ impl <R: Reader> Parser<R> {
                 if self.is_delimiter(cur) {
                     self.unread();
                 }
-                return Some(Expr::Symbol(SymbolNode::new(buf.as_slice())));
+                return Some(Expr::new_sym(buf.as_slice()));
             } else if cur == '\'' {
-                let quote_sym = Expr::Symbol(SymbolNode::new("quote"));
-                let quote_exp = Expr::Pair(PairNode::new(self.read_exp().unwrap(),
-                                                            Expr::Nil));
-                return Some(Expr::Pair(PairNode::new(quote_sym, quote_exp)));
+                let quote_sym = Expr::new_sym("quote");
+                let quote_exp = Expr::new_pair(self.read_exp().unwrap(), Expr::Nil);
+                return Some(Expr::new_pair(quote_sym, quote_exp));
             }
         None
     }
@@ -112,8 +111,7 @@ impl <R: Reader> Parser<R> {
         if cur != '.' {
             self.unread();
             let cdr_obj = self.read_pair();
-            return Some(Expr::Pair(PairNode::new(car_obj.unwrap(),
-                                                    cdr_obj.unwrap())));
+            return Some(Expr::new_pair(car_obj.unwrap(), cdr_obj.unwrap()));
         } else {
             return Some(Expr::Nil);
         }
@@ -141,7 +139,7 @@ impl <R: Reader> Parser<R> {
         if self.iteractive {
             let mut vec: Vec<u8> = Vec::new();
             match self.inner.push(1us, &mut vec) {
-                Ok(len) => {
+                Ok(_) => {
                     for i in vec.into_iter() {
                         self.code.push(i as char);
                     }
@@ -157,7 +155,7 @@ impl <R: Reader> Parser<R> {
             if self.iteractive {
                 let mut vec: Vec<u8> = Vec::new();
                 match self.inner.push(1us, &mut vec) {
-                    Ok(len) => {
+                    Ok(_) => {
                         for i in vec.into_iter() {
                             self.code.push(i as char);
                         }
@@ -204,7 +202,7 @@ impl <R: Reader> Parser<R> {
     }
 
     fn read_char(&mut self) -> Option<Expr> {
-        Some(Expr::Char(CharNode::new('a')))
+        Some(Expr::Char('a'))
     }
 }
 
@@ -244,7 +242,7 @@ fn test_parser() {
 
     let res = test_res!("(+ 1 2)");
     assert!(res.is_pair());
-    assert!(res.car().is_symbol());
+    assert!(res.car().is_sym());
     assert!(res.cdr().car().as_int() == 1);
     assert!(res.cdr().cdr().car().as_int() == 2);
 }

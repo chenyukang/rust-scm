@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::fmt;
 use ast::*;
 use test::Bencher;
 
@@ -8,6 +9,12 @@ use test::Bencher;
 pub struct Env {
     pub table: HashMap<String, Expr>,
     pub parent: Option<Rc<RefCell<Env>>>
+}
+
+impl fmt::Show for Env {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "env")
+    }
 }
 
 #[allow(unreachable_code)]
@@ -80,7 +87,7 @@ impl Env {
         macro_rules! def_proc {
             ($func_name:ident, $raw_func_name:ident) => (
                 fn $func_name(args: Expr) -> Expr {
-                    Expr::Bool(BoolNode::new(args.car().$raw_func_name()))
+                    Expr::Bool(args.car().$raw_func_name())
                 }
                 )
         }
@@ -88,22 +95,22 @@ impl Env {
         macro_rules! add_proc {
             ($type_str:expr, $func_name:ident) => (
                 self.def_var($type_str.to_string(),
-                             Expr::Proc(ProcNode::new($func_name)))
+                             Expr::new_proc($func_name))
                     )
         }
 
         def_proc!(is_null, is_empty);
         def_proc!(is_boolean, is_bool);
-        def_proc!(is_symbol, is_symbol);
-        def_proc!(is_string, is_string);
+        def_proc!(is_sym, is_sym);
+        def_proc!(is_str, is_str);
         def_proc!(is_pair, is_pair);
         def_proc!(is_char, is_char);
         def_proc!(is_int, is_int);
 
         add_proc!("null?", is_null);
         add_proc!("boolean?", is_boolean);
-        add_proc!("symbol?", is_symbol);
-        add_proc!("string?", is_string);
+        add_proc!("symbol?", is_sym);
+        add_proc!("string?", is_str);
         add_proc!("char?", is_char);
         add_proc!("integer?", is_int);
         add_proc!("+", add);
@@ -130,7 +137,7 @@ fn add(args: Expr) -> Expr {
         res += exps.car().as_int();
         exps = exps.cdr();
     }
-    Expr::Int(IntNode::new(res))
+    Expr::Int(res)
 }
 
 fn sub(args: Expr) -> Expr {
@@ -141,7 +148,7 @@ fn sub(args: Expr) -> Expr {
         res -= exps.car().as_int();
         exps = exps.cdr();
     }
-    Expr::Int(IntNode::new(res))
+    Expr::Int(res)
 }
 
 fn mul(args: Expr) -> Expr {
@@ -152,7 +159,7 @@ fn mul(args: Expr) -> Expr {
         res *= exps.car().as_int();
         exps = exps.cdr();
     }
-    Expr::Int(IntNode::new(res))
+    Expr::Int(res)
 }
 
 fn div(args: Expr) -> Expr {
@@ -163,24 +170,24 @@ fn div(args: Expr) -> Expr {
         if exps.is_empty() { break; }
         let nxt = exps.car().as_int();
         if nxt == 0 {
-            return Expr::Symbol(SymbolNode::new("Fail"));
+            return Expr::new_sym("fail");
         }
         res /= nxt;
         exps = exps.cdr();
     }
-    Expr::Int(IntNode::new(res))
+    Expr::Int(res)
 }
 
 fn cons(args: Expr) -> Expr {
     let obj1 = args.car();
     let obj2 = args.c("da");
-    Expr::Pair(PairNode::new(obj1, Expr::Pair(PairNode::new(obj2, Expr::Nil))))
+    Expr::new_pair(obj1, Expr::new_pair(obj2, Expr::Nil))
 }
 
 fn eq(args: Expr) -> Expr {
     let obj1 = args.car();
     let obj2 = args.c("da");
-    Expr::Bool(BoolNode::new(obj1 == obj2))
+    Expr::Bool(obj1 == obj2)
 }
 
 fn less(args: Expr) -> Expr {
@@ -189,11 +196,11 @@ fn less(args: Expr) -> Expr {
     loop {
         if exps.is_empty() { break; }
         if val >= exps.car().as_int() {
-            return Expr::Bool(BoolNode::new(false));
+            return Expr::Bool(false);
         }
         exps = exps.cdr();
     }
-    Expr::Bool(BoolNode::new(true))
+    Expr::Bool(true)
 }
 
 fn car(args: Expr) -> Expr {
@@ -213,31 +220,32 @@ fn large(args: Expr) -> Expr {
     loop {
         if exps.is_empty() { break; }
         if val <= exps.car().as_int() {
-            return Expr::Bool(BoolNode::new(false));
+            return Expr::Bool(false);
         }
         exps = exps.cdr();
     }
-    Expr::Bool(BoolNode::new(true))
+    Expr::Bool(true)
 }
 
 
 #[test]
 fn test_env() {
     let mut env = Env::new();
-    env.str_def("hello", Expr::Str(StrNode::new("world")));
+    env.str_def("hello", Expr::new_str("world"));
 
     let val = env.str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 
-    env.str_def("1", Expr::Int(IntNode::new(1)));
+    env.str_def("1", Expr::Int(1));
     let val = env.str_lookup("1");
     assert!(val.unwrap().as_int() == 1);
 
-    env.str_def("1", Expr::Int(IntNode::new(2)));
+    env.str_def("1", Expr::Int(2));
     let val = env.str_lookup("1");
     assert!(val.unwrap().as_int() == 2);
 
-    env.str_def("sym", Expr::Int(IntNode::new(2)));
+    env.str_def("sym", Expr::Int(2));
+
     let val = env.str_lookup("sym");
     assert!(val.unwrap().as_int() == 2);
 
@@ -259,10 +267,10 @@ fn test_env() {
 #[test]
 fn test_env_extend() {
     let mut env = Env::new();
-    env.str_def("hello", Expr::Str(StrNode::new("world")));
+    env.str_def("hello", Expr::new_str("world"));
 
-    let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var")), Expr::Nil));
-    let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val")), Expr::Nil));
+    let vars = Expr::new_pair(Expr::new_str("var"), Expr::Nil);
+    let vals = Expr::new_pair(Expr::new_str("val"), Expr::Nil);
 
     let extend_env = env.extend(vars, vals);
     let val = extend_env.clone().borrow_mut().str_lookup("var");
@@ -271,15 +279,14 @@ fn test_env_extend() {
     let val = extend_env.clone().borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 
-    let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var_x")), Expr::Nil));
-    let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val_x")), Expr::Nil));
-
+    let vars = Expr::new_pair(Expr::new_str("var_x"), Expr::Nil);
+    let vals = Expr::new_pair(Expr::new_str("val_x"), Expr::Nil);
 
     let extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
     let val = extend_env.clone().borrow_mut().str_lookup("var_x");
     assert!(val.unwrap().as_str() == "val_x");
 
-    extend_env.clone().borrow_mut().str_def("1", Expr::Str(StrNode::new("1")));
+    extend_env.clone().borrow_mut().str_def("1", Expr::new_str("1"));
 
     let val = extend_env.clone().borrow_mut().str_lookup("1");
     assert!(val.unwrap().as_str() == "1");
@@ -288,10 +295,10 @@ fn test_env_extend() {
 #[test]
 fn test_env_parent() {
     let mut env = Env::new();
-    env.str_def("hello", Expr::Str(StrNode::new("world")));
+    env.str_def("hello", Expr::new_str("world"));
 
-    let vars = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("var")), Expr::Nil));
-    let vals = Expr::Pair(PairNode::new( Expr::Str(StrNode::new("val")), Expr::Nil));
+    let vars = Expr::new_pair(Expr::new_str("var"), Expr::Nil);
+    let vals = Expr::new_pair(Expr::new_str("val"), Expr::Nil);
 
 
     let extend_env = env.extend(vars, vals);
@@ -306,7 +313,7 @@ fn env_bench(b: &mut Bencher) {
         let mut env = Env::new();
         for i in 1..1000 {
             let key = i.to_string();
-            env.def_var(key.clone(), Expr::Str(StrNode::new("world")));
+            env.def_var(key.clone(), Expr::new_str("world"));
         }
         for i in 1..1000 {
             let val = env.lookup(i.to_string());
@@ -322,8 +329,8 @@ fn env_bench(b: &mut Bencher) {
 fn env_bench_iter(b: &mut Bencher) {
     fn test_env() {
         let mut env = Env::new();
-        for i in 1..1000 {
-            env.str_def("hello", Expr::Str(StrNode::new("world")));
+        for _ in 1..1000 {
+            env.str_def("hello", Expr::new_str("world"));
             let val = env.str_lookup("hello");
             assert!(val.unwrap().as_str() == "world");
         }

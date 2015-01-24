@@ -66,7 +66,7 @@ impl <R: Reader> Evaler<R> {
 
     fn eval_exp(&mut self, exp: Expr) -> Expr {
         if exp.is_self()   { return exp; }
-        if exp.is_symbol() { return self.env.borrow().lookup(exp.as_str()).unwrap(); }
+        if exp.is_sym()    { return self.env.borrow().lookup(exp.as_str()).unwrap(); }
         if exp.is_quote()  { return exp.cdr().car(); }
         if exp.is_assign() { return self.eval_assign(exp); }
         if exp.is_def()    { return self.eval_def(exp); }
@@ -78,14 +78,14 @@ impl <R: Reader> Evaler<R> {
         if exp.is_cond()   { return self.eval_cond(exp); }
         if exp.is_let()    { return self.eval_let(exp); }
         if exp.is_pair()   { return self.eval_app(exp); }
-        Expr::Symbol(SymbolNode::new("OK"))
+        Expr::new_sym("OK")
     }
 
     fn eval_assign(&mut self, exp: Expr) -> Expr {
         let var = exp.c("da");
         let val = self.eval_exp(exp.c("dda"));
         self.env.clone().borrow_mut().def_var(var.as_str(), val);
-        Expr::Symbol(SymbolNode::new("OK"))
+        Expr::new_sym("OK")
     }
 
     fn eval_def(&mut self, exp: Expr) -> Expr {
@@ -93,7 +93,7 @@ impl <R: Reader> Evaler<R> {
         let val = exp.def_val();
         let val = self.eval_exp(val);
         self.env.clone().borrow_mut().def_var(var.as_str(), val);
-        Expr::Symbol(SymbolNode::new("OK"))
+        Expr::new_sym("OK")
     }
 
     fn eval_if(&mut self, exp: Expr) -> Expr {
@@ -105,7 +105,7 @@ impl <R: Reader> Evaler<R> {
             self.eval_exp(blk_t)
         } else {
             if res.is_empty() {
-                Expr::Bool(BoolNode::new(false))
+                Expr::Bool(false)
             } else {
                 self.eval_exp(blk_f.car())
             }
@@ -115,13 +115,13 @@ impl <R: Reader> Evaler<R> {
     fn eval_and(&mut self, exp: Expr) -> Expr {
         let mut elems = exp.cdr();
         if elems.is_empty() {
-            return Expr::Bool(BoolNode::new(true));
+            return Expr::Bool(true);
         }
         loop {
             if elems.is_last() { break; }
             let res = self.eval_exp(elems.car());
             if res.is_false() {
-                return Expr::Bool(BoolNode::new(false));
+                return Expr::Bool(false);
             }
             elems = elems.cdr();
         }
@@ -131,13 +131,13 @@ impl <R: Reader> Evaler<R> {
     fn eval_or(&mut self, exp: Expr) -> Expr {
         let mut elems = exp.cdr();
         if elems.is_empty() {
-            return Expr::Bool(BoolNode::new(true));
+            return Expr::Bool(true);
         }
         loop {
             if elems.is_last() { break; }
             let res = self.eval_exp(elems.car());
             if res.is_true() {
-                return Expr::Bool(BoolNode::new(true));
+                return Expr::Bool(true);
             }
             elems = elems.cdr();
         }
@@ -150,12 +150,12 @@ impl <R: Reader> Evaler<R> {
             if elems.is_empty() { break; }
             let cur = elems.car();
             let val = self.eval_exp(cur.clone());
-            if val.is_true() || val == Expr::Symbol(SymbolNode::new("else")) {
+            if val.is_true() || val == Expr::new_sym("else") {
                 return self.eval_exp(cur.clone().cdr().car());
             }
             elems = elems.cdr();
         }
-        Expr::Bool(BoolNode::new(true))
+        Expr::Bool(true)
     }
 
     fn eval_let(&mut self, exp: Expr) -> Expr {
@@ -163,7 +163,7 @@ impl <R: Reader> Evaler<R> {
             if exp.is_empty() {
                 Expr::Nil
             } else {
-                Expr::Pair(PairNode::new(exp.c("aa"), bind_params(exp.cdr())))
+                Expr::new_pair(exp.c("aa"), bind_params(exp.cdr()))
             }
         }
 
@@ -171,14 +171,14 @@ impl <R: Reader> Evaler<R> {
             if exp.is_empty() {
                 Expr::Nil
             } else {
-                Expr::Pair(PairNode::new(exp.c("ada"), bind_args(exp.cdr())))
+                Expr::new_pair(exp.c("ada"), bind_args(exp.cdr()))
             }
         }
 
         let bindings = exp.c("da");
-        let obj = Expr::Pair(PairNode::new(
+        let obj = Expr::new_pair(
             bind_params(bindings.clone()).make_lambda(exp.c("dd")),
-            bind_args(bindings)));
+            bind_args(bindings));
         self.eval_exp(obj)
     }
 
@@ -197,7 +197,7 @@ impl <R: Reader> Evaler<R> {
             Expr::Nil
         } else {
             let first = self.eval_exp(exprs.car());
-            Expr::Pair(PairNode::new(first, self.eval_values(exprs.cdr())))
+            Expr::new_pair(first, self.eval_values(exprs.cdr()))
         }
     }
 
@@ -211,8 +211,8 @@ impl <R: Reader> Evaler<R> {
             assert!(_proc.is_cproc());
             let _vars = _proc.params();
             self.env = self.env.clone().borrow_mut().extend(_vars, _args);
-            let begin = Expr::Symbol(SymbolNode::new("begin"));
-            let res = self.eval_exp(Expr::Pair(PairNode::new(begin, _proc.body())));
+            let begin = Expr::new_sym("begin");
+            let res = self.eval_exp(Expr::new_pair(begin, _proc.body()));
             self.env = self.env.clone().borrow_mut().parent().unwrap();
             res
         }
@@ -220,7 +220,7 @@ impl <R: Reader> Evaler<R> {
 
     fn eval_lambda(&mut self, expr: Expr) -> Expr {
         // vars + body + env
-        Expr::CompProc(CompProcNode::new(expr.c("da"), expr.c("dd"), self.env.clone()))
+        Expr::new_cproc(expr.c("da"), expr.c("dd"), self.env.clone())
     }
 }
 
@@ -241,6 +241,7 @@ fn test_evaler() {
     test_case!(r#""hello""#, as_str, "hello");
     test_case!("#t", as_bool, true);
     test_case!("(and #t #t)", as_bool, true);
+
     test_case!("(and #t #f)", as_bool, false);
     test_case!("(or #t #t)", as_bool, true);
     test_case!("(or #f #f)", as_bool, false);

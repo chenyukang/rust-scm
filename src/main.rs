@@ -1,13 +1,9 @@
 #![allow(unstable)]
 #[allow(unused_imports)]
-
-
 extern crate test;
 
 use std::os;
 use std::io;
-
-use ast::Ast;
 use eval::Evaler;
 
 mod ast;
