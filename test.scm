@@ -89,3 +89,11 @@
 (if (> 1 2)
     (cons "this is not" "real")
     (cons "real" "world"))
+
+
+(define (fact n)
+  (if (= n 1)
+      1
+      (* n (fact (- n 1)))))
+
+(fact 5)

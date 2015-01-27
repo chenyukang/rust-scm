@@ -17,6 +17,7 @@ fn help() {
 
 #[allow(dead_code)]
 fn main() {
+
     let args = os::args();
     if args.len() < 2 {
         let mut evaler = Evaler::new(io::stdin(), true);

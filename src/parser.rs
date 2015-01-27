@@ -118,15 +118,22 @@ impl <R: Reader> Parser<R> {
     }
 
     fn is_delimiter(&self, ch: char) -> bool {
-        ch.is_whitespace() ||
-            ch == '\"' || ch == '(' || ch == ')' ||  ch == ';'
+        ch.is_whitespace() || {
+            match ch {
+                '\"' | '(' | ')' | ';' => true,
+                _ => false
+            }
+        }
     }
 
     fn is_initial(&self, ch: char) -> bool {
-        ch.is_alphabetic() ||
-            ch == '*' || ch == '/' || ch == '+' || ch == '-' ||
-            ch == '>' || ch == '<' || ch == '=' || ch == '?' ||
-            ch == '!'
+        ch.is_alphabetic() || {
+            match ch {
+                '*' | '/' | '+' | '-' |
+                '>' | '<' | '=' | '?' | '!' => true,
+                _ => false
+            }
+        }
     }
 
     fn skip_space(&mut self) {

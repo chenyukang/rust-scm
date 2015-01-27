@@ -362,5 +362,6 @@ mod tests {
         let proc_node = Expr::new_proc(_proc);
         assert!(proc_node.is_proc());
         assert!(!proc_node.is_cproc());
+
     }
 }
