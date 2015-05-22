@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::fmt;
 use env;
 
-#[derive(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Expr {
     Int(isize),
     Str(String),
@@ -38,7 +38,7 @@ impl ProcFunc {
     }
 }
 
-impl fmt::Show for ProcFunc {
+impl fmt::Debug for ProcFunc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "proc")
     }

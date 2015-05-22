@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::io;
+use std::io::Read;
 
 use ast::*;
 use env::*;
@@ -9,18 +9,18 @@ use test::Bencher;
 
 pub struct Evaler<R>  {
     parser: Parser<R>,
-    env:    Rc<RefCell<Env>>,
+    env:    RefCell<Env>,
     iteractive: bool
 
 }
 
 #[allow(dead_code)]
-impl <R: Reader> Evaler<R> {
+impl <R: Read> Evaler<R> {
     pub fn new(inner: R, iteractive: bool) -> Evaler<R> {
         let env = Env::new();
         Evaler {
             parser: Parser::new_from(inner, iteractive),
-            env:    Rc::new(RefCell::new(env)),
+            env:    RefCell::new(env),
             iteractive: iteractive
 
         }
@@ -287,7 +287,7 @@ fn test_evaler() {
     test_case!("((lambda (x) x) 5)", as_int, 5);
     test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
     test_case!("((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
-               (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
+               (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5isize*4*3*2);
 }
 
 #[bench]
@@ -299,5 +299,5 @@ fn eval_bench(b: &mut Bencher) {
 fn lambda_bench(b: &mut Bencher) {
     b.iter(||
            test_case!("((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
-                      (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2));
+                      (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5isize*4*3*2));
 }

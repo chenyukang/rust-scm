@@ -11,7 +11,7 @@ pub struct Env {
     pub parent: Option<Rc<RefCell<Env>>>
 }
 
-impl fmt::Show for Env {
+impl fmt::Debug for Env {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "env")
     }
@@ -130,7 +130,7 @@ impl Env {
 
 
 fn add(args: Expr) -> Expr {
-    let mut res = 0is;
+    let mut res = 0isize;
     let mut exps = args;
     loop {
         if exps.is_empty() { break; }
@@ -152,7 +152,7 @@ fn sub(args: Expr) -> Expr {
 }
 
 fn mul(args: Expr) -> Expr {
-    let mut res = 1is;
+    let mut res = 1isize;
     let mut exps = args;
     loop {
         if exps.is_empty() { break; }
@@ -311,11 +311,11 @@ fn test_env_parent() {
 fn env_bench(b: &mut Bencher) {
     fn test_env() {
         let mut env = Env::new();
-        for i in 1is..1000 {
+        for i in 1isize..1000 {
             let key = i.to_string();
             env.def_var(key.clone(), Expr::new_str("world"));
         }
-        for i in 1is..1000 {
+        for i in 1isize..1000 {
             let val = env.lookup(i.to_string());
             assert!(val.unwrap().as_str() == "world");
         }
