@@ -1,3 +1,5 @@
+#[cfg(test)]
+use std;
 use ast::*;
 use std::io::Read;
 

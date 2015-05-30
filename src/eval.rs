@@ -1,3 +1,5 @@
+#[cfg(test)]
+use std;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::io::Read;

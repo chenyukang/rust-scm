@@ -131,12 +131,13 @@ impl Expr {
         }
     }
 
-    // pub fn as_char(&self) -> char {
-    //     match *self {
-    //         Expr::Char(ref val) => return *val,
-    //         _ => panic!("expect Char")
-    //     }
-    // }
+    #[cfg(test)]
+    pub fn as_char(&self) -> char {
+        match *self {
+            Expr::Char(ref val) => return *val,
+            _ => panic!("expect Char")
+        }
+    }
 
     pub fn as_proc(&self) -> ProcFunc {
         match *self {

@@ -271,23 +271,23 @@ fn test_env_extend() {
     let vars = Expr::new_pair(Expr::new_str("var"), Expr::Nil);
     let vals = Expr::new_pair(Expr::new_str("val"), Expr::Nil);
 
-    let extend_env = env.extend(vars, vals);
-    let val = extend_env.clone().borrow_mut().str_lookup("var");
+    let env = env.extend(vars, vals).clone();
+    let val = env.borrow_mut().str_lookup("var");
     assert!(val.unwrap().as_str() == "val");
 
-    let val = extend_env.clone().borrow_mut().str_lookup("hello");
+    let val = env.borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 
     let vars = Expr::new_pair(Expr::new_str("var_x"), Expr::Nil);
     let vals = Expr::new_pair(Expr::new_str("val_x"), Expr::Nil);
 
-    let extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
-    let val = extend_env.clone().borrow_mut().str_lookup("var_x");
+    let env = env.borrow_mut().extend(vars, vals);
+    let val = env.borrow_mut().str_lookup("var_x");
     assert!(val.unwrap().as_str() == "val_x");
 
-    extend_env.clone().borrow_mut().str_def("1", Expr::new_str("1"));
+    env.borrow_mut().str_def("1", Expr::new_str("1"));
 
-    let val = extend_env.clone().borrow_mut().str_lookup("1");
+    let val = env.borrow_mut().str_lookup("1");
     assert!(val.unwrap().as_str() == "1");
 }
 
@@ -300,9 +300,10 @@ fn test_env_parent() {
     let vals = Expr::new_pair(Expr::new_str("val"), Expr::Nil);
 
 
-    let extend_env = env.extend(vars, vals);
-    let parent = extend_env.clone().borrow_mut().parent().unwrap();
-    let val = parent.clone().borrow_mut().str_lookup("hello");
+    let env = env.extend(vars, vals).clone();
+    let parent = env.borrow_mut().parent().unwrap();
+    let env = parent.clone();
+    let val = env.borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 }
 
