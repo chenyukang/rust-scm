@@ -1,14 +1,10 @@
-#![allow(unstable)]
-#[allow(unused_imports)]
-extern crate test;
+//#![feature(test)]
+//extern crate test;
 
-use std::os;
 use std::io::Read;
-use std::env::Args;
 use std::path::Path;
 use std::fs::File;
 use eval::Evaler;
-
 
 mod ast;
 mod env;
@@ -21,7 +17,6 @@ fn help() {
 
 #[allow(dead_code)]
 fn main() {
-
     let mut args = std::env::args();
     if args.len() < 2 {
         let mut evaler = Evaler::new(std::io::stdin(), true);
@@ -33,12 +28,12 @@ fn main() {
         let mut code = String::new();
         match args.nth(1) {
             Some(arg) => {
-                let path = Path::new(arg.as_str());
+                let path = Path::new(arg.trim());
                 let mut f = File::open(&path).unwrap();
-                f.read_to_string(&mut code);
+                f.read_to_string(&mut code).unwrap();
             },
             None => {
-                std::env::set_exit_status(1);
+                //std::env::set_exit_status(1);
                 return
             }
         }

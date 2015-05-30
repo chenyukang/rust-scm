@@ -1,6 +1,7 @@
 use ast::*;
 use std::io::Read;
 
+
 #[derive(Clone, Debug)]
 pub struct Parser<R> {
     code: String,
@@ -71,7 +72,7 @@ impl <R: Read> Parser<R> {
                     }
                     buf.push(cur);
                 }
-                return Some(Expr::new_str(buf.as_str()));
+                return Some(Expr::new_str(buf.trim()));
             } else if cur == '(' && cur != ')' {
                 return self.read_pair();
             } else if self.is_initial(cur) {
@@ -87,7 +88,7 @@ impl <R: Read> Parser<R> {
                 if self.is_delimiter(cur) {
                     self.unread();
                 }
-                return Some(Expr::new_sym(buf.as_str()));
+                return Some(Expr::new_sym(buf.trim()));
             } else if cur == '\'' {
                 let quote_sym = Expr::new_sym("quote");
                 let quote_exp = Expr::new_pair(self.read_exp().unwrap(), Expr::Nil);
@@ -173,14 +174,14 @@ impl <R: Read> Parser<R> {
         if self.cur >= self.code.len() {
             return 0 as char;
         }
-        self.code.char_at(self.cur)
+        self.code.chars().nth(self.cur).unwrap()
     }
 
     fn prevc(&self) -> char {
         if self.cur <= 0 {
             panic!("invalid position");
         }
-        self.code.char_at(self.cur - 1)
+        self.code.chars().nth(self.cur - 1).unwrap()
     }
 
     fn readc(&mut self) -> char {
@@ -216,7 +217,7 @@ impl <R: Read> Parser<R> {
 fn test_parser() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-            let mut parser = Parser::new_from(io::stdin(), false);
+            let mut parser = Parser::new_from(std::io::stdin(), false);
             parser.load($test_str.to_string());
             let res = parser.read_exp().unwrap();
             if res.$expect_type() != $expect_val {
@@ -227,7 +228,7 @@ fn test_parser() {
 
     macro_rules! test_res {
         ($test_str:expr) => { {
-            let mut parser = Parser::new_from(io::stdin(), false);
+            let mut parser = Parser::new_from(std::io::stdin(), false);
             parser.load($test_str.to_string());
             parser.read_exp().unwrap()
         }}

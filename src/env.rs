@@ -3,7 +3,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::fmt;
 use ast::*;
-use test::Bencher;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
@@ -307,34 +306,34 @@ fn test_env_parent() {
     assert!(val.unwrap().as_str() == "world");
 }
 
-#[bench]
-fn env_bench(b: &mut Bencher) {
-    fn test_env() {
-        let mut env = Env::new();
-        for i in 1isize..1000 {
-            let key = i.to_string();
-            env.def_var(key.clone(), Expr::new_str("world"));
-        }
-        for i in 1isize..1000 {
-            let val = env.lookup(i.to_string());
-            assert!(val.unwrap().as_str() == "world");
-        }
-    }
+// #[bench]
+// fn env_bench(b: &mut Bencher) {
+//     fn test_env() {
+//         let mut env = Env::new();
+//         for i in 1isize..1000 {
+//             let key = i.to_string();
+//             env.def_var(key.clone(), Expr::new_str("world"));
+//         }
+//         for i in 1isize..1000 {
+//             let val = env.lookup(i.to_string());
+//             assert!(val.unwrap().as_str() == "world");
+//         }
+//     }
 
-    b.iter(|| test_env());
-}
+//     b.iter(|| test_env());
+// }
 
 
-#[bench]
-fn env_bench_iter(b: &mut Bencher) {
-    fn test_env() {
-        let mut env = Env::new();
-        for _ in 1..1000 {
-            env.str_def("hello", Expr::new_str("world"));
-            let val = env.str_lookup("hello");
-            assert!(val.unwrap().as_str() == "world");
-        }
-    }
+// #[bench]
+// fn env_bench_iter(b: &mut Bencher) {
+//     fn test_env() {
+//         let mut env = Env::new();
+//         for _ in 1..1000 {
+//             env.str_def("hello", Expr::new_str("world"));
+//             let val = env.str_lookup("hello");
+//             assert!(val.unwrap().as_str() == "world");
+//         }
+//     }
 
-    b.iter(|| test_env());
-}
+//     b.iter(|| test_env());
+// }

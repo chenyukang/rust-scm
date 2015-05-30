@@ -131,12 +131,12 @@ impl Expr {
         }
     }
 
-    pub fn as_char(&self) -> char {
-        match *self {
-            Expr::Char(ref val) => return *val,
-            _ => panic!("expect Char")
-        }
-    }
+    // pub fn as_char(&self) -> char {
+    //     match *self {
+    //         Expr::Char(ref val) => return *val,
+    //         _ => panic!("expect Char")
+    //     }
+    // }
 
     pub fn as_proc(&self) -> ProcFunc {
         match *self {
@@ -223,7 +223,10 @@ impl Expr {
             if f.is_self() {
                 res.push(f);
             } else if !f.is_empty() {
-                res.push_all(f.collect().as_slice());
+                for e in f.collect() {
+                    res.push(e);
+                }
+                //res.push_all(f.collect().as_slice());
             }
             _exp = _exp.cdr();
             if !_exp.is_pair() { break; }
