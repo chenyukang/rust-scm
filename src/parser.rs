@@ -1,8 +1,10 @@
+#[cfg(test)]
+use std;
 use ast::*;
-use std::io::Reader;
-use std::io;
+use std::io::Read;
 
-#[derive(Clone, Show)]
+
+#[derive(Clone, Debug)]
 pub struct Parser<R> {
     code: String,
     cur: usize,
@@ -12,7 +14,7 @@ pub struct Parser<R> {
     inner: R
 }
 
-impl <R: Reader> Parser<R> {
+impl <R: Read> Parser<R> {
     pub fn new_from(inner: R, iteractive: bool) -> Parser<R> {
         Parser{
             code: "".to_string(),
@@ -44,8 +46,8 @@ impl <R: Reader> Parser<R> {
             }
         } else if cur.is_numeric() ||
             (cur == '-' && (self.peekc().is_numeric())) {
-                let mut sign = 1is;
-                let mut num = 0is;
+                let mut sign = 1isize;
+                let mut num = 0isize;
                 if cur == '-' {
                     sign = -1;
                 } else {
@@ -56,7 +58,7 @@ impl <R: Reader> Parser<R> {
                     if !cur.is_numeric() {
                         break;
                     }
-                    num = (num * 10is) + (cur as isize - '0' as isize);
+                    num = (num * 10isize) + (cur as isize - '0' as isize);
                 }
                 num *= sign;
                 if self.is_delimiter(cur) {
@@ -72,7 +74,7 @@ impl <R: Reader> Parser<R> {
                     }
                     buf.push(cur);
                 }
-                return Some(Expr::new_str(buf.as_slice()));
+                return Some(Expr::new_str(buf.trim()));
             } else if cur == '(' && cur != ')' {
                 return self.read_pair();
             } else if self.is_initial(cur) {
@@ -88,7 +90,7 @@ impl <R: Reader> Parser<R> {
                 if self.is_delimiter(cur) {
                     self.unread();
                 }
-                return Some(Expr::new_sym(buf.as_slice()));
+                return Some(Expr::new_sym(buf.trim()));
             } else if cur == '\'' {
                 let quote_sym = Expr::new_sym("quote");
                 let quote_exp = Expr::new_pair(self.read_exp().unwrap(), Expr::Nil);
@@ -145,7 +147,7 @@ impl <R: Reader> Parser<R> {
     fn eof(&mut self) -> bool {
         if self.iteractive {
             let mut vec: Vec<u8> = Vec::new();
-            match self.inner.push(1us, &mut vec) {
+            match self.inner.read(&mut vec) {
                 Ok(_) => {
                     for i in vec.into_iter() {
                         self.code.push(i as char);
@@ -161,7 +163,7 @@ impl <R: Reader> Parser<R> {
         if self.cur >= self.code.len() {
             if self.iteractive {
                 let mut vec: Vec<u8> = Vec::new();
-                match self.inner.push(1us, &mut vec) {
+                match self.inner.read(&mut vec) {
                     Ok(_) => {
                         for i in vec.into_iter() {
                             self.code.push(i as char);
@@ -174,14 +176,14 @@ impl <R: Reader> Parser<R> {
         if self.cur >= self.code.len() {
             return 0 as char;
         }
-        self.code.char_at(self.cur)
+        self.code.chars().nth(self.cur).unwrap()
     }
 
     fn prevc(&self) -> char {
         if self.cur <= 0 {
             panic!("invalid position");
         }
-        self.code.char_at(self.cur - 1)
+        self.code.chars().nth(self.cur - 1).unwrap()
     }
 
     fn readc(&mut self) -> char {
@@ -217,7 +219,7 @@ impl <R: Reader> Parser<R> {
 fn test_parser() {
     macro_rules! test_case {
         ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-            let mut parser = Parser::new_from(io::stdin(), false);
+            let mut parser = Parser::new_from(std::io::stdin(), false);
             parser.load($test_str.to_string());
             let res = parser.read_exp().unwrap();
             if res.$expect_type() != $expect_val {
@@ -228,7 +230,7 @@ fn test_parser() {
 
     macro_rules! test_res {
         ($test_str:expr) => { {
-            let mut parser = Parser::new_from(io::stdin(), false);
+            let mut parser = Parser::new_from(std::io::stdin(), false);
             parser.load($test_str.to_string());
             parser.read_exp().unwrap()
         }}

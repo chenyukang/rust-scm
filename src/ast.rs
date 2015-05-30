@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::fmt;
 use env;
 
-#[derive(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Expr {
     Int(isize),
     Str(String),
@@ -38,7 +38,7 @@ impl ProcFunc {
     }
 }
 
-impl fmt::Show for ProcFunc {
+impl fmt::Debug for ProcFunc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "proc")
     }
@@ -131,6 +131,7 @@ impl Expr {
         }
     }
 
+    #[cfg(test)]
     pub fn as_char(&self) -> char {
         match *self {
             Expr::Char(ref val) => return *val,
@@ -223,7 +224,10 @@ impl Expr {
             if f.is_self() {
                 res.push(f);
             } else if !f.is_empty() {
-                res.push_all(f.collect().as_slice());
+                for e in f.collect() {
+                    res.push(e);
+                }
+                //res.push_all(f.collect().as_slice());
             }
             _exp = _exp.cdr();
             if !_exp.is_pair() { break; }

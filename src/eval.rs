@@ -1,21 +1,21 @@
+#[cfg(test)]
+use std;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::io;
+use std::io::Read;
 
 use ast::*;
 use env::*;
 use parser::*;
-use test::Bencher;
 
 pub struct Evaler<R>  {
     parser: Parser<R>,
     env:    Rc<RefCell<Env>>,
     iteractive: bool
-
 }
 
 #[allow(dead_code)]
-impl <R: Reader> Evaler<R> {
+impl <R: Read> Evaler<R> {
     pub fn new(inner: R, iteractive: bool) -> Evaler<R> {
         let env = Env::new();
         Evaler {
@@ -84,7 +84,8 @@ impl <R: Reader> Evaler<R> {
     fn eval_assign(&mut self, exp: Expr) -> Expr {
         let var = exp.c("da");
         let val = self.eval_exp(exp.c("dda"));
-        self.env.clone().borrow_mut().def_var(var.as_str(), val);
+        let env = self.env.clone();
+        env.borrow_mut().def_var(var.as_str(), val);
         Expr::new_sym("OK")
     }
 
@@ -92,7 +93,8 @@ impl <R: Reader> Evaler<R> {
         let var = exp.def_var();
         let val = exp.def_val();
         let val = self.eval_exp(val);
-        self.env.clone().borrow_mut().def_var(var.as_str(), val);
+        let env = self.env.clone();
+        env.borrow_mut().def_var(var.as_str(), val);
         Expr::new_sym("OK")
     }
 
@@ -210,10 +212,12 @@ impl <R: Reader> Evaler<R> {
         } else {
             assert!(_proc.is_cproc());
             let _vars = _proc.params();
-            self.env = self.env.clone().borrow_mut().extend(_vars, _args);
+            let env = self.env.clone();
+            self.env = env.borrow_mut().extend(_vars, _args);
             let begin = Expr::new_sym("begin");
             let res = self.eval_exp(Expr::new_pair(begin, _proc.body()));
-            self.env = self.env.clone().borrow_mut().parent().unwrap();
+            let env = self.env.clone();
+            self.env = env.borrow_mut().parent().unwrap();
             res
         }
     }
@@ -226,7 +230,7 @@ impl <R: Reader> Evaler<R> {
 
 macro_rules! test_case {
     ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
-        let mut evaler = Evaler::new(io::stdin(), false);
+        let mut evaler = Evaler::new(std::io::stdin(), false);
         let res = evaler.eval_from($test_str.to_string()).unwrap();
         if res.$expect_type() != $expect_val {
             assert!(false);
@@ -287,17 +291,17 @@ fn test_evaler() {
     test_case!("((lambda (x) x) 5)", as_int, 5);
     test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
     test_case!("((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
-               (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2);
+               (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5isize*4*3*2);
 }
 
-#[bench]
-fn eval_bench(b: &mut Bencher) {
-    b.iter(|| test_evaler());
-}
+// #[bench]
+// fn eval_bench(b: &mut Bencher) {
+//     b.iter(|| test_evaler());
+// }
 
-#[bench]
-fn lambda_bench(b: &mut Bencher) {
-    b.iter(||
-           test_case!("((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
-                      (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5is*4*3*2));
-}
+// #[bench]
+// fn lambda_bench(b: &mut Bencher) {
+//     b.iter(||
+//            test_case!("((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
+//                       (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5isize*4*3*2));
+// }

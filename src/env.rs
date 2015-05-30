@@ -3,7 +3,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::fmt;
 use ast::*;
-use test::Bencher;
 
 #[derive(Clone, PartialEq)]
 pub struct Env {
@@ -11,7 +10,7 @@ pub struct Env {
     pub parent: Option<Rc<RefCell<Env>>>
 }
 
-impl fmt::Show for Env {
+impl fmt::Debug for Env {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "env")
     }
@@ -130,7 +129,7 @@ impl Env {
 
 
 fn add(args: Expr) -> Expr {
-    let mut res = 0is;
+    let mut res = 0isize;
     let mut exps = args;
     loop {
         if exps.is_empty() { break; }
@@ -152,7 +151,7 @@ fn sub(args: Expr) -> Expr {
 }
 
 fn mul(args: Expr) -> Expr {
-    let mut res = 1is;
+    let mut res = 1isize;
     let mut exps = args;
     loop {
         if exps.is_empty() { break; }
@@ -272,23 +271,23 @@ fn test_env_extend() {
     let vars = Expr::new_pair(Expr::new_str("var"), Expr::Nil);
     let vals = Expr::new_pair(Expr::new_str("val"), Expr::Nil);
 
-    let extend_env = env.extend(vars, vals);
-    let val = extend_env.clone().borrow_mut().str_lookup("var");
+    let env = env.extend(vars, vals).clone();
+    let val = env.borrow_mut().str_lookup("var");
     assert!(val.unwrap().as_str() == "val");
 
-    let val = extend_env.clone().borrow_mut().str_lookup("hello");
+    let val = env.borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 
     let vars = Expr::new_pair(Expr::new_str("var_x"), Expr::Nil);
     let vals = Expr::new_pair(Expr::new_str("val_x"), Expr::Nil);
 
-    let extend_env = extend_env.clone().borrow_mut().extend(vars, vals);
-    let val = extend_env.clone().borrow_mut().str_lookup("var_x");
+    let env = env.borrow_mut().extend(vars, vals);
+    let val = env.borrow_mut().str_lookup("var_x");
     assert!(val.unwrap().as_str() == "val_x");
 
-    extend_env.clone().borrow_mut().str_def("1", Expr::new_str("1"));
+    env.borrow_mut().str_def("1", Expr::new_str("1"));
 
-    let val = extend_env.clone().borrow_mut().str_lookup("1");
+    let val = env.borrow_mut().str_lookup("1");
     assert!(val.unwrap().as_str() == "1");
 }
 
@@ -301,40 +300,41 @@ fn test_env_parent() {
     let vals = Expr::new_pair(Expr::new_str("val"), Expr::Nil);
 
 
-    let extend_env = env.extend(vars, vals);
-    let parent = extend_env.clone().borrow_mut().parent().unwrap();
-    let val = parent.clone().borrow_mut().str_lookup("hello");
+    let env = env.extend(vars, vals).clone();
+    let parent = env.borrow_mut().parent().unwrap();
+    let env = parent.clone();
+    let val = env.borrow_mut().str_lookup("hello");
     assert!(val.unwrap().as_str() == "world");
 }
 
-#[bench]
-fn env_bench(b: &mut Bencher) {
-    fn test_env() {
-        let mut env = Env::new();
-        for i in 1is..1000 {
-            let key = i.to_string();
-            env.def_var(key.clone(), Expr::new_str("world"));
-        }
-        for i in 1is..1000 {
-            let val = env.lookup(i.to_string());
-            assert!(val.unwrap().as_str() == "world");
-        }
-    }
+// #[bench]
+// fn env_bench(b: &mut Bencher) {
+//     fn test_env() {
+//         let mut env = Env::new();
+//         for i in 1isize..1000 {
+//             let key = i.to_string();
+//             env.def_var(key.clone(), Expr::new_str("world"));
+//         }
+//         for i in 1isize..1000 {
+//             let val = env.lookup(i.to_string());
+//             assert!(val.unwrap().as_str() == "world");
+//         }
+//     }
 
-    b.iter(|| test_env());
-}
+//     b.iter(|| test_env());
+// }
 
 
-#[bench]
-fn env_bench_iter(b: &mut Bencher) {
-    fn test_env() {
-        let mut env = Env::new();
-        for _ in 1..1000 {
-            env.str_def("hello", Expr::new_str("world"));
-            let val = env.str_lookup("hello");
-            assert!(val.unwrap().as_str() == "world");
-        }
-    }
+// #[bench]
+// fn env_bench_iter(b: &mut Bencher) {
+//     fn test_env() {
+//         let mut env = Env::new();
+//         for _ in 1..1000 {
+//             env.str_def("hello", Expr::new_str("world"));
+//             let val = env.str_lookup("hello");
+//             assert!(val.unwrap().as_str() == "world");
+//         }
+//     }
 
-    b.iter(|| test_env());
-}
+//     b.iter(|| test_env());
+// }
