@@ -1,28 +1,27 @@
 #[cfg(test)]
 use std;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::io::Read;
+use std::rc::Rc;
 
 use ast::*;
 use env::*;
 use parser::*;
 
-pub struct Evaler<R>  {
+pub struct Evaler<R> {
     parser: Parser<R>,
-    env:    Rc<RefCell<Env>>,
-    iteractive: bool
+    env: Rc<RefCell<Env>>,
+    iteractive: bool,
 }
 
 #[allow(dead_code)]
-impl <R: Read> Evaler<R> {
+impl<R: Read> Evaler<R> {
     pub fn new(inner: R, iteractive: bool) -> Evaler<R> {
         let env = Env::new();
         Evaler {
             parser: Parser::new_from(inner, iteractive),
-            env:    Rc::new(RefCell::new(env)),
-            iteractive: iteractive
-
+            env: Rc::new(RefCell::new(env)),
+            iteractive: iteractive,
         }
     }
 
@@ -41,8 +40,8 @@ impl <R: Read> Evaler<R> {
                         println!("");
                     }
                     res = Some(r);
-                },
-                None => break
+                }
+                None => break,
             }
         }
         res
@@ -57,27 +56,53 @@ impl <R: Read> Evaler<R> {
                 Some(_exp) => {
                     let r = self.eval_exp(_exp);
                     res = Some(r);
-                },
-                None => break
+                }
+                None => break,
             }
         }
         res
     }
 
     fn eval_exp(&mut self, exp: Expr) -> Expr {
-        if exp.is_self()   { return exp; }
-        if exp.is_sym()    { return self.env.borrow().lookup(exp.as_str()).unwrap(); }
-        if exp.is_quote()  { return exp.cdr().car(); }
-        if exp.is_assign() { return self.eval_assign(exp); }
-        if exp.is_def()    { return self.eval_def(exp); }
-        if exp.is_begin()  { return self.eval_begin(exp); }
-        if exp.is_if()     { return self.eval_if(exp); }
-        if exp.is_lambda() { return self.eval_lambda(exp); }
-        if exp.is_and()    { return self.eval_and(exp); }
-        if exp.is_or()     { return self.eval_or(exp); }
-        if exp.is_cond()   { return self.eval_cond(exp); }
-        if exp.is_let()    { return self.eval_let(exp); }
-        if exp.is_pair()   { return self.eval_app(exp); }
+        if exp.is_self() {
+            return exp;
+        }
+        if exp.is_sym() {
+            return self.env.borrow().lookup(exp.as_str()).unwrap();
+        }
+        if exp.is_quote() {
+            return exp.cdr().car();
+        }
+        if exp.is_assign() {
+            return self.eval_assign(exp);
+        }
+        if exp.is_def() {
+            return self.eval_def(exp);
+        }
+        if exp.is_begin() {
+            return self.eval_begin(exp);
+        }
+        if exp.is_if() {
+            return self.eval_if(exp);
+        }
+        if exp.is_lambda() {
+            return self.eval_lambda(exp);
+        }
+        if exp.is_and() {
+            return self.eval_and(exp);
+        }
+        if exp.is_or() {
+            return self.eval_or(exp);
+        }
+        if exp.is_cond() {
+            return self.eval_cond(exp);
+        }
+        if exp.is_let() {
+            return self.eval_let(exp);
+        }
+        if exp.is_pair() {
+            return self.eval_app(exp);
+        }
         Expr::new_sym("OK")
     }
 
@@ -120,7 +145,9 @@ impl <R: Read> Evaler<R> {
             return Expr::Bool(true);
         }
         loop {
-            if elems.is_last() { break; }
+            if elems.is_last() {
+                break;
+            }
             let res = self.eval_exp(elems.car());
             if res.is_false() {
                 return Expr::Bool(false);
@@ -136,7 +163,9 @@ impl <R: Read> Evaler<R> {
             return Expr::Bool(true);
         }
         loop {
-            if elems.is_last() { break; }
+            if elems.is_last() {
+                break;
+            }
             let res = self.eval_exp(elems.car());
             if res.is_true() {
                 return Expr::Bool(true);
@@ -149,7 +178,9 @@ impl <R: Read> Evaler<R> {
     fn eval_cond(&mut self, exp: Expr) -> Expr {
         let mut elems = exp.cdr().car();
         loop {
-            if elems.is_empty() { break; }
+            if elems.is_empty() {
+                break;
+            }
             let cur = elems.car();
             let val = self.eval_exp(cur.clone());
             if val.is_true() || val == Expr::new_sym("else") {
@@ -180,14 +211,17 @@ impl <R: Read> Evaler<R> {
         let bindings = exp.c("da");
         let obj = Expr::new_pair(
             bind_params(bindings.clone()).make_lambda(exp.c("dd")),
-            bind_args(bindings));
+            bind_args(bindings),
+        );
         self.eval_exp(obj)
     }
 
     fn eval_begin(&mut self, exp: Expr) -> Expr {
         let mut _exp = exp.cdr();
         loop {
-            if _exp.is_last() { break; }
+            if _exp.is_last() {
+                break;
+            }
             self.eval_exp(_exp.car());
             _exp = _exp.cdr();
         }
@@ -228,14 +262,15 @@ impl <R: Read> Evaler<R> {
     }
 }
 
+#[allow(unused_macros)]
 macro_rules! test_case {
-    ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
+    ($test_str:expr, $expect_type:ident, $expect_val:expr) => {{
         let mut evaler = Evaler::new(std::io::stdin(), false);
         let res = evaler.eval_from($test_str.to_string()).unwrap();
         if res.$expect_type() != $expect_val {
             assert!(false);
         }
-    }}
+    }};
 }
 
 #[test]
@@ -286,12 +321,20 @@ fn test_evaler() {
     test_case!("(car (car (cons (cons 2 3) (cons 1 2))))", as_int, 2);
     test_case!("((lambda (x) x) 1)", as_int, 1);
     test_case!("((lambda (x y) (+ x y )) 1 2)", as_int, 3);
-    test_case!("(define add4 (let ((x 4)) (lambda (y) (+ x y))))", as_str, "OK");
+    test_case!(
+        "(define add4 (let ((x 4)) (lambda (y) (+ x y))))",
+        as_str,
+        "OK"
+    );
     test_case!("(begin 1 2)", as_int, 2);
     test_case!("((lambda (x) x) 5)", as_int, 5);
     test_case!("(let ((fu (lambda (x) (+ x 1)))) (fu 1))", as_int, 2);
-    test_case!("((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
-               (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)", as_int, 5isize*4*3*2);
+    test_case!(
+        "((lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1)))))
+               (lambda (x y ) (if ( = y 0) 1 (* y (x x (- y 1))))) 5)",
+        as_int,
+        5isize * 4 * 3 * 2
+    );
 }
 
 // #[bench]

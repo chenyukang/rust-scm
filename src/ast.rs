@@ -1,7 +1,7 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::fmt;
 use env;
+use std::cell::RefCell;
+use std::fmt;
+use std::rc::Rc;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Expr {
@@ -13,7 +13,7 @@ pub enum Expr {
     Pair(Vec<Expr>),
     Proc(ProcFunc),
     CompProc(Vec<Expr>, Rc<RefCell<env::Env>>),
-    Nil
+    Nil,
 }
 
 #[derive(Clone)]
@@ -21,8 +21,8 @@ pub struct ProcFunc(fn(Expr) -> Expr);
 
 impl PartialEq for ProcFunc {
     fn eq(&self, o: &ProcFunc) -> bool {
-        let _o: *const() = unsafe { ::std::mem::transmute(o)};
-        let _s: *const() = unsafe { ::std::mem::transmute(self)};
+        let _o: *const () = unsafe { ::std::mem::transmute(o) };
+        let _s: *const () = unsafe { ::std::mem::transmute(self) };
         _s == _o
     }
     fn ne(&self, o: &ProcFunc) -> bool {
@@ -31,9 +31,9 @@ impl PartialEq for ProcFunc {
 }
 
 impl ProcFunc {
-    pub fn func(&self) -> (fn(Expr) -> Expr) {
+    pub fn func(&self) -> fn(Expr) -> Expr {
         match *self {
-            ProcFunc(fun) => fun
+            ProcFunc(fun) => fun,
         }
     }
 }
@@ -61,8 +61,7 @@ impl Expr {
         Expr::Proc(ProcFunc(func))
     }
 
-    pub fn new_cproc(params: Expr, body: Expr,
-                     env: Rc<RefCell<env::Env>>) -> Expr {
+    pub fn new_cproc(params: Expr, body: Expr, env: Rc<RefCell<env::Env>>) -> Expr {
         Expr::CompProc(vec![params, body], env)
     }
 
@@ -77,21 +76,21 @@ impl Expr {
     pub fn is_pair(&self) -> bool {
         match *self {
             Expr::Pair(_) | Expr::Nil => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn is_empty(&self) -> bool {
         match *self {
             Expr::Nil => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn is_cproc(&self) -> bool {
         match *self {
             Expr::CompProc(_, _) => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -102,10 +101,8 @@ impl Expr {
 
     pub fn is_self(&self) -> bool {
         match *self {
-            Expr::Bool(_) | Expr::Int(_) |
-            Expr::Char(_) | Expr::Str(_)
-                => true ,
-            _ => false
+            Expr::Bool(_) | Expr::Int(_) | Expr::Char(_) | Expr::Str(_) => true,
+            _ => false,
         }
     }
 
@@ -120,14 +117,14 @@ impl Expr {
     pub fn as_int(&self) -> isize {
         match *self {
             Expr::Int(ref val) => return *val,
-            _ => panic!("expect Int")
+            _ => panic!("expect Int"),
         }
     }
 
     pub fn as_bool(&self) -> bool {
         match *self {
             Expr::Bool(ref val) => return *val,
-            _ => panic!("expect Bool")
+            _ => panic!("expect Bool"),
         }
     }
 
@@ -135,14 +132,14 @@ impl Expr {
     pub fn as_char(&self) -> char {
         match *self {
             Expr::Char(ref val) => return *val,
-            _ => panic!("expect Char")
+            _ => panic!("expect Char"),
         }
     }
 
     pub fn as_proc(&self) -> ProcFunc {
         match *self {
             Expr::Proc(ref val) => val.clone(),
-            _ => panic!("expect Proc")
+            _ => panic!("expect Proc"),
         }
     }
 
@@ -150,21 +147,25 @@ impl Expr {
         match *self {
             Expr::Str(ref val) => return val.clone(),
             Expr::Sym(ref val) => return val.clone(),
-            _ => panic!("expect Str")
+            _ => panic!("expect Str"),
         }
     }
 
     pub fn car(&self) -> Expr {
         match *self {
-            Expr::Pair(ref vec) => { return vec[0].clone(); },
-            _ => panic!("expect Pair")
+            Expr::Pair(ref vec) => {
+                return vec[0].clone();
+            }
+            _ => panic!("expect Pair"),
         }
     }
 
     pub fn cdr(&self) -> Expr {
         match *self {
-            Expr::Pair(ref vec) => { return vec[1].clone(); },
-            _ => panic!("expect Pair")
+            Expr::Pair(ref vec) => {
+                return vec[1].clone();
+            }
+            _ => panic!("expect Pair"),
         }
     }
 
@@ -195,14 +196,14 @@ impl Expr {
     pub fn params(&self) -> Expr {
         match *self {
             Expr::CompProc(ref val, _) => val[0].clone(),
-            _ => panic!("expect CompProc")
+            _ => panic!("expect CompProc"),
         }
     }
 
     pub fn body(&self) -> Expr {
         match *self {
             Expr::CompProc(ref val, _) => val[1].clone(),
-            _ => panic!("expect CompProc")
+            _ => panic!("expect CompProc"),
         }
     }
 
@@ -210,8 +211,11 @@ impl Expr {
         assert!(self.is_pair());
         let mut r = self.clone();
         for c in s.to_string().chars() {
-            if c == 'a' { r = r.car(); }
-            else { r = r.cdr(); }
+            if c == 'a' {
+                r = r.car();
+            } else {
+                r = r.cdr();
+            }
         }
         r
     }
@@ -230,16 +234,20 @@ impl Expr {
                 //res.push_all(f.collect().as_slice());
             }
             _exp = _exp.cdr();
-            if !_exp.is_pair() { break; }
-            if _exp.is_empty() { break; }
+            if !_exp.is_pair() {
+                break;
+            }
+            if _exp.is_empty() {
+                break;
+            }
         }
         res
     }
 
     pub fn print(&self) {
         match *self {
-            Expr::Int(ref ast) =>  println!("{:?}", ast),
-            Expr::Str(ref ast) =>  println!("{:?}", ast),
+            Expr::Int(ref ast) => println!("{:?}", ast),
+            Expr::Str(ref ast) => println!("{:?}", ast),
             Expr::Bool(ref ast) => println!("{:?}", ast),
             Expr::Sym(ref ast) => println!("{:?}", ast),
             Expr::Char(ref ast) => println!("{:?}", ast),
@@ -248,27 +256,30 @@ impl Expr {
                 let exps = self.collect();
                 for i in 0..exps.len() {
                     exps[i].print();
-                    if i != exps.len()-1 {print!(" ");}
+                    if i != exps.len() - 1 {
+                        print!(" ");
+                    }
                 }
                 print!(")");
             }
             Expr::Proc(ref ast) => println!("{:?}", ast),
             Expr::CompProc(ref ast, _) => println!("{:?}", ast),
-            Expr::Nil => print!("Nil")
+            Expr::Nil => print!("Nil"),
         }
     }
-
 }
 
-
 macro_rules! is_ast_type {
-    ($func_name:ident, $type_name:ident) => (impl Expr {
-        pub fn $func_name(&self) -> bool {
-            match *self {
-                Expr::$type_name(_) => true,
-                _ => false
+    ($func_name:ident, $type_name:ident) => {
+        impl Expr {
+            pub fn $func_name(&self) -> bool {
+                match *self {
+                    Expr::$type_name(_) => true,
+                    _ => false,
+                }
             }
-        }})
+        }
+    };
 }
 
 is_ast_type!(is_char, Char);
@@ -279,11 +290,13 @@ is_ast_type!(is_proc, Proc);
 is_ast_type!(is_bool, Bool);
 
 macro_rules! is_type {
-    ($func_name:ident, $type_str:expr) => (impl Expr {
-        pub fn $func_name(&self) -> bool {
-            return self.is_tagged(Expr::Sym($type_str.to_string()))
+    ($func_name:ident, $type_str:expr) => {
+        impl Expr {
+            pub fn $func_name(&self) -> bool {
+                return self.is_tagged(Expr::Sym($type_str.to_string()));
+            }
         }
-    })
+    };
 }
 
 is_type!(is_quote, "quote");
@@ -336,9 +349,9 @@ mod tests {
     #[test]
     fn test_ast_is_set() {
         macro_rules! test_case {
-            ($str_name:expr) => {
-                {Expr::new_pair(Expr::new_sym($str_name), Expr::Int(3))}
-            }
+            ($str_name:expr) => {{
+                Expr::new_pair(Expr::new_sym($str_name), Expr::Int(3))
+            }};
         }
         assert!(test_case!("let").is_let());
         assert!(test_case!("if").is_if());
@@ -366,6 +379,5 @@ mod tests {
         let proc_node = Expr::new_proc(_proc);
         assert!(proc_node.is_proc());
         assert!(!proc_node.is_cproc());
-
     }
 }
