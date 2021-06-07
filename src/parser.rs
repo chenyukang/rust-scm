@@ -1,8 +1,7 @@
+use ast::*;
 #[cfg(test)]
 use std;
-use ast::*;
 use std::io::Read;
-
 
 #[derive(Clone, Debug)]
 pub struct Parser<R> {
@@ -11,16 +10,18 @@ pub struct Parser<R> {
     col: usize,
     line: usize,
     iteractive: bool,
-    inner: R
+    inner: R,
 }
 
-impl <R: Read> Parser<R> {
+impl<R: Read> Parser<R> {
     pub fn new_from(inner: R, iteractive: bool) -> Parser<R> {
-        Parser{
+        Parser {
             code: "".to_string(),
-            line: 0, cur: 0, col: 0,
+            line: 0,
+            cur: 0,
+            col: 0,
             iteractive: iteractive,
-            inner: inner
+            inner: inner,
         }
     }
 
@@ -31,9 +32,10 @@ impl <R: Read> Parser<R> {
         self.col = 0;
     }
 
-    //============= private methods =================
     pub fn read_exp(&mut self) -> Option<Expr> {
-        if self.eof() { return None }
+        if self.eof() {
+            return None;
+        }
         self.skip_space();
         let mut cur = self.readc();
         if cur == '#' {
@@ -42,68 +44,67 @@ impl <R: Read> Parser<R> {
                 't' => return Some(Expr::Bool(true)),
                 'f' => return Some(Expr::Bool(false)),
                 '\\' => return self.read_char(),
-                _ => panic!("error")
+                _ => panic!("error"),
             }
-        } else if cur.is_numeric() ||
-            (cur == '-' && (self.peekc().is_numeric())) {
-                let mut sign = 1isize;
-                let mut num = 0isize;
-                if cur == '-' {
-                    sign = -1;
-                } else {
-                    self.unread();
+        } else if cur.is_numeric() || (cur == '-' && (self.peekc().is_numeric())) {
+            let mut sign = 1isize;
+            let mut num = 0isize;
+            if cur == '-' {
+                sign = -1;
+            } else {
+                self.unread();
+            }
+            loop {
+                cur = self.readc();
+                if !cur.is_numeric() {
+                    break;
                 }
-                loop {
-                    cur = self.readc();
-                    if !cur.is_numeric() {
-                        break;
-                    }
-                    num = (num * 10isize) + (cur as isize - '0' as isize);
+                num = (num * 10isize) + (cur as isize - '0' as isize);
+            }
+            num *= sign;
+            if self.is_delimiter(cur) {
+                self.unread();
+            }
+            return Some(Expr::Int(num));
+        } else if cur == '\"' {
+            let mut buf = String::new();
+            loop {
+                cur = self.readc();
+                if cur == '\"' {
+                    break;
                 }
-                num *= sign;
-                if self.is_delimiter(cur) {
-                    self.unread();
-                }
-                return Some(Expr::Int(num));
-            } else if cur == '\"' {
-                let mut buf = String::new();
-                loop {
-                    cur = self.readc();
-                    if cur == '\"' {
-                        break;
-                    }
-                    buf.push(cur);
-                }
-                return Some(Expr::new_str(buf.trim()));
-            } else if cur == '(' && cur != ')' {
-                return self.read_pair();
-            } else if self.is_initial(cur) {
-                let mut buf = String::new();
                 buf.push(cur);
-                loop {
-                    cur = self.readc();
-                    if !(self.is_initial(cur) || cur.is_numeric()) {
-                        break;
-                    }
-                    buf.push(cur);
-                }
-                if self.is_delimiter(cur) {
-                    self.unread();
-                }
-                return Some(Expr::new_sym(buf.trim()));
-            } else if cur == '\'' {
-                let quote_sym = Expr::new_sym("quote");
-                let quote_exp = Expr::new_pair(self.read_exp().unwrap(), Expr::Nil);
-                return Some(Expr::new_pair(quote_sym, quote_exp));
             }
+            return Some(Expr::new_str(buf.trim()));
+        } else if cur == '(' && cur != ')' {
+            return self.read_pair();
+        } else if self.is_initial(cur) {
+            let mut buf = String::new();
+            buf.push(cur);
+            loop {
+                cur = self.readc();
+                if !(self.is_initial(cur) || cur.is_numeric()) {
+                    break;
+                }
+                buf.push(cur);
+            }
+            if self.is_delimiter(cur) {
+                self.unread();
+            }
+            return Some(Expr::new_sym(buf.trim()));
+        } else if cur == '\'' {
+            let quote_sym = Expr::new_sym("quote");
+            let quote_exp = Expr::new_pair(self.read_exp().unwrap(), Expr::Nil);
+            return Some(Expr::new_pair(quote_sym, quote_exp));
+        }
         None
     }
 
+    //============= private methods =================
     fn read_pair(&mut self) -> Option<Expr> {
         self.skip_space();
         let mut cur = self.readc();
-        // rust-mode bug here
-        if cur != '(' && cur == ')' {
+        if cur == ')' {
             return Some(Expr::Nil);
         }
         self.unread();
@@ -123,7 +124,7 @@ impl <R: Read> Parser<R> {
         ch.is_whitespace() || {
             match ch {
                 '\"' | '(' | ')' | ';' => true,
-                _ => false
+                _ => false,
             }
         }
     }
@@ -131,9 +132,8 @@ impl <R: Read> Parser<R> {
     fn is_initial(&self, ch: char) -> bool {
         ch.is_alphabetic() || {
             match ch {
-                '*' | '/' | '+' | '-' |
-                '>' | '<' | '=' | '?' | '!' => true,
-                _ => false
+                '*' | '/' | '+' | '-' | '>' | '<' | '=' | '?' | '!' => true,
+                _ => false,
             }
         }
     }
@@ -152,8 +152,10 @@ impl <R: Read> Parser<R> {
                     for i in vec.into_iter() {
                         self.code.push(i as char);
                     }
-                },
-                Err(_) => { return true; }
+                }
+                Err(_) => {
+                    return true;
+                }
             }
         }
         self.cur >= self.code.len()
@@ -168,8 +170,10 @@ impl <R: Read> Parser<R> {
                         for i in vec.into_iter() {
                             self.code.push(i as char);
                         }
-                    },
-                    Err(_) => { return 0 as char; }
+                    }
+                    Err(_) => {
+                        return 0 as char;
+                    }
                 }
             }
         }
@@ -218,22 +222,22 @@ impl <R: Read> Parser<R> {
 #[test]
 fn test_parser() {
     macro_rules! test_case {
-        ($test_str:expr, $expect_type:ident, $expect_val:expr) => { {
+        ($test_str:expr, $expect_type:ident, $expect_val:expr) => {{
             let mut parser = Parser::new_from(std::io::stdin(), false);
             parser.load($test_str.to_string());
             let res = parser.read_exp().unwrap();
             if res.$expect_type() != $expect_val {
                 assert!(false);
             }
-        }}
+        }};
     }
 
     macro_rules! test_res {
-        ($test_str:expr) => { {
+        ($test_str:expr) => {{
             let mut parser = Parser::new_from(std::io::stdin(), false);
             parser.load($test_str.to_string());
             parser.read_exp().unwrap()
-        }}
+        }};
     }
 
     test_case!("11", as_int, 11);
